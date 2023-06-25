@@ -12,7 +12,7 @@ Building from source requires Windows 10 or greater and Microsoft Visual Studio 
 
 Clone the repository and init submodules.
 ```
-git clone https://github.com/PerryAsleep/Fumen.git
+git clone https://github.com/PerryAsleep/StepManiaLibrary.git
 git submodule update --init
 ```
 
