@@ -1,0 +1,3 @@
+[submodule "Fumen"]
+	path = Fumen
+	url = https://github.com/PerryAsleep/Fumen

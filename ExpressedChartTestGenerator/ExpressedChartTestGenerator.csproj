@@ -53,14 +53,8 @@
       <HintPath>..\packages\System.CommandLine.Rendering.0.3.0-alpha.20574.7\lib\netstandard2.0\System.CommandLine.Rendering.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
-    <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
-    </Reference>
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -76,12 +70,8 @@
       <Project>{00aa6f20-87ce-4699-b52e-4e52ecf3eb07}</Project>
       <Name>ChartGeneratorTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\StepManiaChartGenerator\StepManiaChartGenerator.csproj">
-      <Project>{e9c2b7dc-e05d-4930-a36f-33637d726456}</Project>
-      <Name>StepManiaChartGenerator</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Fumen\Fumen.csproj">
-      <Project>{3829baad-4cd4-45d0-812f-efdf3b733ae9}</Project>
+    <ProjectReference Include="..\Fumen\Fumen\Fumen.csproj">
+      <Project>{707c8dc8-086b-48bc-83b1-77f7daccd833}</Project>
       <Name>Fumen</Name>
     </ProjectReference>
     <ProjectReference Include="..\StepManiaLibrary\StepManiaLibrary.csproj">

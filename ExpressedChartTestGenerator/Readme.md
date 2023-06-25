@@ -2,7 +2,9 @@
 
 `ExpressedChartTestGenerator` is an application to generate test classes for [ChartGeneratorTests](../../ChartGeneratorTests/docs/Readme.md) for asserting that a song file's [ExpressedChart](../../StepManiaLibrary/docs/ExpressedChart.md) representation matches expectations.
 
-The expected workflow is to first write a test `sm` or `ssc` chart, then convert it using [StepManiaChartGenerator](../../StepManiaChartGenerator/docs/Readme.md) with `OutputVisualizations` set to `true` (see [Config](../../StepManiaChartGenerator/docs/Config.md)). After examining the [Visualization](../../StepManiaChartGenerator/docs/Visualizations.md) for the test file to ensure it matches expectations, the chart's song folder should be added to `ChartGeneratorTests\TestData`, and then `ExpressedChartTestGenerator` should be run to generate the test class for it.
+The expected workflow is to first write a test `sm` or `ssc` chart, verify the chart's `ExpressedChart` matches expectations, then copy the chart's song folder to `ChartGeneratorTests\TestData`, and then run `ExpressedChartTestGenerator` to generate a test class for it.
+
+To verify a chart's `ExpressedChart` matches expectations consider using [StepManiaChartGenerator](https://github.com/PerryAsleep/StepManiaChartGenerator/Readme.md) with `OutputVisualizations` set to `true` (see [Config](https://github.com/PerryAsleep/StepManiaChartGenerator/docs/Config.md)) and then examining the [Visualization](https://github.com/PerryAsleep/StepManiaChartGenerator/docs/Visualizations.md) for the test file.
 
 ## Usage
 ```

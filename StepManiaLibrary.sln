@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fumen", "Fumen\Fumen\Fumen.csproj", "{707C8DC8-086B-48BC-83B1-77F7DACCD833}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FumenTests", "Fumen\FumenTests\FumenTests.csproj", "{6129C91B-F26B-423F-97EC-B4D4A7ECB631}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepManiaLibrary", "StepManiaLibrary\StepManiaLibrary.csproj", "{0442A9A8-0AD1-4275-9575-B30E71F2A57E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{707C8DC8-086B-48BC-83B1-77F7DACCD833} = {707C8DC8-086B-48BC-83B1-77F7DACCD833}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepManiaLibraryTests", "StepManiaLibraryTests\StepManiaLibraryTests.csproj", "{1D6C7634-1F39-4FC0-B8F3-97FD0A9544E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressedChartTestGenerator", "ExpressedChartTestGenerator\ExpressedChartTestGenerator.csproj", "{3053E3D5-E5D6-48E0-8221-E62118958577}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChartGeneratorTests", "ChartGeneratorTests\ChartGeneratorTests.csproj", "{00AA6F20-87CE-4699-B52E-4E52ECF3EB07}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{707C8DC8-086B-48BC-83B1-77F7DACCD833}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{707C8DC8-086B-48BC-83B1-77F7DACCD833}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{707C8DC8-086B-48BC-83B1-77F7DACCD833}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{707C8DC8-086B-48BC-83B1-77F7DACCD833}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6129C91B-F26B-423F-97EC-B4D4A7ECB631}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6129C91B-F26B-423F-97EC-B4D4A7ECB631}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6129C91B-F26B-423F-97EC-B4D4A7ECB631}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6129C91B-F26B-423F-97EC-B4D4A7ECB631}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0442A9A8-0AD1-4275-9575-B30E71F2A57E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0442A9A8-0AD1-4275-9575-B30E71F2A57E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0442A9A8-0AD1-4275-9575-B30E71F2A57E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0442A9A8-0AD1-4275-9575-B30E71F2A57E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D6C7634-1F39-4FC0-B8F3-97FD0A9544E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D6C7634-1F39-4FC0-B8F3-97FD0A9544E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D6C7634-1F39-4FC0-B8F3-97FD0A9544E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D6C7634-1F39-4FC0-B8F3-97FD0A9544E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3053E3D5-E5D6-48E0-8221-E62118958577}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3053E3D5-E5D6-48E0-8221-E62118958577}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3053E3D5-E5D6-48E0-8221-E62118958577}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3053E3D5-E5D6-48E0-8221-E62118958577}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00AA6F20-87CE-4699-B52E-4E52ECF3EB07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00AA6F20-87CE-4699-B52E-4E52ECF3EB07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00AA6F20-87CE-4699-B52E-4E52ECF3EB07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00AA6F20-87CE-4699-B52E-4E52ECF3EB07}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0D605702-D376-4BBA-BCEA-C17DFCE850AF}
+	EndGlobalSection
+EndGlobal
