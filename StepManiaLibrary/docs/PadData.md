@@ -2,7 +2,7 @@
 
 `PadData` represents how dance pads are laid out for a [ChartType](ChartType.md) and how the arrows can be combined to form various moves. See [StepTypes](StepTypes.md) for details on these moves.
 
-The `PadData` files provided in the library are automatically generated from simplified input through [PadDataGenerator](../../PadDataGenerator/docs/Readme.md). `PadData` file names match their `ChartType`, e.g. `dance-single.json`.
+The `PadData` files provided in the library are automatically generated from simplified input through [PadDataGenerator](https://github.com/PerryAsleep/PadDataGenerator). `PadData` file names match their `ChartType`, e.g. `dance-single.json`.
 
 ## Coordinates
 
