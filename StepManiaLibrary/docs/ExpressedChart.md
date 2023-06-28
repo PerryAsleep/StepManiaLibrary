@@ -2,7 +2,7 @@
 
 `ExpressedCharts` represent a series of kinds of steps through a chart, described primarily through the [StepTypes](StepTypes.md). `ExpressedCharts` are agnostic to the [ChartType](ChartType.md) of a source chart. An `ExpressedChart` can be used as input to a [PerformedChart](PerformedChart.md) in order to generate a new chart of a different `ChartType`.
 
-`ExpressedCharts` are created by parsing a chart for a given `ChartType` and using that `ChartType`'s [PadData](PadData.md) and [StepGraph](StepGraph.md) to search every possible set of moves which would satisfy the chart. Costs are assigned to each move based on how likely they are to be the intended way to execute the chart, and the path with the lowest cost is chosen.
+`ExpressedCharts` are created by parsing a chart for a given `ChartType` and using that `ChartType`'s [PadData](PadData.md) and [StepGraph](StepGraphs.md) to search every possible set of moves which would satisfy the chart. Costs are assigned to each move based on how likely they are to be the intended way to execute the chart, and the path with the lowest cost is chosen.
 
 ## ExpressedChart Configuration
 
