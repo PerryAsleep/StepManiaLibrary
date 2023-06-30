@@ -54,7 +54,7 @@ Number (double) type. Maximum desired percentage of steps which face inward.
 
 ### `InwardPercentageCutoff`
 
-Number (double) type. Cutoff percentage to use for determining how far to side of the pads both feet must be in order to be considered for inward facing checks. For example `0.5` means both feed must be on the same half of the pads and `0.33` means both feed must be on the same outer third of the pads.
+Number (double) type. Cutoff percentage to use for determining how far to the side of the pads both feet must be in order to be considered for inward facing checks. For example `0.5` means both feet must be on the same half of the pads and `0.33` means both feet must be on the same outer third of the pads.
 
 ### `MaxOutwardPercentage`
 
@@ -62,7 +62,7 @@ Number (double) type. Maximum desired percentage of steps which face outward.
 
 ### `OutwardPercentageCutoff`
 
-Number (double) type. Cutoff percentage to use for determining how far to side of the pads both feet must be in order to be considered for outward facing checks. For example `0.5` means both feed must be on the same half of the pads and `0.33` means both feed must be on the same outer third of the pads.
+Number (double) type. Cutoff percentage to use for determining how far to the side of the pads both feet must be in order to be considered for outward facing checks. For example `0.5` means both feet must be on the same half of the pads and `0.33` means both feet must be on the same outer third of the pads.
 
 ## `dance-double` Cutoff Example
 

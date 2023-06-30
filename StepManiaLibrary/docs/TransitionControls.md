@@ -64,11 +64,11 @@ Boolean type. Whether or not the transition control rules should be used.
 
 ### `StepsPerTransitionMin`
 
-Number (integer) type. The minimum number of steps that should occur before between transitions. Higher values result in less frequent transitions.
+Number (integer) type. The minimum number of steps that should occur between transitions. Higher values result in less frequent transitions.
 
 ### `StepsPerTransitionMax`
 
-Number (integer) type. The maximum number of steps that should occur before between transitions. Lower values will prevent longer sections with no transitions.
+Number (integer) type. The maximum number of steps that should occur between transitions. Lower values will prevent longer sections with no transitions.
 
 ### `MinimumPadWidth`
 
@@ -76,7 +76,7 @@ Number (integer) type. The minimum width of the pads for applying the transition
 
 ### `TransitionCutoffPercentage`
 
-Number (double) type. Cutoff percentage to use for determining how far to the side of the pads both feet need to be in order to be considered a transition. For example `0.5` means both feed must move to one half of the pads.
+Number (double) type. Cutoff percentage to use for determining how far to the side of the pads both feet need to be in order to be considered a transition. For example `0.5` means both feet must move to one half of the pads and `0.33` means both feet must be move to the outer third of the pads.
 
 ## `dance-double` Cutoff Example
 
