@@ -84,9 +84,6 @@ namespace StepManiaLibrary.PerformedChart
 			{
 				var errors = false;
 
-				if (!IsEnabled())
-					return false;
-
 				if (StepsPerTransitionMin < 0)
 				{
 					LogError(
@@ -479,6 +476,11 @@ namespace StepManiaLibrary.PerformedChart
 		public class LateralTighteningConfig
 		{
 			/// <summary>
+			/// Whether or not to use this LateralTighteningConfig.
+			/// </summary>
+			[JsonInclude] public bool? Enabled;
+
+			/// <summary>
 			/// The relative notes per second over which patterns should cost more.
 			/// </summary>
 			[JsonInclude] public double RelativeNPS = -1.0;
@@ -510,6 +512,8 @@ namespace StepManiaLibrary.PerformedChart
 			/// <param name="other">Other LateralTighteningConfig to use as as a base.</param>
 			public void SetAsOverrideOf(LateralTighteningConfig other)
 			{
+				if (Enabled == null)
+					Enabled = other.Enabled;
 				if (RelativeNPS.DoubleEquals(-1.0))
 					RelativeNPS = other.RelativeNPS;
 				if (AbsoluteNPS.DoubleEquals(-1.0))
@@ -555,6 +559,13 @@ namespace StepManiaLibrary.PerformedChart
 				}
 
 				return errors;
+			}
+
+			public bool IsEnabled()
+			{
+				if (Enabled == null)
+					return false;
+				return Enabled.Value;
 			}
 		}
 

@@ -376,7 +376,7 @@ namespace StepManiaLibrary.PerformedChart
 				UpdateLateralTracking(isStep, ref LateralMovementNumSteps, ref LastLateralMovementStartTime,
 					ref LastLateralMovementStartPosition, ref MovementDir);
 				TotalLateralMovementSpeedCost =
-					(PreviousNode?.TotalLateralMovementSpeedCost ?? 0.0) + GetLateralMovementCost(config, nps);
+					(PreviousNode?.TotalLateralMovementSpeedCost ?? 0.0) + GetLateralMovementCost(config.LateralTightening, nps);
 
 				UpdateStepCounts(
 					stepGraph,
@@ -853,20 +853,22 @@ namespace StepManiaLibrary.PerformedChart
 			/// <summary>
 			/// Gets the lateral movement cost of this SearchNode.
 			/// </summary>
-			private double GetLateralMovementCost(Config config, double averageNps)
+			private double GetLateralMovementCost(Config.LateralTighteningConfig config, double averageNps)
 			{
+				if (!config.IsEnabled())
+					return 0.0;
+
 				var lateralMovementSpeedCost = 0.0;
-				var lateralConfig = config.LateralTightening;
 
 				var t = Time - LastLateralMovementStartTime;
 				if (MovementDir != LateralMovementDirection.None && t > 0.0)
 				{
 					var nps = (LateralMovementNumSteps - 1) / t;
 					var speed = Math.Abs(LateralBodyPosition - LastLateralMovementStartPosition) / t;
-					if (((averageNps > 0.0 && nps > averageNps * lateralConfig.RelativeNPS) || nps > lateralConfig.AbsoluteNPS)
-					    && speed > lateralConfig.Speed)
+					if (((averageNps > 0.0 && nps > averageNps * config.RelativeNPS) || nps > config.AbsoluteNPS)
+					    && speed > config.Speed)
 					{
-						lateralMovementSpeedCost = speed - lateralConfig.Speed;
+						lateralMovementSpeedCost = speed - config.Speed;
 					}
 				}
 

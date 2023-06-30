@@ -14,17 +14,17 @@ When comparing paths through a chart a series of comparisons are made to determi
 4. Stretch
 	- Paths with the least aggressive stretch are preferred. Wider stretch is considered more aggressive. See [Stretch Distance](#stretch-distance) below for configuring or disabling this check
 5. Facing
-	- Paths which exceed desired bounds for facing the body inward or outward are preferred less. See [Facing](#facing) below for configuring or disabling this check. 
+	- Paths which exceed desired bounds for facing the body inward or outward are preferred less. See [Facing Controls](FacingControls.md) for configuring or disabling this check. 
 6. Individual Step Travel Distance
 	- Paths with lower individual step distances are preferred. See [Travel Distance](#travel-distance) below for configuring or disabling this check.
 7. Individual Step Travel Speed
 	- Paths with lower individual step speeds are preferred. See [Travel Speed](#travel-speed) below for configuring or disabling this check.
 8. Lateral Movement Speed
-	- Paths with the least aggressive lateral movement are preferred. See [Lateral Tightening](#lateral-tightening) below for configuring or disabling this check.
+	- Paths with the least aggressive lateral movement are preferred. See [Lateral Tightening](LateralTighteningControls.md) for configuring or disabling this check.
 9. Frequent Transitions
-	- Paths which result in transitions more frequently than desired are penalized. See [Transition Controls](./TransitionContols.md).
+	- Paths which result in transitions more frequently than desired are penalized. See [Transition Controls](TransitionContols.md) for configuring or disabling this check.
 10. Infrequent Transitions
-	- Paths which result in transitions less frequently than desired are penalized. See [Transition Controls](./TransitionContols.md).
+	- Paths which result in transitions less frequently than desired are penalized. See [Transition Controls](TransitionContols.md) for configuring or disabling this check.
 11. Arrow Distribution
 	- Paths which more closely match the desired arrow distribution are preferred. See [Arrow Weights](#arrow-weights) below for configuring this behavior.
 
@@ -67,8 +67,13 @@ When comparing paths through a chart a series of comparisons are made to determi
 
 	"LateralTightening":
 	{
+		// Enable lateral tightening.
+		"Enabled": true,
+		// Penalize lateral movement steps that are 1.65 times as dense as the chart average.
 		"RelativeNPS": 1.65,
+		// Penalize lateral movement steps that are over 12 notes per second.
 		"AbsoluteNPS": 12.0,
+		// The body must be moving at least 3 arrow widths per second for lateral tightening to penalize steps.
 		"Speed": 3.0,
 	},
 
@@ -77,7 +82,7 @@ When comparing paths through a chart a series of comparisons are made to determi
 		// Do not penalize inward facing steps.
 		"MaxInwardPercentage": 1.0,
 		"InwardPercentageCutoff": 0.5,
-		// DO not penalize outward facing steps.
+		// Do not penalize outward facing steps.
 		"MaxOutwardPercentage": 1.0,
 		"OutwardPercentageCutoff": 0.5,
 	},
@@ -151,19 +156,9 @@ Values can be defined to shorten distances in one dimension for the distance cal
 - **DistanceCompensationX**: Number (double) type. Value to subtract from X distances in `StepTightening` calculations.
 - **DistanceCompensationY**: Number (double) type. Value to subtract from Y distances in `StepTightening` calculations.
 
-## Lateral Tightening
+## LateralTightening
 
-Lateral Tightening can be disabled by setting `Speed` to a large value.
-
-For each step the application will consider the preceding steps which move the body in the same lateral direction without changing direction. If as a whole they move over `Speed` arrows per second, then the notes per second of this segment will be compared against `RelativeNPS` and `AbsoluteNPS`. If the notes per second is faster than `AbsoluteNPS` or if the notes per second is faster than the average notes per second of the chart as a whole multiplied by `AbsoluteNPS`, then the step at the end of the section will accrue a cost based on the lateral body speed of section.
-
-Note that in this context "same lateral direction" means steps which do not change directions. For example, steps which move left and keep the body stationary are both valid for a section to be considered all moving in the left direction.
-
-Note also that in this context "arrows per second" for `Speed` refers to the width of the arrow panels on the pad. For example in a `dance-double` chart if the body moved from centered over the player 1 arrows to centered over the player 2 arrows in 1 second then it would be moving at 3 arrows per second since the centers are 3 arrows apart.
-
-- **RelativeNPS**: Number (double) type. Multiplier. If the notes per second of a section of steps is over the chart's average notes per second multiplied by this value then the section is considered to be fast enough to apply a lateral body movement cost to.
-- **AbsoluteNPS**: Number (double) type. Absolute notes per second value. If the notes per second of a section of steps is over this value then the section is considered to be fast enough to apply a lateral body movement cost to.
-- **Speed**: Number (double) type. Body speed in arrows per second over which fast sections will accrue costs.
+See [Lateral Tightening Controls](LateralTighteningControls.md).
 
 ## Facing
 
