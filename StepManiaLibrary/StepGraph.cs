@@ -1997,7 +1997,8 @@ namespace StepManiaLibrary
 		}
 
 		/// <summary>
-		/// Helper method for determining if a node is facing inward or outward.
+		/// Helper method for determining what side of the pads the player is on for the given
+		/// GraphNode based on a cutoffPercentage for the width of the pads.
 		/// </summary>
 		/// <param name="node">The node in question.</param>
 		/// <param name="cutoffPercentage">
@@ -2005,14 +2006,14 @@ namespace StepManiaLibrary
 		/// the total width of the pads.
 		/// </param>
 		/// <param name="leftSide">
-		/// If set, this node is completely on one half of the pads.
-		/// If true, the node is on the left half.
-		/// If false, the node is on the right half.
+		/// If set, this node is completely on one side of the pads.
+		/// If true, the node is on the left side.
+		/// If false, the node is on the right side.
 		/// </param>
 		/// <param name="leftFootY">The average Y position of the left foot.</param>
 		/// <param name="rightFootY">The average Y position of the right foot.</param>
-		/// <returns>Whether or not the node represents a position fully on one half of the pads.</returns>
-		private bool FacingHelper(
+		/// <returns>Whether or not the node represents a position fully on one side of the pads.</returns>
+		private bool GetSide(
 			GraphNode node,
 			double cutoffPercentage,
 			out bool? leftSide,
@@ -2047,13 +2048,17 @@ namespace StepManiaLibrary
 							// If we have already tracked an arrow as being on the left or right, ensure this
 							// arrow is on the same side.
 							else if (leftSide != l)
+							{
+								leftSide = null;
 								return false;
+							}
 						}
 
 						// This foot is in the center.
 						// This means the body is not fully on the left or the right.
 						else
 						{
+							leftSide = null;
 							return false;
 						}
 
@@ -2084,6 +2089,26 @@ namespace StepManiaLibrary
 		}
 
 		/// <summary>
+		/// Determines whether the given GraphNode represents a state where the player is on
+		/// the left side, right side, or neither side of the pads based on a given
+		/// cutoffPercentage for the width of the pads.
+		/// </summary>
+		/// <param name="node">The node in question.</param>
+		/// <param name="cutoffPercentage">
+		/// Value to use for comparing arrow positions, representing a percentage of
+		/// the total width of the pads.
+		/// </param>
+		/// <param name="leftSide">
+		/// If set, this node is completely on one side of the pads.
+		/// If true, the node is on the left side.
+		/// If false, the node is on the right side.
+		/// </param>
+		public void GetSide(GraphNode node, double cutoffPercentage, out bool? leftSide)
+		{
+			GetSide(node, cutoffPercentage, out leftSide, out _, out _);
+		}
+
+		/// <summary>
 		/// Returns whether or not the given node represents an inward facing posture.
 		/// To be considered facing inward both feet be completely on one side of the
 		/// pads, at or beyond the given cutoff percentage, and the feet must be on
@@ -2100,7 +2125,7 @@ namespace StepManiaLibrary
 		/// </returns>
 		public bool IsFacingInward(GraphNode node, double cutoffPercentage)
 		{
-			if (!FacingHelper(node, cutoffPercentage, out var leftSide, out var leftFootY, out var rightFootY))
+			if (!GetSide(node, cutoffPercentage, out var leftSide, out var leftFootY, out var rightFootY))
 				return false;
 
 			// All arrows are on the left.
@@ -2134,7 +2159,7 @@ namespace StepManiaLibrary
 		/// </returns>
 		public bool IsFacingOutward(GraphNode node, double cutoffPercentage)
 		{
-			if (!FacingHelper(node, cutoffPercentage, out var leftSide, out var leftFootY, out var rightFootY))
+			if (!GetSide(node, cutoffPercentage, out var leftSide, out var leftFootY, out var rightFootY))
 				return false;
 
 			// All arrows are on the left.

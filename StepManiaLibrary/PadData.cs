@@ -313,6 +313,15 @@ namespace StepManiaLibrary
 		}
 
 		/// <summary>
+		/// Returns the width of the pads.
+		/// </summary>
+		/// <returns>Width of the pads.</returns>
+		public int GetWidth()
+		{
+			return MaxX - MinX + 1;
+		}
+
+		/// <summary>
 		/// Returns whether the given arrow is on the left side of the pads.
 		/// </summary>
 		/// <param name="arrow">The arrow in question.</param>
@@ -324,7 +333,7 @@ namespace StepManiaLibrary
 		/// <returns>True if the given arrow is on the left side of the pads and false otherwise.</returns>
 		public bool IsArrowOnLeftSideOfPads(int arrow, double cutoffPercentage)
 		{
-			return (double)(ArrowData[arrow].X - MinX) / (MaxX - MinX) <= cutoffPercentage;
+			return (ArrowData[arrow].X + 0.5 - MinX) / GetWidth() <= cutoffPercentage;
 		}
 
 		/// <summary>
@@ -339,7 +348,7 @@ namespace StepManiaLibrary
 		/// <returns>True if the given arrow is on the left side of the pads and false otherwise.</returns>
 		public bool IsArrowOnRightSideOfPads(int arrow, double cutoffPercentage)
 		{
-			return (double)(ArrowData[arrow].X - MinX) / (MaxX - MinX) >= 1.0f - cutoffPercentage;
+			return (ArrowData[arrow].X + 0.5 - MinX) / GetWidth() >= 1.0f - cutoffPercentage;
 		}
 
 		/// <summary>
@@ -367,7 +376,8 @@ namespace StepManiaLibrary
 		/// <param name="xCompensation">X distance compensation.</param>
 		/// <param name="yCompensation">Y distance compensation.</param>
 		/// <returns>Distance between the two points.</returns>
-		public double GetDistanceWithCompensation(double x1, double y1, double x2, double y2, double xCompensation, double yCompensation)
+		public double GetDistanceWithCompensation(double x1, double y1, double x2, double y2, double xCompensation,
+			double yCompensation)
 		{
 			var dx = Math.Max(0.0, Math.Abs(x1 - x2) - xCompensation);
 			var dy = Math.Max(0.0, Math.Abs(y1 - y2) - yCompensation);

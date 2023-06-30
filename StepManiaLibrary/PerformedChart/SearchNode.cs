@@ -100,6 +100,27 @@ namespace StepManiaLibrary.PerformedChart
 			private readonly double TotalLateralMovementSpeedCost;
 
 			/// <summary>
+			/// Total cost for transitioning too early.
+			/// </summary>
+			private readonly int TotalEarlyTransitionCost;
+
+			/// <summary>
+			/// Total cost for transitioning too late.
+			/// </summary>
+			private readonly int TotalLateTransitionCost;
+
+			/// <summary>
+			/// If this SearchNode represents a transition, whether that transition moved left or right.
+			/// Null if this SearchNode does not represent a transition.
+			/// </summary>
+			private bool? TransitionedLeft;
+
+			/// <summary>
+			/// The most recent previous SearchNode which represented a transition.
+			/// </summary>
+			private readonly SearchNode LastTransitionStepNode;
+
+			/// <summary>
 			/// This SearchNode's cost for deviating from the configured DesiredArrowWeights.
 			/// Higher values are worse.
 			/// </summary>
@@ -287,9 +308,10 @@ namespace StepManiaLibrary.PerformedChart
 				Time = time;
 				RandomWeight = randomWeight;
 				Actions = actions;
+				LastTransitionStepNode = PreviousNode?.LastTransitionStepNode;
 
 				var isRelease = graphLinkFromPreviousNode?.GraphLink?.IsRelease() ?? false;
-				TotalSteps = PreviousNode?.TotalSteps ?? 0 + (isRelease ? 1 : 0);
+				TotalSteps = (PreviousNode?.TotalSteps ?? 0) + (isRelease ? 0 : 1);
 
 				// Copy the previous SearchNode's ambiguous and misleading step counts.
 				// We will update them later after determining if this SearchNode represents
@@ -333,6 +355,14 @@ namespace StepManiaLibrary.PerformedChart
 
 				UpdateFacingCost(stepGraph, config, isRelease, out TotalNumInwardSteps, out TotalNumOutwardSteps,
 					out TotalFacingCost);
+
+				TotalEarlyTransitionCost = PreviousNode?.TotalEarlyTransitionCost ?? 0;
+				TotalLateTransitionCost = PreviousNode?.TotalLateTransitionCost ?? 0;
+				UpdateTransitionCost(stepGraph, config.Transitions, out var earlyTransitionCost, out var lateTransitionCost,
+					out TransitionedLeft,
+					ref LastTransitionStepNode);
+				TotalEarlyTransitionCost += earlyTransitionCost;
+				TotalLateTransitionCost += lateTransitionCost;
 
 				var (travelSpeedCost, travelDistanceCost) =
 					GetStepTravelCostsAndUpdateStepTracking(stepGraph, config, out var isStep);
@@ -620,6 +650,68 @@ namespace StepManiaLibrary.PerformedChart
 				}
 
 				return (speedCost, distanceCost);
+			}
+
+			/// <summary>
+			/// Determines the transition costs for this SearchNode.
+			/// </summary>
+			private void UpdateTransitionCost(
+				StepGraph stepGraph,
+				Config.TransitionConfig config,
+				out int earlyTransitionCost,
+				out int lateTransitionCost,
+				out bool? transitionedLeft,
+				ref SearchNode lastTransitionStepNode)
+			{
+				earlyTransitionCost = 0;
+				lateTransitionCost = 0;
+				transitionedLeft = null;
+
+				// Early out of transition costs are not enabled.
+				if (!config.IsEnabled())
+					return;
+				if (stepGraph.PadData.GetWidth() < config.MinimumPadWidth)
+					return;
+
+				// Determine which side of the pads, if any, the player is on.
+				stepGraph.GetSide(GraphNode, config.TransitionCutoffPercentage, out var leftSide);
+
+				// If there is no previous transition node, which may occur at the start of the chart, then
+				// consider being on either side of the pads a transition, but do not penalize it with a cost.
+				if (leftSide != null && lastTransitionStepNode == null)
+				{
+					transitionedLeft = leftSide;
+					lastTransitionStepNode = this;
+					return;
+				}
+
+				var numStepsSinceLastTransition = TotalSteps - (lastTransitionStepNode?.TotalSteps ?? 0);
+
+				// Transition occurred.
+				if (lastTransitionStepNode != null && leftSide != null
+				                                   && lastTransitionStepNode.TransitionedLeft != null
+				                                   && lastTransitionStepNode.TransitionedLeft.Value != leftSide.Value)
+				{
+					// Cost for transitioning too early.
+					if (numStepsSinceLastTransition < config.StepsPerTransitionMin)
+					{
+						earlyTransitionCost += config.StepsPerTransitionMin - numStepsSinceLastTransition;
+					}
+
+					// Record transition.
+					transitionedLeft = leftSide;
+					lastTransitionStepNode = this;
+				}
+
+				// No transition has occurred.
+				else
+				{
+					// Cost for transitioning too late.
+					if (numStepsSinceLastTransition > config.StepsPerTransitionMax)
+					{
+						lateTransitionCost += numStepsSinceLastTransition - config.StepsPerTransitionMax;
+					}
+				}
 			}
 
 			/// <summary>
@@ -1055,7 +1147,7 @@ namespace StepManiaLibrary.PerformedChart
 				if (Math.Abs(TotalFallbackStepCost - other.TotalFallbackStepCost) > 0.00001)
 					return TotalFallbackStepCost < other.TotalFallbackStepCost ? -1 : 1;
 
-				// Next, consider misleading steps. These are steps which a player would
+				// Next consider misleading steps. These are steps which a player would
 				// never interpret as intended.
 				if (MisleadingStepCount != other.MisleadingStepCount)
 					return MisleadingStepCount < other.MisleadingStepCount ? -1 : 1;
@@ -1065,9 +1157,11 @@ namespace StepManiaLibrary.PerformedChart
 				if (AmbiguousStepCount != other.AmbiguousStepCount)
 					return AmbiguousStepCount < other.AmbiguousStepCount ? -1 : 1;
 
+				// TODO
 				if (TotalNumSameArrowStepsInARowPerFootOverMax != other.TotalNumSameArrowStepsInARowPerFootOverMax)
 					return TotalNumSameArrowStepsInARowPerFootOverMax < other.TotalNumSameArrowStepsInARowPerFootOverMax ? -1 : 1;
 
+				// Next consider total stretch cost. These are steps which stretch beyond desired amounts.
 				if (Math.Abs(TotalStretchCost - other.TotalStretchCost) > 0.00001)
 					return TotalStretchCost < other.TotalStretchCost ? -1 : 1;
 
@@ -1076,14 +1170,17 @@ namespace StepManiaLibrary.PerformedChart
 				if (Math.Abs(TotalFacingCost - other.TotalFacingCost) > 0.00001)
 					return TotalFacingCost < other.TotalFacingCost ? -1 : 1;
 
-				// Next consider individual step cost. This is a measure of how uncomfortably energetic
-				// the individual steps are.
+				// Next consider individual step travel distance cost. This is a measure of how much distance
+				// individual quick steps move.
 				if (Math.Abs(TotalIndividualStepTravelDistanceCost - other.TotalIndividualStepTravelDistanceCost) > 0.00001)
 					return TotalIndividualStepTravelDistanceCost < other.TotalIndividualStepTravelDistanceCost ? -1 : 1;
 
+				// Next consider individual step travel speed cost. This is a measure of how fast individual
+				// quick steps move.
 				if (Math.Abs(TotalIndividualStepTravelSpeedCost - other.TotalIndividualStepTravelSpeedCost) > 0.00001)
 					return TotalIndividualStepTravelSpeedCost < other.TotalIndividualStepTravelSpeedCost ? -1 : 1;
 
+				// TODO
 				if (Math.Abs(SectionStepTypeCost - other.SectionStepTypeCost) > 0.00001)
 					return SectionStepTypeCost < other.SectionStepTypeCost ? -1 : 1;
 
@@ -1091,7 +1188,16 @@ namespace StepManiaLibrary.PerformedChart
 				if (Math.Abs(TotalLateralMovementSpeedCost - other.TotalLateralMovementSpeedCost) > 0.00001)
 					return TotalLateralMovementSpeedCost < other.TotalLateralMovementSpeedCost ? -1 : 1;
 
-				// If the individual steps and body movement are good, try to match a good distribution next.
+				// Next consider transitioning too early. For stamina charts it is more important
+				// to penalize quick transitions than slow transitions.
+				if (TotalEarlyTransitionCost != other.TotalEarlyTransitionCost)
+					return TotalEarlyTransitionCost - other.TotalEarlyTransitionCost;
+
+				// Next consider transitioning too late.
+				if (TotalLateTransitionCost != other.TotalLateTransitionCost)
+					return TotalLateTransitionCost - other.TotalLateTransitionCost;
+
+				// Lastly try to match a good distribution. This cost will result in transitions.
 				if (Math.Abs(TotalDistributionCost - other.TotalDistributionCost) > 0.00001)
 					return TotalDistributionCost < other.TotalDistributionCost ? -1 : 1;
 
