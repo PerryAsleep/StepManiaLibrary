@@ -83,7 +83,7 @@ namespace ChartGeneratorTests
 		{
 			return Fumen.Path.Combine(new[]
 			{
-				AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "ChartGeneratorTests", "TestData", songFolder,
+				AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "ChartGeneratorTests", "TestData", songFolder,
 				$"{songFile}.{extension}",
 			});
 		}

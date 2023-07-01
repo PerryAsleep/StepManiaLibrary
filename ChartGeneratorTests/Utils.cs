@@ -26,7 +26,7 @@ namespace ChartGeneratorTests
 		{
 			return Path.Combine(new[]
 			{
-				AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "ChartGeneratorTests", "TestData", songFolder,
+				AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "ChartGeneratorTests", "TestData", songFolder,
 				$"{fileName}.{extension}",
 			});
 		}
