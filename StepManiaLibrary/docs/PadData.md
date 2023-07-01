@@ -4,11 +4,11 @@
 
 The `PadData` files provided in the library are automatically generated from simplified input through [PadDataGenerator](https://github.com/PerryAsleep/PadDataGenerator). `PadData` file names match their `ChartType`, e.g. `dance-single.json`.
 
-## Coordinates
+# Coordinates
 
 `PadData` arrow coordinates are represented by X and Y integer values where X goes left to right and Y goes front to back.
 
-### Example
+## Example
 
 ```
 dance-double: [(0,1), (1,2), (1,0), (2,1), (0,1), (1,2), (1,0), (2,1)]
@@ -24,24 +24,33 @@ dance-double: [(0,1), (1,2), (1,0), (2,1), (0,1), (1,2), (1,0), (2,1)]
         |_______|               |_______|       
 ```
 
-## File Format
+# File Format
 
 `PadData` files are json with support for comments and trailing commas.
 
-### Pad Data
+## Pad Data
 
-- **StartingPositions**: Array type. Each value in this array is a tier of positions with lower index tiers being preferred to higher index tiers. The value at each tier is an array of equally preferred starting positions on the pad. A position is an array of two number (integer) values with the first index corresponding to the left foot and the second index corresponding to the right foot. The value at each index is in the index of the arrow for the foot to start on. When creating a `PerformedChart`, searches begin using the starting position at the first tier and if no path could be found the application will try using the starting positions at the next tier, and so on. When multiple positions exist at the same tier they are considered equally preferred and will be chosen in a random order. It is required that there be at least one tier and it is required that the first tier have exactly one position in it.
+### `StartingPositions`
 
-- **ArrowData**: Array type. Each value is an object describing each panel on the pad. See [Arrow Data](#arrow-data) below for more details.
+Array type. Each value in this array is a tier of positions with lower index tiers being preferred to higher index tiers. The value at each tier is an array of equally preferred starting positions on the pad. A position is an array of two number (integer) values with the first index corresponding to the left foot and the second index corresponding to the right foot. The value at each index is in the index of the arrow for the foot to start on. When creating a `PerformedChart`, searches begin using the starting position at the first tier and if no path could be found the application will try using the starting positions at the next tier, and so on. When multiple positions exist at the same tier they are considered equally preferred and will be chosen in a random order. It is required that there be at least one tier and it is required that the first tier have exactly one position in it.
 
-### Arrow Data
+### `ArrowData`
 
-#### Coordinates
+Array type. Each value is an object describing each panel on the pad. See [Arrow Data](#arrow-data) below for more details.
 
-- **X**: Number (integer) type. X Position of the panel relative to other panels.
-- **Y**: Number (integer) type. Y Position of the panel relative to other panels.
+## Arrow Data
 
-#### Pairing Arrays
+### Coordinates
+
+#### `X`
+
+Number (integer) type. X Position of the panel relative to other panels.
+
+#### `Y`
+
+Number (integer) type. Y Position of the panel relative to other panels.
+
+### Pairing Arrays
 
 For the array types below the index is the foot under consideration. It is expected this is of length 2, with the first index being the left foot and the second index being the right foot. For each foot, the value is another array where the index in that array is the arrow index in the pads. The value at that index is a boolean which defines whether that arrow forms a valid pairing with this arrow and the original foot.
 
@@ -53,16 +62,45 @@ For the array types below the index is the foot under consideration. It is expec
 ],
 ```
 
-- **BracketablePairingsHeel**: When the toe is on this ArrowData's arrow, whether this corresponding arrow forms a bracket using the heel.
-- **BracketablePairingsToe**: When the heel is on this ArrowData's arrow, whether this corresponding arrow forms a bracket using the toe.
-- **OtherFootPairings**: When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid pairing for the other foot without crossovers, inverts, or stretch.
-- **OtherFootPairingsStretch**: When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid stretch pairing for the other foot without crossovers or inverts.
-- **OtherFootPairingsCrossoverFront**: When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid crossover in front without stretch.
-- **OtherFootPairingsCrossoverFrontStretch**: When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid crossover in front with stretch.
-- **OtherFootPairingsCrossoverBehind**: When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid crossover in back without stretch.
-- **OtherFootPairingsCrossoverBehindStretch**: When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid crossover in back with stretch.
-- **OtherFootPairingsInverted**: When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid invert without stretch.
-- **OtherFootPairingsInvertedStretch**: When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid invert with stretch.
+#### `BracketablePairingsHeel`
+
+When the toe is on this ArrowData's arrow, whether this corresponding arrow forms a bracket using the heel.
+
+#### `BracketablePairingsToe`
+
+When the heel is on this ArrowData's arrow, whether this corresponding arrow forms a bracket using the toe.
+
+#### `OtherFootPairings`
+
+When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid pairing for the other foot without crossovers, inverts, or stretch.
+
+#### `OtherFootPairingsStretch`
+
+When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid stretch pairing for the other foot without crossovers or inverts.
+
+#### `OtherFootPairingsCrossoverFront`
+
+When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid crossover in front without stretch.
+
+#### `OtherFootPairingsCrossoverFrontStretch`
+
+When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid crossover in front with stretch.
+
+#### `OtherFootPairingsCrossoverBehind`
+
+When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid crossover in back without stretch.
+
+#### `OtherFootPairingsCrossoverBehindStretch`
+
+When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid crossover in back with stretch.
+
+#### `OtherFootPairingsInverted`
+
+When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid invert without stretch.
+
+#### `OtherFootPairingsInvertedStretch`
+
+When a foot is on this ArrowData's arrow, whether this corresponding arrow is a valid invert with stretch.
 
 ## Example: dance-single.json
 

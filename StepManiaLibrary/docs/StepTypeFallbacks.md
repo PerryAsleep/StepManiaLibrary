@@ -1,6 +1,6 @@
 # StepType Fallbacks
 
-[StepType](StepTypes.md) fallbacks define a list of `StepTypes` that are acceptable to use as replacements for another `StepType` when generating a [PerformedChart](PerformedChart.md). These replacements are only used if no path could be found with the original `StepType`. For example, if generating a `PerformedChart` containing stretch moves using [PadData](PadData.md) that doesn't support stretch (e.g. `dance-single`), then the stetch moves will need to fall back to other moves. Individual `StepType` fallback definitions are ordered lists with the first replacement being most preferable.
+[StepType](StepTypes.md) fallbacks define a list of `StepTypes` that are acceptable to use as replacements for another `StepType` when generating a [PerformedChart](PerformedChart.md). These replacements are only used if no path could be found with the original `StepType`. For example, if generating a `PerformedChart` containing stretch moves using [PadData](PadData.md) that doesn't support stretch (e.g. `dance-single`), then the stretch moves will need to fall back to other moves. Individual `StepType` fallback definitions are ordered lists with the first replacement being most preferable.
 
 ## Example
 
@@ -43,4 +43,4 @@ In addition, any any dropped arrows as a result of falling back (e.g. falling ba
 Using the example data above:
  - Falling back from `CrossoverBehindStretch` to `CrossoverFront` costs `0.6` because `3 / (6 - 1) = 0.6`.
  - Falling back from `NewArrow` to `SameArrow` costs `1.0` because `1 / (2 - 1) = 1.0`.
- - Fallng back from `NewArrow` to `NewArrow` costs `0.0` because it is the first fallback.
+ - Falling back from `NewArrow` to `NewArrow` costs `0.0` because it is the first fallback.

@@ -2,7 +2,7 @@
 
 Lateral tightening controls are a part of [PerformedChart Configuration](PerformedChart.md#performedchart-configuration) that allow for limiting lateral movement for high notes-per-second steps.
 
-<table>
+<table width="66%">
 <tr>
 <th width="50%"> No Lateral Tightening </th>
 <th width="50%"> Lateral Tightening</th>
@@ -48,13 +48,13 @@ For steps to accue costs they must move the body over a defined `Speed` in arrow
 1. If the notes per second of the steps is over `RelativeNPS` times greater than the chart's average notes per second value then a cost will be applied.
 2. If the notes per second is over an absolute `AbsoluteNPS` value then a cost will be applied.
 
-Lateral tightening costs scale with the speed of the movement, so faster segements cost more.
+Lateral tightening costs scale with the speed of the movement, so faster segments cost more.
 
 ## Controls
 
 ### `Enabled`
 
-Boolean type. Maximum desired percentage of steps which face inward.
+Boolean type. Whether or not the lateral tightening control rules should be used.
 
 ### `RelativeNPS`
 

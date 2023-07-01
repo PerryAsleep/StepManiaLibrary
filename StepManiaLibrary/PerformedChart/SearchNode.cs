@@ -365,12 +365,12 @@ namespace StepManiaLibrary.PerformedChart
 				TotalLateTransitionCost += lateTransitionCost;
 
 				var (travelSpeedCost, travelDistanceCost) =
-					GetStepTravelCostsAndUpdateStepTracking(stepGraph, config, out var isStep);
+					GetStepTravelCostsAndUpdateStepTracking(stepGraph, config.StepTightening, out var isStep);
 				TotalIndividualStepTravelSpeedCost = (PreviousNode?.TotalIndividualStepTravelSpeedCost ?? 0.0) + travelSpeedCost;
 				TotalIndividualStepTravelDistanceCost =
 					(PreviousNode?.TotalIndividualStepTravelDistanceCost ?? 0.0) + travelDistanceCost;
 				TotalDistributionCost = GetDistributionCost(stepGraph, config);
-				TotalStretchCost = (PreviousNode?.TotalStretchCost ?? 0.0) + GetStretchCost(stepGraph, config);
+				TotalStretchCost = (PreviousNode?.TotalStretchCost ?? 0.0) + GetStretchCost(stepGraph, config.StepTightening);
 
 				LateralBodyPosition = GetLateralBodyPosition(stepGraph);
 				UpdateLateralTracking(isStep, ref LateralMovementNumSteps, ref LastLateralMovementStartTime,
@@ -545,11 +545,10 @@ namespace StepManiaLibrary.PerformedChart
 			/// Value 1: Travel speed cost
 			/// Value 2: Travel distance cost
 			/// </returns>
-			private (double, double) GetStepTravelCostsAndUpdateStepTracking(StepGraph stepGraph, Config config, out bool isStep)
+			private (double, double) GetStepTravelCostsAndUpdateStepTracking(StepGraph stepGraph, Config.StepTighteningConfig config, out bool isStep)
 			{
 				var speedCost = 0.0;
 				var distanceCost = 0.0;
-				var stepConfig = config.StepTightening;
 				isStep = false;
 
 				// Determine how the feet step at this SearchNode.
@@ -588,23 +587,23 @@ namespace StepManiaLibrary.PerformedChart
 							var (prevX, prevY) = stepGraph.GetFootPosition(LastArrowsSteppedOnByFoot[f]);
 							var time = Time - LastTimeFootStepped[f];
 							var distance = stepGraph.PadData.GetDistanceWithCompensation(currentX, currentY, prevX, prevY,
-								stepConfig.DistanceCompensationX, stepConfig.DistanceCompensationY);
+								config.DistanceCompensationX, config.DistanceCompensationY);
 							totalFootDistance += distance;
 
 							// Determine the speed cost for this foot.
-							if (stepConfig.TravelSpeedMinTimeSeconds > 0.0)
+							if (config.IsSpeedTighteningEnabled())
 							{
 								// Determine the normalized speed penalty
 								double speedPenalty;
 
 								// The configured min and max speeds are a range.
-								if (stepConfig.TravelSpeedMinTimeSeconds < stepConfig.TravelSpeedMaxTimeSeconds)
+								if (config.SpeedMinTimeSeconds < config.SpeedMaxTimeSeconds)
 								{
 									// Clamp to a normalized value.
 									// Invert since lower times represent faster movements, which are worse.
 									speedPenalty = Math.Min(1.0, Math.Max(0.0,
-										1.0 - (time - stepConfig.TravelSpeedMinTimeSeconds)
-										/ (stepConfig.TravelSpeedMaxTimeSeconds - stepConfig.TravelSpeedMinTimeSeconds)));
+										1.0 - (time - config.SpeedMinTimeSeconds)
+										/ (config.SpeedMaxTimeSeconds - config.SpeedMinTimeSeconds)));
 								}
 
 								// The configured min and max speeds are the same, and are non-zero.
@@ -612,7 +611,7 @@ namespace StepManiaLibrary.PerformedChart
 								{
 									// If the actual speed is faster than the configured speed then use the full speed penalty
 									// of 1.0. Otherwise use no speed penalty of 0.0;
-									speedPenalty = time < stepConfig.TravelSpeedMinTimeSeconds ? 1.0 : 0.0;
+									speedPenalty = time < config.SpeedMinTimeSeconds ? 1.0 : 0.0;
 								}
 
 								footSpeedCost = speedPenalty * distance;
@@ -637,14 +636,14 @@ namespace StepManiaLibrary.PerformedChart
 					}
 
 					// Determine the distance cost for both feet.
-					if (stepConfig.TravelDistanceMin > 0.0)
+					if (config.IsDistanceTighteningEnabled())
 					{
 						distanceCost = 1.0;
-						var distanceRange = stepConfig.TravelDistanceMax - stepConfig.TravelDistanceMin;
+						var distanceRange = config.DistanceMax - config.DistanceMin;
 						if (distanceRange > 0.0)
 						{
 							distanceCost = Math.Min(1.0, Math.Max(0.0,
-								(totalFootDistance - stepConfig.TravelDistanceMin) / distanceRange));
+								(totalFootDistance - config.DistanceMin) / distanceRange));
 						}
 					}
 				}
@@ -776,26 +775,28 @@ namespace StepManiaLibrary.PerformedChart
 			/// the Config.
 			/// </summary>
 			/// <returns>Stretch cost.</returns>
-			private double GetStretchCost(StepGraph stepGraph, Config config)
+			private double GetStretchCost(StepGraph stepGraph, Config.StepTighteningConfig config)
 			{
+				if (!config.IsStretchTighteningEnabled())
+					return 0.0;
+
 				var stretchCost = 0.0;
-				var stepConfig = config.StepTightening;
 
 				// Determine the stretch distance.
 				var (lx, ly) = stepGraph.GetFootPosition(GraphNode, L);
 				var (rx, ry) = stepGraph.GetFootPosition(GraphNode, R);
 				var stretchDistance = stepGraph.PadData.GetDistanceWithCompensation(lx, ly, rx, ry,
-					stepConfig.DistanceCompensationX, stepConfig.DistanceCompensationY);
+					config.DistanceCompensationX, config.DistanceCompensationY);
 
 				// Determine the cost based on the stretch distance.
-				if (stretchDistance >= stepConfig.StretchDistanceMin)
+				if (stretchDistance >= config.StretchDistanceMin)
 				{
 					stretchCost = 1.0;
-					var stretchRange = stepConfig.StretchDistanceMax - stepConfig.StretchDistanceMin;
+					var stretchRange = config.StretchDistanceMax - config.StretchDistanceMin;
 					if (stretchRange > 0.0)
 					{
 						stretchCost = Math.Min(1.0, Math.Max(0.0,
-							(stretchDistance - stepConfig.StretchDistanceMin) / stretchRange));
+							(stretchDistance - config.StretchDistanceMin) / stretchRange));
 					}
 				}
 

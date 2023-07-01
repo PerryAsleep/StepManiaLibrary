@@ -275,28 +275,43 @@ namespace StepManiaLibrary.PerformedChart
 		public class StepTighteningConfig
 		{
 			/// <summary>
+			/// Whether or not to tighten travel speed.
+			/// </summary>
+			[JsonInclude] public bool? SpeedTighteningEnabled;
+
+			/// <summary>
 			/// When limiting travel speed, the lower time for the tightening range.
 			/// Time in seconds between steps for one foot.
 			/// </summary>
-			[JsonInclude] public double TravelSpeedMinTimeSeconds = -1.0;
+			[JsonInclude] public double SpeedMinTimeSeconds = -1.0;
 
 			/// <summary>
 			/// When limiting travel speed, the higher time for the tightening range.
 			/// Time in seconds between steps for one foot.
 			/// </summary>
-			[JsonInclude] public double TravelSpeedMaxTimeSeconds = -1.0;
+			[JsonInclude] public double SpeedMaxTimeSeconds = -1.0;
+
+			/// <summary>
+			/// Whether or not to tighten travel distance.
+			/// </summary>
+			[JsonInclude] public bool? DistanceTighteningEnabled;
 
 			/// <summary>
 			/// When limiting travel distance, the lower distance for the tightening range.
 			/// Distance is in panel widths.
 			/// </summary>
-			[JsonInclude] public double TravelDistanceMin = -1.0;
+			[JsonInclude] public double DistanceMin = -1.0;
 
 			/// <summary>
 			/// When limiting travel distance, the higher distance for the tightening range.
 			/// Distance is in panel widths.
 			/// </summary>
-			[JsonInclude] public double TravelDistanceMax = -1.0;
+			[JsonInclude] public double DistanceMax = -1.0;
+
+			/// <summary>
+			/// Whether or not to tighten stretch.
+			/// </summary>
+			[JsonInclude] public bool? StretchTighteningEnabled;
 
 			/// <summary>
 			/// When limiting stretch, the lower distance for the tightening range.
@@ -337,14 +352,20 @@ namespace StepManiaLibrary.PerformedChart
 			/// <param name="other">Other StepTighteningConfig to use as as a base.</param>
 			public void SetAsOverrideOf(StepTighteningConfig other)
 			{
-				if (TravelSpeedMinTimeSeconds.DoubleEquals(-1.0))
-					TravelSpeedMinTimeSeconds = other.TravelSpeedMinTimeSeconds;
-				if (TravelSpeedMaxTimeSeconds.DoubleEquals(-1.0))
-					TravelSpeedMaxTimeSeconds = other.TravelSpeedMaxTimeSeconds;
-				if (TravelDistanceMin.DoubleEquals(-1.0))
-					TravelDistanceMin = other.TravelDistanceMin;
-				if (TravelDistanceMax.DoubleEquals(-1.0))
-					TravelDistanceMax = other.TravelDistanceMax;
+				if (SpeedTighteningEnabled == null)
+					SpeedTighteningEnabled = other.SpeedTighteningEnabled;
+				if (SpeedMinTimeSeconds.DoubleEquals(-1.0))
+					SpeedMinTimeSeconds = other.SpeedMinTimeSeconds;
+				if (SpeedMaxTimeSeconds.DoubleEquals(-1.0))
+					SpeedMaxTimeSeconds = other.SpeedMaxTimeSeconds;
+				if (DistanceTighteningEnabled == null)
+					DistanceTighteningEnabled = other.DistanceTighteningEnabled;
+				if (DistanceMin.DoubleEquals(-1.0))
+					DistanceMin = other.DistanceMin;
+				if (DistanceMax.DoubleEquals(-1.0))
+					DistanceMax = other.DistanceMax;
+				if (StretchTighteningEnabled == null)
+					StretchTighteningEnabled = other.StretchTighteningEnabled;
 				if (StretchDistanceMin.DoubleEquals(-1.0))
 					StretchDistanceMin = other.StretchDistanceMin;
 				if (StretchDistanceMax.DoubleEquals(-1.0))
@@ -363,58 +384,58 @@ namespace StepManiaLibrary.PerformedChart
 			public bool Validate(string pccId)
 			{
 				var errors = false;
-				if (TravelSpeedMinTimeSeconds < 0.0)
+				if (SpeedMinTimeSeconds < 0.0)
 				{
 					LogError(
-						$"Negative value \"{TravelSpeedMinTimeSeconds}\" "
-						+ "specified for TravelSpeedMinTimeSeconds. Expected non-negative value.",
+						$"Negative value \"{SpeedMinTimeSeconds}\" "
+						+ "specified for SpeedMinTimeSeconds. Expected non-negative value.",
 						pccId);
 					errors = true;
 				}
 
-				if (TravelSpeedMaxTimeSeconds < 0.0)
+				if (SpeedMaxTimeSeconds < 0.0)
 				{
 					LogError(
-						$"Negative value \"{TravelSpeedMaxTimeSeconds}\" "
-						+ "specified for TravelSpeedMaxTimeSeconds. Expected non-negative value.",
+						$"Negative value \"{SpeedMaxTimeSeconds}\" "
+						+ "specified for SpeedMaxTimeSeconds. Expected non-negative value.",
 						pccId);
 					errors = true;
 				}
 
-				if (TravelSpeedMinTimeSeconds > TravelSpeedMaxTimeSeconds)
+				if (SpeedMinTimeSeconds > SpeedMaxTimeSeconds)
 				{
 					LogError(
-						$"TravelSpeedMinTimeSeconds \"{TravelSpeedMinTimeSeconds}\" "
-						+ $"is greater than TravelSpeedMaxTimeSeconds \"{TravelSpeedMaxTimeSeconds}\". "
-						+ "TravelSpeedMinTimeSeconds must be less than or equal to TravelSpeedMaxTimeSeconds.",
+						$"SpeedMinTimeSeconds \"{SpeedMinTimeSeconds}\" "
+						+ $"is greater than SpeedMaxTimeSeconds \"{SpeedMaxTimeSeconds}\". "
+						+ "SpeedMinTimeSeconds must be less than or equal to SpeedMaxTimeSeconds.",
 						pccId);
 					errors = true;
 				}
 
-				if (TravelDistanceMin < 0.0)
+				if (DistanceMin < 0.0)
 				{
 					LogError(
-						$"Negative value \"{TravelDistanceMin}\" "
-						+ "specified for TravelDistanceMin. Expected non-negative value.",
+						$"Negative value \"{DistanceMin}\" "
+						+ "specified for DistanceMin. Expected non-negative value.",
 						pccId);
 					errors = true;
 				}
 
-				if (TravelDistanceMax < 0.0)
+				if (DistanceMax < 0.0)
 				{
 					LogError(
-						$"Negative value \"{TravelDistanceMax}\" "
-						+ "specified for TravelDistanceMax. Expected non-negative value.",
+						$"Negative value \"{DistanceMax}\" "
+						+ "specified for DistanceMax. Expected non-negative value.",
 						pccId);
 					errors = true;
 				}
 
-				if (TravelDistanceMin > TravelDistanceMax)
+				if (DistanceMin > DistanceMax)
 				{
 					LogError(
-						$"TravelDistanceMin \"{TravelDistanceMin}\" "
-						+ $"is greater than TravelDistanceMax \"{TravelDistanceMax}\". "
-						+ "TravelDistanceMin must be less than or equal to TravelDistanceMax.",
+						$"DistanceMin \"{DistanceMin}\" "
+						+ $"is greater than DistanceMax \"{DistanceMax}\". "
+						+ "DistanceMin must be less than or equal to DistanceMax.",
 						pccId);
 					errors = true;
 				}
@@ -466,6 +487,27 @@ namespace StepManiaLibrary.PerformedChart
 				}
 
 				return errors;
+			}
+
+			public bool IsSpeedTighteningEnabled()
+			{
+				if (SpeedTighteningEnabled == null)
+					return false;
+				return SpeedTighteningEnabled.Value;
+			}
+
+			public bool IsDistanceTighteningEnabled()
+			{
+				if (DistanceTighteningEnabled == null)
+					return false;
+				return DistanceTighteningEnabled.Value;
+			}
+
+			public bool IsStretchTighteningEnabled()
+			{
+				if (StretchTighteningEnabled == null)
+					return false;
+				return StretchTighteningEnabled.Value;
 			}
 		}
 

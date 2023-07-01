@@ -4,11 +4,11 @@
 
 `ExpressedCharts` are created by parsing a chart for a given `ChartType` and using that `ChartType`'s [PadData](PadData.md) and [StepGraph](StepGraphs.md) to search every possible set of moves which would satisfy the chart. Costs are assigned to each move based on how likely they are to be the intended way to execute the chart, and the path with the lowest cost is chosen.
 
-## ExpressedChart Configuration
+# ExpressedChart Configuration
 
 `ExpressedChart` behavior can be configured through json objects described below.
 
-### Example
+## Example Configuration
 
 ```json
 {
@@ -27,16 +27,33 @@
 }
 ```
 
-### Configuration
+## Configuration
 
-- **DefaultBracketParsingMethod**: String type. The default method to use for parsing steps which could be jumps or brackets. The default method is used when the `BracketParsingDetermination` is set to `"UseDefaultMethod"`. Valid `BracketParsingMethod` values are:
-	- `"Aggressive"`: The application will try to interpret patterns aggressively as brackets instead of jumps.
-	- `"Balanced"`: The application will attempt to take a balanced approach to interpreting brackets and jumps. Generally, this errs on choosing brackets in ambiguous situations.
-	- `"NoBrackets"`: Jumps will be preferred to brackets. Steps will still be expressed as brackets if there are more than two simultaneous notes.
-- **BracketParsingDetermination**: String type. How the application should determine which `BracketParsingMethod` to use. Valid `BracketParsingDetermination` values are:
-	- `"ChooseMethodDynamically"`: The application will use the properties on this `ExpressedChartConfig` object to determine which `BracketParsingMethod` to use for the chart, falling back to the `"Balanced"` method.
-	- `"UseDefaultMethod"`: The `DefaultBracketParsingMethod` will be used.
-- **MinLevelForBrackets**: Number (integer) type. When parsing using `"ChooseMethodDynamically"`, charts with a difficulty rating under this level will use the `"NoBrackets"` `BracketParsingMethod`.
-- **UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets**: Boolean type. When parsing using `"ChooseMethodDynamically"` and the chart is above the `MinLevelForBrackets`, and this value is `true`, then use the `"Aggressive"` `BracketParsingMethod` if there exist more simultaneous steps in the chart than can be covered without brackets. In other words, if there are patterns that cannot possibly be performed without bracketing, then use the `"Aggressive"` method for the chart.
-- **BalancedBracketsPerMinuteForAggressiveBrackets**: Number (double) type. When parsing using `"ChooseMethodDynamically"` and the above parameters have still not determined which `BracketParsingMethod` to use, then parse the chart using the `"Balanced"` `BracketParsingMethod` and determine the number of brackets per minute. If the brackets per minute is above this value, then switch to the `"Aggressive"` method for the chart.
-- **BalancedBracketsPerMinuteForNoBrackets**: Number (double) type. When parsing using `"ChooseMethodDynamically"` and the above parameters have still not determined which `BracketParsingMethod` to use, then parse the chart using the `"Balanced"` `BracketParsingMethod` and determine the number of brackets per minute. If the brackets per minute is below this value, then switch to the `"NoBrackets"` method for the chart.
+### `DefaultBracketParsingMethod`
+
+String type. The default method to use for parsing steps which could be jumps or brackets. The default method is used when the `BracketParsingDetermination` is set to `"UseDefaultMethod"`. Valid `BracketParsingMethod` values are:
+- `"Aggressive"`: The application will try to interpret patterns aggressively as brackets instead of jumps.
+- `"Balanced"`: The application will attempt to take a balanced approach to interpreting brackets and jumps. Generally, this errs on choosing brackets in ambiguous situations.
+- `"NoBrackets"`: Jumps will be preferred to brackets. Steps will still be expressed as brackets if there are more than two simultaneous notes.
+
+### `BracketParsingDetermination`
+
+String type. How the application should determine which `BracketParsingMethod` to use. Valid `BracketParsingDetermination` values are:
+- `"ChooseMethodDynamically"`: The application will use the properties on this `ExpressedChartConfig` object to determine which `BracketParsingMethod` to use for the chart, falling back to the `"Balanced"` method.
+- `"UseDefaultMethod"`: The `DefaultBracketParsingMethod` will be used.
+
+### `MinLevelForBrackets`
+
+Number (integer) type. When parsing using `"ChooseMethodDynamically"`, charts with a difficulty rating under this level will use the `"NoBrackets"` `BracketParsingMethod`.
+
+### `UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets`
+
+Boolean type. When parsing using `"ChooseMethodDynamically"` and the chart is above the `MinLevelForBrackets`, and this value is `true`, then use the `"Aggressive"` `BracketParsingMethod` if there exist more simultaneous steps in the chart than can be covered without brackets. In other words, if there are patterns that cannot possibly be performed without bracketing, then use the `"Aggressive"` method for the chart.
+
+### `BalancedBracketsPerMinuteForAggressiveBrackets`
+
+Number (double) type. When parsing using `"ChooseMethodDynamically"` and the above parameters have still not determined which `BracketParsingMethod` to use, then parse the chart using the `"Balanced"` `BracketParsingMethod` and determine the number of brackets per minute. If the brackets per minute is above this value, then switch to the `"Aggressive"` method for the chart.
+
+### `BalancedBracketsPerMinuteForNoBrackets`
+
+Number (double) type. When parsing using `"ChooseMethodDynamically"` and the above parameters have still not determined which `BracketParsingMethod` to use, then parse the chart using the `"Balanced"` `BracketParsingMethod` and determine the number of brackets per minute. If the brackets per minute is below this value, then switch to the `"NoBrackets"` method for the chart.
