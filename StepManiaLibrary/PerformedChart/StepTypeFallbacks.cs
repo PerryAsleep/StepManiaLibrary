@@ -25,18 +25,17 @@ namespace StepManiaLibrary.PerformedChart
 		/// StepTypeFallbacks from config as strings.
 		/// </summary>
 		[JsonInclude] [JsonPropertyName("StepTypeFallbacks")]
-		public Dictionary<StepType, List<string>> FallbacksStrings = new Dictionary<StepType, List<string>>();
+		public Dictionary<StepType, List<string>> FallbacksStrings = new ();
 
 		/// <summary>
 		/// Parsed StepTypeFallbacks.
 		/// </summary>
-		[JsonIgnore] private Dictionary<StepType, List<StepType>> Fallbacks = new Dictionary<StepType, List<StepType>>();
+		[JsonIgnore] private Dictionary<StepType, List<StepType>> Fallbacks = new ();
 
 		/// <summary>
 		/// Cached indexes of StepType fallbacks per StepType.
 		/// </summary>
-		[JsonIgnore] private Dictionary<StepType, Dictionary<StepType, int>> FallbackIndexes =
-			new Dictionary<StepType, Dictionary<StepType, int>>();
+		[JsonIgnore] private Dictionary<StepType, Dictionary<StepType, int>> FallbackIndexes = new ();
 
 		/// <summary>
 		/// Loads StepTypeFallbacks from the given file.
@@ -58,13 +57,11 @@ namespace StepManiaLibrary.PerformedChart
 
 			try
 			{
-				using (var openStream = File.OpenRead(Fumen.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName)))
-				{
-					fallbacks = await JsonSerializer.DeserializeAsync<StepTypeFallbacks>(openStream, options);
-					fallbacks?.Init();
-					if (fallbacks == null || fallbacks.Validate(fileName))
-						throw new Exception("Invalid StepTypeFallbacks.");
-				}
+				await using var openStream = File.OpenRead(Fumen.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName));
+				fallbacks = await JsonSerializer.DeserializeAsync<StepTypeFallbacks>(openStream, options);
+				fallbacks?.Init();
+				if (fallbacks == null || fallbacks.Validate(fileName))
+					throw new Exception("Invalid StepTypeFallbacks.");
 			}
 			catch (Exception e)
 			{

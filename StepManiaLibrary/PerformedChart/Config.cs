@@ -63,8 +63,7 @@ namespace StepManiaLibrary.PerformedChart
 			/// <param name="other">Other TransitionConfig to use as as a base.</param>
 			public void SetAsOverrideOf(TransitionConfig other)
 			{
-				if (Enabled == null)
-					Enabled = other.Enabled;
+				Enabled ??= other.Enabled;
 				if (StepsPerTransitionMin == -1)
 					StepsPerTransitionMin = other.StepsPerTransitionMin;
 				if (StepsPerTransitionMax == -1)
@@ -352,20 +351,17 @@ namespace StepManiaLibrary.PerformedChart
 			/// <param name="other">Other StepTighteningConfig to use as as a base.</param>
 			public void SetAsOverrideOf(StepTighteningConfig other)
 			{
-				if (SpeedTighteningEnabled == null)
-					SpeedTighteningEnabled = other.SpeedTighteningEnabled;
+				SpeedTighteningEnabled ??= other.SpeedTighteningEnabled;
 				if (SpeedMinTimeSeconds.DoubleEquals(-1.0))
 					SpeedMinTimeSeconds = other.SpeedMinTimeSeconds;
 				if (SpeedMaxTimeSeconds.DoubleEquals(-1.0))
 					SpeedMaxTimeSeconds = other.SpeedMaxTimeSeconds;
-				if (DistanceTighteningEnabled == null)
-					DistanceTighteningEnabled = other.DistanceTighteningEnabled;
+				DistanceTighteningEnabled ??= other.DistanceTighteningEnabled;
 				if (DistanceMin.DoubleEquals(-1.0))
 					DistanceMin = other.DistanceMin;
 				if (DistanceMax.DoubleEquals(-1.0))
 					DistanceMax = other.DistanceMax;
-				if (StretchTighteningEnabled == null)
-					StretchTighteningEnabled = other.StretchTighteningEnabled;
+				StretchTighteningEnabled ??= other.StretchTighteningEnabled;
 				if (StretchDistanceMin.DoubleEquals(-1.0))
 					StretchDistanceMin = other.StretchDistanceMin;
 				if (StretchDistanceMax.DoubleEquals(-1.0))
@@ -554,8 +550,7 @@ namespace StepManiaLibrary.PerformedChart
 			/// <param name="other">Other LateralTighteningConfig to use as as a base.</param>
 			public void SetAsOverrideOf(LateralTighteningConfig other)
 			{
-				if (Enabled == null)
-					Enabled = other.Enabled;
+				Enabled ??= other.Enabled;
 				if (RelativeNPS.DoubleEquals(-1.0))
 					RelativeNPS = other.RelativeNPS;
 				if (AbsoluteNPS.DoubleEquals(-1.0))
@@ -614,35 +609,35 @@ namespace StepManiaLibrary.PerformedChart
 		/// <summary>
 		/// TransitionConfig.
 		/// </summary>
-		[JsonInclude] public TransitionConfig Transitions = new TransitionConfig();
+		[JsonInclude] public TransitionConfig Transitions = new ();
 
 		/// <summary>
 		/// FacingConfig.
 		/// </summary>
-		[JsonInclude] public FacingConfig Facing = new FacingConfig();
+		[JsonInclude] public FacingConfig Facing = new ();
 
 		/// <summary>
 		/// LateralTighteningConfig.
 		/// </summary>
-		[JsonInclude] public LateralTighteningConfig LateralTightening = new LateralTighteningConfig();
+		[JsonInclude] public LateralTighteningConfig LateralTightening = new ();
 
 		/// <summary>
 		/// StepTighteningConfig.
 		/// </summary>
-		[JsonInclude] public StepTighteningConfig StepTightening = new StepTighteningConfig();
+		[JsonInclude] public StepTighteningConfig StepTightening = new ();
 
 		/// <summary>
 		/// Dictionary of StepMania StepsType to a List of integers representing weights
 		/// for each lane. When generating a PerformedChart we should try to match these weights
 		/// for distributing arrows.
 		/// </summary>
-		[JsonInclude] public Dictionary<string, List<int>> ArrowWeights = new Dictionary<string, List<int>>();
+		[JsonInclude] public Dictionary<string, List<int>> ArrowWeights = new ();
 
 		/// <summary>
 		/// Normalized ArrowWeights.
 		/// Values sum to 1.0.
 		/// </summary>
-		[JsonIgnore] public Dictionary<string, List<double>> ArrowWeightsNormalized = new Dictionary<string, List<double>>();
+		[JsonIgnore] public Dictionary<string, List<double>> ArrowWeightsNormalized = new ();
 
 		/// <summary>
 		/// Returns a new Config that is a clone of this Config.

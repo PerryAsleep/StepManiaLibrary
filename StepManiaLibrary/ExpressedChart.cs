@@ -207,8 +207,7 @@ namespace StepManiaLibrary
 			/// Key is the GraphLink leading out of the GraphNode.
 			/// Value is set of all ChartSearchNodes possible from that GraphLink.
 			/// </summary>
-			public readonly Dictionary<GraphLink, HashSet<ChartSearchNode>> NextNodes =
-				new Dictionary<GraphLink, HashSet<ChartSearchNode>>();
+			public readonly Dictionary<GraphLink, HashSet<ChartSearchNode>> NextNodes = new ();
 
 			/// <summary>
 			/// For each arrow/lane, the last foot which stepped on it. Updated with this
@@ -315,7 +314,7 @@ namespace StepManiaLibrary
 			public ChartSearchNode GetPreviousStepSearchNode(int nthPrevious = 1)
 			{
 				var node = PreviousNode;
-				while (node != null && node.PreviousNode != null)
+				while (node?.PreviousNode != null)
 				{
 					var linkToNode = node.PreviousLink;
 					if (!linkToNode.GraphLink.IsRelease())
@@ -512,12 +511,12 @@ namespace StepManiaLibrary
 		/// first StepEvent will a be GraphLink with a Link for one foot with a NewArrow
 		/// StepType and a Tap FootAction.
 		/// </summary>
-		public List<StepEvent> StepEvents = new List<StepEvent>();
+		public List<StepEvent> StepEvents = new ();
 
 		/// <summary>
 		/// All the MineEvents which make up this chart.
 		/// </summary>
-		public List<MineEvent> MineEvents = new List<MineEvent>();
+		public List<MineEvent> MineEvents = new ();
 
 		/// <summary>
 		/// How to parse brackets when encountering steps which could be brackets or jumps.
@@ -838,22 +837,22 @@ namespace StepManiaLibrary
 						var stepEvent = steps[s];
 						switch (stepEvent)
 						{
-							case LaneTapNote _ when stepEvent.SourceType ==
-							                        SMCommon.NoteChars[(int)SMCommon.NoteType.Fake].ToString():
+							case LaneTapNote when stepEvent.SourceType ==
+							                      SMCommon.NoteChars[(int)SMCommon.NoteType.Fake].ToString():
 								currentState[stepEvent.Lane] = SearchState.Fake;
 								break;
-							case LaneTapNote _ when stepEvent.SourceType ==
-							                        SMCommon.NoteChars[(int)SMCommon.NoteType.Lift].ToString():
+							case LaneTapNote when stepEvent.SourceType ==
+							                      SMCommon.NoteChars[(int)SMCommon.NoteType.Lift].ToString():
 								currentState[stepEvent.Lane] = SearchState.Lift;
 								break;
-							case LaneTapNote _:
+							case LaneTapNote:
 								currentState[stepEvent.Lane] = SearchState.Tap;
 								break;
 							case LaneHoldStartNote lhsn
 								when lhsn.SourceType == SMCommon.NoteChars[(int)SMCommon.NoteType.RollStart].ToString():
 								currentState[stepEvent.Lane] = SearchState.Roll;
 								break;
-							case LaneHoldStartNote _:
+							case LaneHoldStartNote:
 								currentState[stepEvent.Lane] = SearchState.Hold;
 								break;
 						}
@@ -941,7 +940,7 @@ namespace StepManiaLibrary
 						case LaneHoldEndNote lhen:
 							heldLanes[lhen.Lane] = false;
 							break;
-						case LaneTapNote _:
+						case LaneTapNote:
 							numTaps++;
 							break;
 					}

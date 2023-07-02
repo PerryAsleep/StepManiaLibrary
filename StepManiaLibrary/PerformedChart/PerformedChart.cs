@@ -54,12 +54,12 @@ namespace StepManiaLibrary.PerformedChart
 		/// <summary>
 		/// Cache of fallback / replacement GraphLinkInstances.
 		/// </summary>
-		private static readonly GraphLinkInstanceCache LinkCache = new GraphLinkInstanceCache();
+		private static readonly GraphLinkInstanceCache LinkCache = new ();
 
 		/// <summary>
 		/// List of PerformanceNodes representing the roots of each section of the PerformedChart.
 		/// </summary>
-		private readonly List<PerformanceNode> SectionRoots = new List<PerformanceNode>();
+		private readonly List<PerformanceNode> SectionRoots = new ();
 
 		/// <summary>
 		/// Number of arrows in the Chart.
@@ -152,7 +152,7 @@ namespace StepManiaLibrary.PerformedChart
 					tier++;
 
 					// Order the root nodes at this tier randomly since they are weighted evenly.
-					var roots = currentTierOfRootNodes.OrderBy(a => random.Next()).ToList();
+					var roots = currentTierOfRootNodes.OrderBy(_ => random.Next()).ToList();
 
 					// Try each root node.
 					foreach (var rootNode in roots)
@@ -1100,7 +1100,7 @@ namespace StepManiaLibrary.PerformedChart
 			var releaseIndex = 0;
 			var previousMinePosition = -1;
 			var arrowsOccupiedByMines = new bool[stepGraph.NumArrows];
-			var randomLaneOrder = Enumerable.Range(0, stepGraph.NumArrows).OrderBy(x => random.Next()).ToArray();
+			var randomLaneOrder = Enumerable.Range(0, stepGraph.NumArrows).OrderBy(_ => random.Next()).ToArray();
 			for (var m = 0; m < expressedChart.MineEvents.Count; m++)
 			{
 				var mineEvent = expressedChart.MineEvents[m];

@@ -78,8 +78,7 @@ namespace StepManiaLibrary.PerformedChart
 			/// All the valid NextNodes out of this SearchNode.
 			/// These are added during the search and pruned so at the end there is at most one next SearchNode.
 			/// </summary>
-			public readonly Dictionary<GraphLinkInstance, HashSet<SearchNode>> NextNodes =
-				new Dictionary<GraphLinkInstance, HashSet<SearchNode>>();
+			public readonly Dictionary<GraphLinkInstance, HashSet<SearchNode>> NextNodes = new ();
 
 			/// <summary>
 			/// This SearchNode's cost for fast steps.
@@ -113,7 +112,7 @@ namespace StepManiaLibrary.PerformedChart
 			/// If this SearchNode represents a transition, whether that transition moved left or right.
 			/// Null if this SearchNode does not represent a transition.
 			/// </summary>
-			private bool? TransitionedLeft;
+			private readonly bool? TransitionedLeft;
 
 			/// <summary>
 			/// The most recent previous SearchNode which represented a transition.
@@ -466,13 +465,13 @@ namespace StepManiaLibrary.PerformedChart
 						case StepType.SameArrow:
 						{
 							totalNumSameArrowSteps++;
-							if (fillSectionConfig != null && fillSectionConfig.MaxSameArrowsInARowPerFoot > 0)
+							if (fillSectionConfig?.MaxSameArrowsInARowPerFoot > 0)
 							{
 								// Two because the previous step was the same arrow.
 								// One SameArrow step looks like steps in a row with the same foot.
 								var numStepsInARow = 2;
 								var previousNodeToCheck = PreviousNode;
-								while (previousNodeToCheck != null && previousNodeToCheck.GraphLinkFromPreviousNode != null)
+								while (previousNodeToCheck?.GraphLinkFromPreviousNode != null)
 								{
 									if (previousNodeToCheck.GraphLinkFromPreviousNode.GraphLink.IsSingleStep(
 										    out var previousStepType, out var previousFoot)

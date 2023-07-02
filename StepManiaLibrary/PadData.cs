@@ -94,16 +94,14 @@ namespace StepManiaLibrary
 					return null;
 				}
 
-				using (var openStream = File.OpenRead(fileFileName))
-				{
-					padData = await JsonSerializer.DeserializeAsync<PadData>(openStream, options);
-					if (padData == null)
-						throw new Exception("Null PadData.");
-					padData.StepsType = stepsType;
-					if (!padData.Validate())
-						return null;
-					padData.Init();
-				}
+				await using var openStream = File.OpenRead(fileFileName);
+				padData = await JsonSerializer.DeserializeAsync<PadData>(openStream, options);
+				if (padData == null)
+					throw new Exception("Null PadData.");
+				padData.StepsType = stepsType;
+				if (!padData.Validate())
+					return null;
+				padData.Init();
 			}
 			catch (Exception e)
 			{

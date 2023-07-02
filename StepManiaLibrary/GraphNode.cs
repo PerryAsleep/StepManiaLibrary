@@ -97,7 +97,7 @@ namespace StepManiaLibrary
 		/// GraphLinks to other GraphNodes.
 		/// A GraphLink may connection more than one GraphNode.
 		/// </summary>
-		public Dictionary<GraphLink, List<GraphNode>> Links = new Dictionary<GraphLink, List<GraphNode>>();
+		public Dictionary<GraphLink, List<GraphNode>> Links = new();
 
 		/// <summary>
 		/// Constructor requiring the State for the GraphNode.

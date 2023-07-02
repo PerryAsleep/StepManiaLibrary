@@ -211,18 +211,12 @@ namespace StepManiaLibrary
 		{
 			try
 			{
-				using (var fileStream = File.Open(filePath, FileMode.Create))
-				{
-					using (var memoryStream = new MemoryStream())
-					{
-						using (var writer = new BinaryWriter(memoryStream, Encoding.UTF8, false))
-						{
-							WriteGraphV1(writer);
-							memoryStream.Seek(0, SeekOrigin.Begin);
-							Compression.CompressLzma(memoryStream, fileStream);
-						}
-					}
-				}
+				using var fileStream = File.Open(filePath, FileMode.Create);
+				using var memoryStream = new MemoryStream();
+				using var writer = new BinaryWriter(memoryStream, Encoding.UTF8, false);
+				WriteGraphV1(writer);
+				memoryStream.Seek(0, SeekOrigin.Begin);
+				Compression.CompressLzma(memoryStream, fileStream);
 			}
 			catch (Exception e)
 			{
@@ -257,7 +251,7 @@ namespace StepManiaLibrary
 
 			while (nodesToWrite.Count > 0)
 			{
-				var node = nodesToWrite[nodesToWrite.Count - 1];
+				var node = nodesToWrite[^1];
 				nodesToWrite.RemoveAt(nodesToWrite.Count - 1);
 
 				var id = nodeId;
@@ -339,26 +333,20 @@ namespace StepManiaLibrary
 			StepGraph stepGraph;
 			try
 			{
-				using (var fileStream = File.Open(filePath, FileMode.Open))
+				using var fileStream = File.Open(filePath, FileMode.Open);
+				using var stream = Compression.DecompressLzma(fileStream);
+				using var reader = new BinaryReader(stream, Encoding.UTF8, false);
+				var version = reader.ReadInt32();
+				if (version != 1)
 				{
-					using (var stream = Compression.DecompressLzma(fileStream))
-					{
-						using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
-						{
-							var version = reader.ReadInt32();
-							if (version != 1)
-							{
-								throw new Exception($"Unsupported StepGraph version {version}. Expected 1.");
-							}
-
-							var root = ReadGraphV1(reader);
-							stepGraph = new StepGraph(padData)
-							{
-								Root = root,
-							};
-						}
-					}
+					throw new Exception($"Unsupported StepGraph version {version}. Expected 1.");
 				}
+
+				var root = ReadGraphV1(reader);
+				stepGraph = new StepGraph(padData)
+				{
+					Root = root,
+				};
 			}
 			catch (Exception e)
 			{

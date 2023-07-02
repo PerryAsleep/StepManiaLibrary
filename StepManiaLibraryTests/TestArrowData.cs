@@ -60,41 +60,41 @@ namespace StepManiaLibraryTests
 
 			var expectedFits = new Dictionary<ChartType, HashSet<ChartType>>
 			{
-				[ChartType.dance_single] = new HashSet<ChartType>
+				[ChartType.dance_single] = new()
 				{
 					ChartType.dance_double,
 					ChartType.dance_solo,
 					ChartType.smx_single,
 					ChartType.smx_full,
 				},
-				[ChartType.dance_double] = new HashSet<ChartType>
+				[ChartType.dance_double] = new()
 				{
 					ChartType.smx_full,
 				},
-				[ChartType.dance_threepanel] = new HashSet<ChartType>
+				[ChartType.dance_threepanel] = new()
 				{
 					ChartType.dance_solo,
 				},
-				[ChartType.pump_single] = new HashSet<ChartType>
+				[ChartType.pump_single] = new()
 				{
 					ChartType.pump_double,
 				},
-				[ChartType.pump_halfdouble] = new HashSet<ChartType>
+				[ChartType.pump_halfdouble] = new()
 				{
 					ChartType.pump_double,
 				},
-				[ChartType.smx_beginner] = new HashSet<ChartType>
+				[ChartType.smx_beginner] = new()
 				{
 					ChartType.dance_solo,
 					ChartType.smx_single,
 					ChartType.smx_dual,
 					ChartType.smx_full,
 				},
-				[ChartType.smx_single] = new HashSet<ChartType>
+				[ChartType.smx_single] = new()
 				{
 					ChartType.smx_full,
 				},
-				[ChartType.smx_dual] = new HashSet<ChartType>
+				[ChartType.smx_dual] = new()
 				{
 					ChartType.smx_full,
 				},
