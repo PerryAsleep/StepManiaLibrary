@@ -22,9 +22,9 @@ When comparing paths through a chart a series of comparisons are made to determi
 8. Lateral Movement Speed
 	- Paths with the least aggressive lateral movement are preferred. See [Lateral Tightening](LateralTighteningControls.md) for configuring or disabling this check.
 9. Frequent Transitions
-	- Paths which result in transitions more frequently than desired are penalized. See [Transition Controls](TransitionContols.md) for configuring or disabling this check.
+	- Paths which result in transitions more frequently than desired are penalized. See [Transition Controls](TransitionControls.md) for configuring or disabling this check.
 10. Infrequent Transitions
-	- Paths which result in transitions less frequently than desired are penalized. See [Transition Controls](TransitionContols.md) for configuring or disabling this check.
+	- Paths which result in transitions less frequently than desired are penalized. See [Transition Controls](TransitionControls.md) for configuring or disabling this check.
 11. Arrow Distribution
 	- Paths which more closely match the desired arrow distribution are preferred. See [Arrow Weights](#arrow-weights) below for configuring this behavior.
 
