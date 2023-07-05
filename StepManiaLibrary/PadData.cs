@@ -350,39 +350,6 @@ public class PadData
 	}
 
 	/// <summary>
-	/// Gets the distance between two points on the pads.
-	/// </summary>
-	/// <param name="x1">Point 1 X.</param>
-	/// <param name="y1">Point 1 Y.</param>
-	/// <param name="x2">Point 2 X.</param>
-	/// <param name="y2">Point 2 Y.</param>
-	/// <returns>Distance between the two points.</returns>
-	public double GetDistance(double x1, double y1, double x2, double y2)
-	{
-		var dx = x1 - x2;
-		var dy = y1 - y2;
-		return Math.Sqrt(dx * dx + dy * dy);
-	}
-
-	/// <summary>
-	/// Gets the distance between two points on the pads with compensation values.
-	/// </summary>
-	/// <param name="x1">Point 1 X.</param>
-	/// <param name="y1">Point 1 Y.</param>
-	/// <param name="x2">Point 2 X.</param>
-	/// <param name="y2">Point 2 Y.</param>
-	/// <param name="xCompensation">X distance compensation.</param>
-	/// <param name="yCompensation">Y distance compensation.</param>
-	/// <returns>Distance between the two points.</returns>
-	public double GetDistanceWithCompensation(double x1, double y1, double x2, double y2, double xCompensation,
-		double yCompensation)
-	{
-		var dx = Math.Max(0.0, Math.Abs(x1 - x2) - xCompensation);
-		var dy = Math.Max(0.0, Math.Abs(y1 - y2) - yCompensation);
-		return Math.Sqrt(dx * dx + dy * dy);
-	}
-
-	/// <summary>
 	/// Finds the arrow index at the given x,y position.
 	/// </summary>
 	/// <param name="x">X coordinate of position.</param>

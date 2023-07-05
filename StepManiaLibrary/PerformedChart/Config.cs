@@ -7,6 +7,11 @@ namespace StepManiaLibrary.PerformedChart;
 
 /// <summary>
 /// Configuration data for PerformedChart behavior.
+/// Expected Usage:
+///  Deserialize from json or instantiate as needed.
+///  For overrides, call SetAsOverrideOf before Init and Validate.
+///  Call Init to perform needed initialization after loading and after SetAsOverrideOf.
+///  Call Validate after Init to perform validation.
 /// </summary>
 public class Config
 {
@@ -273,6 +278,8 @@ public class Config
 	/// </summary>
 	public class StepTighteningConfig
 	{
+		private const double InvalidMinPanelDistance = -100.0;
+
 		/// <summary>
 		/// Whether or not to tighten travel speed.
 		/// </summary>
@@ -289,6 +296,11 @@ public class Config
 		/// Time in seconds between steps for one foot.
 		/// </summary>
 		[JsonInclude] public double SpeedMaxTimeSeconds = -1.0;
+
+		/// <summary>
+		/// Minimum distance in panel lengths for speed tightening rules to apply.
+		/// </summary>
+		[JsonInclude] public double SpeedTighteningMinDistance = -1.0;
 
 		/// <summary>
 		/// Whether or not to tighten travel distance.
@@ -325,14 +337,16 @@ public class Config
 		[JsonInclude] public double StretchDistanceMax = -1.0;
 
 		/// <summary>
-		/// Distance compensation X value.
+		/// The minimum distance that the foot needs to move laterally into a panel in
+		/// order to comfortably step on it.
 		/// </summary>
-		[JsonInclude] public double DistanceCompensationX = -1.0;
+		[JsonInclude] public double LateralMinPanelDistance = InvalidMinPanelDistance;
 
 		/// <summary>
-		/// Distance compensation Y value.
+		/// The minimum distance that the foot needs to move longitudinally into a panel
+		/// in order to comfortable step on it.
 		/// </summary>
-		[JsonInclude] public double DistanceCompensationY = -1.0;
+		[JsonInclude] public double LongitudinalMinPanelDistance = InvalidMinPanelDistance;
 
 		/// <summary>
 		/// Returns a new StepTighteningConfig that is a clone of this StepTighteningConfig.
@@ -347,6 +361,7 @@ public class Config
 		/// Sets this StepTighteningConfig to be an override of the the given other StepTighteningConfig.
 		/// Any values in this StepTighteningConfig which are at their default, invalid values will
 		/// be replaced with the corresponding values in the given other StepTighteningConfig.
+		/// Called before Init and Validate.
 		/// </summary>
 		/// <param name="other">Other StepTighteningConfig to use as as a base.</param>
 		public void SetAsOverrideOf(StepTighteningConfig other)
@@ -356,6 +371,8 @@ public class Config
 				SpeedMinTimeSeconds = other.SpeedMinTimeSeconds;
 			if (SpeedMaxTimeSeconds.DoubleEquals(-1.0))
 				SpeedMaxTimeSeconds = other.SpeedMaxTimeSeconds;
+			if (SpeedTighteningMinDistance.DoubleEquals(-1.0))
+				SpeedTighteningMinDistance = other.SpeedTighteningMinDistance;
 			DistanceTighteningEnabled ??= other.DistanceTighteningEnabled;
 			if (DistanceMin.DoubleEquals(-1.0))
 				DistanceMin = other.DistanceMin;
@@ -366,14 +383,27 @@ public class Config
 				StretchDistanceMin = other.StretchDistanceMin;
 			if (StretchDistanceMax.DoubleEquals(-1.0))
 				StretchDistanceMax = other.StretchDistanceMax;
-			if (DistanceCompensationX.DoubleEquals(-1.0))
-				DistanceCompensationX = other.DistanceCompensationX;
-			if (DistanceCompensationY.DoubleEquals(-1.0))
-				DistanceCompensationY = other.DistanceCompensationY;
+			if (LateralMinPanelDistance.DoubleEquals(InvalidMinPanelDistance))
+				LateralMinPanelDistance = other.LateralMinPanelDistance;
+			if (LongitudinalMinPanelDistance.DoubleEquals(InvalidMinPanelDistance))
+				LongitudinalMinPanelDistance = other.LongitudinalMinPanelDistance;
+		}
+
+		/// <summary>
+		/// Initialize data.
+		/// Called after SetAsOverrideOf and before Validate.
+		/// </summary>
+		public void Init()
+		{
+			if (LateralMinPanelDistance.DoubleEquals(InvalidMinPanelDistance))
+				LateralMinPanelDistance = ArrowData.HalfPanelWidth;
+			if (LongitudinalMinPanelDistance.DoubleEquals(InvalidMinPanelDistance))
+				LongitudinalMinPanelDistance = ArrowData.HalfPanelHeight;
 		}
 
 		/// <summary>
 		/// Log errors if any values are not valid and return whether or not there are errors.
+		/// Called after SetAsOverrideOf and Init.
 		/// </summary>
 		/// <param name="pccId">Identifier for logging.</param>
 		/// <returns>True if errors were found and false otherwise.</returns>
@@ -404,6 +434,15 @@ public class Config
 					$"SpeedMinTimeSeconds \"{SpeedMinTimeSeconds}\" "
 					+ $"is greater than SpeedMaxTimeSeconds \"{SpeedMaxTimeSeconds}\". "
 					+ "SpeedMinTimeSeconds must be less than or equal to SpeedMaxTimeSeconds.",
+					pccId);
+				errors = true;
+			}
+
+			if (SpeedTighteningMinDistance < 0.0)
+			{
+				LogError(
+					$"Negative value \"{SpeedTighteningMinDistance}\" "
+					+ "specified for SpeedTighteningMinDistance. Expected non-negative value.",
 					pccId);
 				errors = true;
 			}
@@ -460,24 +499,6 @@ public class Config
 					$"StretchDistanceMin \"{StretchDistanceMin}\" "
 					+ $"is greater than StretchDistanceMax \"{StretchDistanceMax}\". "
 					+ "StretchDistanceMin must be less than or equal to StretchDistanceMax.",
-					pccId);
-				errors = true;
-			}
-
-			if (DistanceCompensationX < 0.0)
-			{
-				LogError(
-					$"Negative value \"{DistanceCompensationX}\" "
-					+ "specified for DistanceCompensationX. Expected non-negative value.",
-					pccId);
-				errors = true;
-			}
-
-			if (DistanceCompensationY < 0.0)
-			{
-				LogError(
-					$"Negative value \"{DistanceCompensationY}\" "
-					+ "specified for DistanceCompensationX. Expected non-negative value.",
 					pccId);
 				errors = true;
 			}
@@ -687,6 +708,7 @@ public class Config
 	/// Sets this Config to be an override of the the given other Config.
 	/// Any values in this Config which are at their default, invalid values will
 	/// be replaced with the corresponding values in the given other Config.
+	/// Called before Init and Validate.
 	/// </summary>
 	/// <param name="other">Other Config to use as as a base.</param>
 	public void SetAsOverrideOf(Config other)
@@ -706,9 +728,12 @@ public class Config
 
 	/// <summary>
 	/// Perform post-load initialization.
+	/// Called after SetAsOverrideOf and before Validate.
 	/// </summary>
 	public void Init()
 	{
+		StepTightening.Init();
+
 		// Init normalized arrow weights.
 		if (ArrowWeights != null)
 		{
@@ -739,6 +764,7 @@ public class Config
 
 	/// <summary>
 	/// Log errors if any values are not valid and return whether or not there are errors.
+	/// Called after SetAsOverrideOf and Init.
 	/// </summary>
 	/// <param name="pccId">Identifier for logging.</param>
 	/// <returns>True if errors were found and false otherwise.</returns>

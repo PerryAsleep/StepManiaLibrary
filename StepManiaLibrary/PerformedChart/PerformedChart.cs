@@ -172,8 +172,7 @@ public partial class PerformedChart
 						stepGraph,
 						nps,
 						random.NextDouble(),
-						config,
-						null);
+						config);
 					var currentSearchNodes = new HashSet<SearchNode> { rootSearchNode };
 
 					while (true)
@@ -245,9 +244,7 @@ public partial class PerformedChart
 										stepGraph,
 										nps,
 										random.NextDouble(),
-										config,
-										null
-									);
+										config);
 
 									// Hook up the new SearchNode and store it in the nextSearchNodes for pruning.
 									if (!AddChildNode(searchNode, nextSearchNode, graphLink, nextSearchNodes, stepGraph,
@@ -297,9 +294,7 @@ public partial class PerformedChart
 											stepGraph,
 											nps,
 											random.NextDouble(),
-											config,
-											null
-										);
+											config);
 
 										// Hook up the new SearchNode and store it in the nextSearchNodes for pruning.
 										if (!AddChildNode(searchNode, nextSearchNode, graphLink, nextSearchNodes, stepGraph,

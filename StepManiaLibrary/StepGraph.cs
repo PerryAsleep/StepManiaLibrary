@@ -1929,19 +1929,21 @@ public class StepGraph
 	/// </summary>
 	/// <param name="node">GraphNode to get the foot position of.</param>
 	/// <param name="foot">Foot to get the position of.</param>
-	/// <returns>Position represented as a tuple of doubles representing the X and Y positions.</returns>
-	public (double, double) GetFootPosition(GraphNode node, int foot)
+	/// <param name="x">X position to set.</param>
+	/// <param name="y">Y position to set.</param>
+	/// <returns>Whether or not the given arrows represent a bracket.</returns>
+	public bool GetFootPositionAndIsBracket(GraphNode node, int foot, out float x, out float y)
 	{
-		var x = 0.0;
-		var y = 0.0;
+		x = 0.0f;
+		y = 0.0f;
 		var num = 0;
 		for (var p = 0; p < NumFootPortions; p++)
 		{
 			if (node.State[foot, p].Arrow != InvalidArrowIndex)
 			{
 				num++;
-				x += PadData.ArrowData[node.State[foot, p].Arrow].X;
-				y += PadData.ArrowData[node.State[foot, p].Arrow].Y;
+				x += PadData.ArrowData[node.State[foot, p].Arrow].X + ArrowData.HalfPanelWidth;
+				y += PadData.ArrowData[node.State[foot, p].Arrow].Y + ArrowData.HalfPanelHeight;
 			}
 		}
 
@@ -1949,8 +1951,22 @@ public class StepGraph
 		{
 			x /= num;
 			y /= num;
+			return true;
 		}
 
+		return false;
+	}
+
+	/// <summary>
+	/// Gets the position of the given foot on the pads in the given GraphNode.
+	/// For brackets, this position is the average of the bracketed arrows.
+	/// </summary>
+	/// <param name="node">GraphNode to get the foot position of.</param>
+	/// <param name="foot">Foot to get the position of.</param>
+	/// <returns>Position represented as a tuple of doubles representing the X and Y positions.</returns>
+	public (float, float) GetFootPosition(GraphNode node, int foot)
+	{
+		GetFootPositionAndIsBracket(node, foot, out var x, out var y);
 		return (x, y);
 	}
 
@@ -1959,19 +1975,21 @@ public class StepGraph
 	/// arrows corresponding to the FootPortions for one foot on a GraphNode.
 	/// </summary>
 	/// <param name="footArrows">Array of arrows being stepped on.</param>
-	/// <returns>Position represented as a tuple of doubles representing the X and Y positions.</returns>
-	public (double, double) GetFootPosition(int[] footArrows)
+	/// <param name="x">X position to set.</param>
+	/// <param name="y">Y position to set.</param>
+	/// <returns>Whether or not the given arrows represent a bracket.</returns>
+	public bool GetFootPositionAndIsBracket(int[] footArrows, out float x, out float y)
 	{
-		var x = 0.0;
-		var y = 0.0;
+		x = 0.0f;
+		y = 0.0f;
 		var num = 0;
 		for (var p = 0; p < NumFootPortions; p++)
 		{
 			if (footArrows[p] != InvalidArrowIndex)
 			{
 				num++;
-				x += PadData.ArrowData[footArrows[p]].X;
-				y += PadData.ArrowData[footArrows[p]].Y;
+				x += PadData.ArrowData[footArrows[p]].X + ArrowData.HalfPanelWidth;
+				y += PadData.ArrowData[footArrows[p]].Y + ArrowData.HalfPanelHeight;
 			}
 		}
 
@@ -1979,8 +1997,21 @@ public class StepGraph
 		{
 			x /= num;
 			y /= num;
+			return true;
 		}
 
+		return false;
+	}
+
+	/// <summary>
+	/// Gets the average position of the given arrows. Assumes the given array represents
+	/// arrows corresponding to the FootPortions for one foot on a GraphNode.
+	/// </summary>
+	/// <param name="footArrows">Array of arrows being stepped on.</param>
+	/// <returns>Position represented as a tuple of doubles representing the X and Y positions.</returns>
+	public (float, float) GetFootPosition(int[] footArrows)
+	{
+		GetFootPositionAndIsBracket(footArrows, out var x, out var y);
 		return (x, y);
 	}
 

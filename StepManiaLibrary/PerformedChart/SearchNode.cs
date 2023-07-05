@@ -159,11 +159,11 @@ public partial class PerformedChart
 		private readonly int TotalNumOutwardSteps;
 
 		// TODO
-		private readonly double SectionStepTypeCost;
-		private readonly int TotalNumSameArrowSteps;
-		private readonly int TotalNumSameArrowStepsInARowPerFootOverMax;
-		private readonly int TotalNumNewArrowSteps;
-		private readonly int TotalNumBracketableNewArrowSteps;
+		//private readonly double SectionStepTypeCost;
+		//private readonly int TotalNumSameArrowSteps;
+		//private readonly int TotalNumSameArrowStepsInARowPerFootOverMax;
+		//private readonly int TotalNumNewArrowSteps;
+		//private readonly int TotalNumBracketableNewArrowSteps;
 
 		/// <summary>
 		/// This SearchNode's random weight for when all costs are equal.
@@ -282,7 +282,6 @@ public partial class PerformedChart
 		/// Random weight to use as a fallback for comparing SearchNodes with equal costs.
 		/// </param>
 		/// <param name="config">Config to use.</param>
-		/// <param name="fillSectionConfig">TODO</param>
 		public SearchNode(
 			GraphNode graphNode,
 			List<GraphLinkInstance> possibleGraphLinksToNextNode,
@@ -295,8 +294,8 @@ public partial class PerformedChart
 			StepGraph stepGraph,
 			double nps,
 			double randomWeight,
-			Config config,
-			FillConfig fillSectionConfig)
+			Config config
+			/*FillConfig _*/)
 		{
 			Id = Interlocked.Increment(ref IdCounter);
 			GraphNode = graphNode;
@@ -377,15 +376,15 @@ public partial class PerformedChart
 			TotalLateralMovementSpeedCost =
 				(PreviousNode?.TotalLateralMovementSpeedCost ?? 0.0) + GetLateralMovementCost(config.LateralTightening, nps);
 
-			UpdateStepCounts(
-				stepGraph,
-				fillSectionConfig,
-				out TotalNumSameArrowSteps,
-				out TotalNumSameArrowStepsInARowPerFootOverMax,
-				out TotalNumNewArrowSteps,
-				out TotalNumBracketableNewArrowSteps);
-
-			SectionStepTypeCost = DetermineSectionStepCost(fillSectionConfig);
+			// TODO
+			//UpdateStepCounts(
+			//	stepGraph,
+			//	fillSectionConfig,
+			//	out TotalNumSameArrowSteps,
+			//	out TotalNumSameArrowStepsInARowPerFootOverMax,
+			//	out TotalNumNewArrowSteps,
+			//	out TotalNumBracketableNewArrowSteps);
+			//SectionStepTypeCost = DetermineSectionStepCost(fillSectionConfig);
 
 			var (ambiguous, misleading) = DetermineAmbiguity(stepGraph);
 			if (ambiguous)
@@ -415,123 +414,123 @@ public partial class PerformedChart
 		}
 
 		// TODO: Flesh out filling logic.
-		private void UpdateStepCounts(
-			StepGraph stepGraph,
-			FillConfig fillSectionConfig,
-			out int totalNumSameArrowSteps,
-			out int totalNumSameArrowStepsInARowPerFootOverMax,
-			out int totalNumNewArrowSteps,
-			out int totalNumBracketableNewArrowSteps)
-		{
-			totalNumSameArrowSteps = PreviousNode?.TotalNumSameArrowSteps ?? 0;
-			totalNumSameArrowStepsInARowPerFootOverMax = PreviousNode?.TotalNumSameArrowStepsInARowPerFootOverMax ?? 0;
-			totalNumNewArrowSteps = PreviousNode?.TotalNumNewArrowSteps ?? 0;
-			totalNumBracketableNewArrowSteps = PreviousNode?.TotalNumBracketableNewArrowSteps ?? 0;
+		//private void UpdateStepCounts(
+		//	StepGraph stepGraph,
+		//	FillConfig fillSectionConfig,
+		//	out int totalNumSameArrowSteps,
+		//	out int totalNumSameArrowStepsInARowPerFootOverMax,
+		//	out int totalNumNewArrowSteps,
+		//	out int totalNumBracketableNewArrowSteps)
+		//{
+		//	totalNumSameArrowSteps = PreviousNode?.TotalNumSameArrowSteps ?? 0;
+		//	totalNumSameArrowStepsInARowPerFootOverMax = PreviousNode?.TotalNumSameArrowStepsInARowPerFootOverMax ?? 0;
+		//	totalNumNewArrowSteps = PreviousNode?.TotalNumNewArrowSteps ?? 0;
+		//	totalNumBracketableNewArrowSteps = PreviousNode?.TotalNumBracketableNewArrowSteps ?? 0;
 
-			if (GraphLinkFromPreviousNode == null)
-				return;
+		//	if (GraphLinkFromPreviousNode == null)
+		//		return;
 
-			if (GraphLinkFromPreviousNode.GraphLink.IsSingleStep(out var stepType, out var footPerformingStep))
-			{
-				switch (stepType)
-				{
-					case StepType.NewArrow:
-					{
-						totalNumNewArrowSteps++;
+		//	if (GraphLinkFromPreviousNode.GraphLink.IsSingleStep(out var stepType, out var footPerformingStep))
+		//	{
+		//		switch (stepType)
+		//		{
+		//			case StepType.NewArrow:
+		//			{
+		//				totalNumNewArrowSteps++;
 
-						if (PreviousNode != null)
-						{
-							var steppedFromArrow =
-								PreviousNode.LastArrowsSteppedOnByFoot[footPerformingStep][DefaultFootPortion];
-							var steppedToArrow = GraphNode.State[footPerformingStep, DefaultFootPortion].Arrow;
-							if (steppedFromArrow != InvalidArrowIndex && steppedToArrow != InvalidArrowIndex)
-							{
-								for (var f = 0; f < NumFeet; f++)
-								{
-									if (stepGraph.PadData.ArrowData[steppedFromArrow]
-										    .BracketablePairingsHeel[f][steppedToArrow]
-									    || stepGraph.PadData.ArrowData[steppedFromArrow]
-										    .BracketablePairingsToe[f][steppedToArrow])
-									{
-										totalNumBracketableNewArrowSteps++;
-										break;
-									}
-								}
-							}
-						}
+		//				if (PreviousNode != null)
+		//				{
+		//					var steppedFromArrow =
+		//						PreviousNode.LastArrowsSteppedOnByFoot[footPerformingStep][DefaultFootPortion];
+		//					var steppedToArrow = GraphNode.State[footPerformingStep, DefaultFootPortion].Arrow;
+		//					if (steppedFromArrow != InvalidArrowIndex && steppedToArrow != InvalidArrowIndex)
+		//					{
+		//						for (var f = 0; f < NumFeet; f++)
+		//						{
+		//							if (stepGraph.PadData.ArrowData[steppedFromArrow]
+		//								    .BracketablePairingsHeel[f][steppedToArrow]
+		//							    || stepGraph.PadData.ArrowData[steppedFromArrow]
+		//								    .BracketablePairingsToe[f][steppedToArrow])
+		//							{
+		//								totalNumBracketableNewArrowSteps++;
+		//								break;
+		//							}
+		//						}
+		//					}
+		//				}
 
-						break;
-					}
-					case StepType.SameArrow:
-					{
-						totalNumSameArrowSteps++;
-						if (fillSectionConfig?.MaxSameArrowsInARowPerFoot > 0)
-						{
-							// Two because the previous step was the same arrow.
-							// One SameArrow step looks like steps in a row with the same foot.
-							var numStepsInARow = 2;
-							var previousNodeToCheck = PreviousNode;
-							while (previousNodeToCheck?.GraphLinkFromPreviousNode != null)
-							{
-								if (previousNodeToCheck.GraphLinkFromPreviousNode.GraphLink.IsSingleStep(
-									    out var previousStepType, out var previousFoot)
-								    && previousFoot == footPerformingStep)
-								{
-									if (previousStepType == StepType.SameArrow)
-									{
-										numStepsInARow++;
-									}
-									else
-									{
-										break;
-									}
-								}
+		//				break;
+		//			}
+		//			case StepType.SameArrow:
+		//			{
+		//				totalNumSameArrowSteps++;
+		//				if (fillSectionConfig?.MaxSameArrowsInARowPerFoot > 0)
+		//				{
+		//					// Two because the previous step was the same arrow.
+		//					// One SameArrow step looks like steps in a row with the same foot.
+		//					var numStepsInARow = 2;
+		//					var previousNodeToCheck = PreviousNode;
+		//					while (previousNodeToCheck?.GraphLinkFromPreviousNode != null)
+		//					{
+		//						if (previousNodeToCheck.GraphLinkFromPreviousNode.GraphLink.IsSingleStep(
+		//							    out var previousStepType, out var previousFoot)
+		//						    && previousFoot == footPerformingStep)
+		//						{
+		//							if (previousStepType == StepType.SameArrow)
+		//							{
+		//								numStepsInARow++;
+		//							}
+		//							else
+		//							{
+		//								break;
+		//							}
+		//						}
 
-								if (numStepsInARow > fillSectionConfig.MaxSameArrowsInARowPerFoot)
-								{
-									break;
-								}
+		//						if (numStepsInARow > fillSectionConfig.MaxSameArrowsInARowPerFoot)
+		//						{
+		//							break;
+		//						}
 
-								previousNodeToCheck = previousNodeToCheck.PreviousNode;
-							}
+		//						previousNodeToCheck = previousNodeToCheck.PreviousNode;
+		//					}
 
-							if (numStepsInARow > fillSectionConfig.MaxSameArrowsInARowPerFoot)
-							{
-								totalNumSameArrowStepsInARowPerFootOverMax++;
-							}
-						}
+		//					if (numStepsInARow > fillSectionConfig.MaxSameArrowsInARowPerFoot)
+		//					{
+		//						totalNumSameArrowStepsInARowPerFootOverMax++;
+		//					}
+		//				}
 
-						break;
-					}
-				}
-			}
-		}
+		//				break;
+		//			}
+		//		}
+		//	}
+		//}
 
 		// TODO: Flesh out filling logic.
-		private double DetermineSectionStepCost(FillConfig config)
-		{
-			if (config == null)
-				return 0.0;
+		//private double DetermineSectionStepCost(FillConfig config)
+		//{
+		//	if (config == null)
+		//		return 0.0;
 
-			var totalSteps = TotalNumSameArrowSteps + TotalNumNewArrowSteps;
-			if (totalSteps == 0)
-				return 0.0;
+		//	var totalSteps = TotalNumSameArrowSteps + TotalNumNewArrowSteps;
+		//	if (totalSteps == 0)
+		//		return 0.0;
 
-			var cost = 0.0;
+		//	var cost = 0.0;
 
-			var sameArrowNormalized = TotalNumSameArrowSteps / (double)totalSteps;
-			cost += Math.Abs(sameArrowNormalized - config.SameArrowStepWeightNormalized);
-			var newArrowNormalized = TotalNumNewArrowSteps / (double)totalSteps;
-			cost += Math.Abs(newArrowNormalized - config.NewArrowStepWeightNormalized);
+		//	var sameArrowNormalized = TotalNumSameArrowSteps / (double)totalSteps;
+		//	cost += Math.Abs(sameArrowNormalized - config.SameArrowStepWeightNormalized);
+		//	var newArrowNormalized = TotalNumNewArrowSteps / (double)totalSteps;
+		//	cost += Math.Abs(newArrowNormalized - config.NewArrowStepWeightNormalized);
 
-			if (TotalNumNewArrowSteps > 0)
-			{
-				var bracketableNormalized = TotalNumBracketableNewArrowSteps / TotalNumNewArrowSteps;
-				cost += Math.Abs(bracketableNormalized - config.NewArrowBracketableWeightNormalized);
-			}
+		//	if (TotalNumNewArrowSteps > 0)
+		//	{
+		//		var bracketableNormalized = TotalNumBracketableNewArrowSteps / TotalNumNewArrowSteps;
+		//		cost += Math.Abs(bracketableNormalized - config.NewArrowBracketableWeightNormalized);
+		//	}
 
-			return cost;
-		}
+		//	return cost;
+		//}
 
 		/// <summary>
 		/// Determines the step travel costs of this SearchNode.
@@ -583,15 +582,14 @@ public partial class PerformedChart
 					// configured to use individual step tightening.
 					if (steppedWithThisFoot)
 					{
-						var (currentX, currentY) = stepGraph.GetFootPosition(GraphNode, f);
-						var (prevX, prevY) = stepGraph.GetFootPosition(LastArrowsSteppedOnByFoot[f]);
 						var time = Time - LastTimeFootStepped[f];
-						var distance = stepGraph.PadData.GetDistanceWithCompensation(currentX, currentY, prevX, prevY,
-							config.DistanceCompensationX, config.DistanceCompensationY);
+
+						var distance = GetDistanceUsingMinMovement(stepGraph, GraphNode, f, config);
+
 						totalFootDistance += distance;
 
 						// Determine the speed cost for this foot.
-						if (config.IsSpeedTighteningEnabled())
+						if (config.IsSpeedTighteningEnabled() && distance >= config.SpeedTighteningMinDistance)
 						{
 							// Determine the normalized speed penalty
 							double speedPenalty;
@@ -649,6 +647,164 @@ public partial class PerformedChart
 			}
 
 			return (speedCost, distanceCost);
+		}
+
+		/// <summary>
+		/// Gets the stretch cost of this SearchNode.
+		/// The stretch cost represents how much this node stretches beyond desired limits from
+		/// the Config.
+		/// </summary>
+		/// <returns>Stretch cost.</returns>
+		private double GetStretchCost(StepGraph stepGraph, Config.StepTighteningConfig config)
+		{
+			if (!config.IsStretchTighteningEnabled())
+				return 0.0;
+
+			var stretchCost = 0.0;
+
+			// Determine the stretch distance.
+			var lIsBracket = stepGraph.GetFootPositionAndIsBracket(GraphNode, L, out var lX, out var lY);
+			var rIsBracket = stepGraph.GetFootPositionAndIsBracket(GraphNode, R, out var rX, out var rY);
+			var stretchDistance = GetCompensatedDistance(config, lIsBracket, lX, lY, rIsBracket, rX, rY);
+
+			// Determine the cost based on the stretch distance.
+			if (stretchDistance >= config.StretchDistanceMin)
+			{
+				stretchCost = 1.0;
+				var stretchRange = config.StretchDistanceMax - config.StretchDistanceMin;
+				if (stretchRange > 0.0)
+				{
+					stretchCost = Math.Min(1.0, Math.Max(0.0,
+						(stretchDistance - config.StretchDistanceMin) / stretchRange));
+				}
+			}
+
+			return stretchCost;
+		}
+
+		/// <summary>
+		/// Gets the distance for the given foot to move to its position in the given GraphNode taking into
+		/// account the given StepTighteningConfig's lateral and longitudinal minimum panel distances. The
+		/// returned result is the minimum movement required to move to the new position assuming the foot
+		/// moves from the nearest points on the panels.
+		/// </summary>
+		/// <returns>Minimum distance from previous foot position to new foot position.</returns>
+		private double GetDistanceUsingMinMovement(
+			StepGraph stepGraph,
+			GraphNode node,
+			int foot,
+			Config.StepTighteningConfig config)
+		{
+			var previousWasBracket = stepGraph.GetFootPositionAndIsBracket(
+				LastArrowsSteppedOnByFoot[foot], out var previousX, out var previousY);
+			var currentIsBracket = stepGraph.GetFootPositionAndIsBracket(
+				node, foot, out var currentX, out var currentY);
+			return GetCompensatedDistance(config, previousWasBracket, previousX, previousY, currentIsBracket, currentX, currentY);
+		}
+
+		/// <summary>
+		/// Gets the distance required to move between panels taking into account where
+		/// the foot may rest on the panels to achieve the minimum distance. Expects two points,
+		/// A and B, representing the points whose distance to measure. These may be the
+		/// points representing before and after movement for one foot, or one point per foot.
+		/// The points are the centered, average points on the panels. For a normal step this
+		/// is the center of one panel. For a bracket, it the average of both panels.
+		/// </summary>
+		/// <param name="config">
+		/// StepTighteningConfig from which to get lateral and longitudinal panel distance compensation values.
+		/// </param>
+		/// <param name="aIsBracket">Whether or not position A is the result of a bracket.</param>
+		/// <param name="aX">Position A X value.</param>
+		/// <param name="aY">Position A Y value.</param>
+		/// <param name="bIsBracket">Whether or not position B is the result of a bracket.</param>
+		/// <param name="bX">Position B X value.</param>
+		/// <param name="bY">Position B Y value.</param>
+		/// <returns>Minimum distance between points A and B.</returns>
+		private double GetCompensatedDistance(
+			Config.StepTighteningConfig config,
+			bool aIsBracket, double aX, double aY,
+			bool bIsBracket, double bX, double bY)
+		{
+			// The maximum amount x positions for non-bracket steps can be moved outward.
+			var xComp = ArrowData.HalfPanelWidth - config.LateralMinPanelDistance;
+			// The maximum amount y positions for non-bracket steps can be moved outward.
+			var yComp = ArrowData.HalfPanelHeight - config.LongitudinalMinPanelDistance;
+
+			var dx = 0.0;
+			var dy = 0.0;
+
+			// Neither step is a bracket. Both positions can be shifted from their centers to compensate for
+			// minimal movements.
+			if (!aIsBracket && !bIsBracket)
+			{
+				if (bX > aX)
+				{
+					dx = Math.Max(0.0, bX - xComp - (aX + xComp));
+				}
+				else if (bX < aX)
+				{
+					dx = Math.Max(0.0, aX - xComp - (bX + xComp));
+				}
+
+				if (bY > aY)
+				{
+					dy = Math.Max(0.0, bY - yComp - (aY + yComp));
+				}
+				else if (bY < aY)
+				{
+					dy = Math.Max(0.0, aY - yComp - (bY + yComp));
+				}
+			}
+			// Only the A was a bracket. B can be shifted to compensate for minimal movements.
+			else if (aIsBracket && !bIsBracket)
+			{
+				if (bX > aX)
+				{
+					dx = Math.Max(0.0, bX - xComp - aX);
+				}
+				else if (bX < aX)
+				{
+					dx = Math.Max(0.0, aX - (bX + xComp));
+				}
+
+				if (bY > aY)
+				{
+					dy = Math.Max(0.0, bY - yComp - aY);
+				}
+				else if (bY < aY)
+				{
+					dy = Math.Max(0.0, aY - (bY + yComp));
+				}
+			}
+			// Only the B was a bracket. A can be shifted to compensate for minimal movements.
+			else if (!aIsBracket)
+			{
+				if (bX > aX)
+				{
+					dx = Math.Max(0.0, bX - (aX + xComp));
+				}
+				else if (bX < aX)
+				{
+					dx = Math.Max(0.0, aX - xComp - bX);
+				}
+
+				if (bY > aY)
+				{
+					dy = Math.Max(0.0, bY - (aY + yComp));
+				}
+				else if (bY < aY)
+				{
+					dy = Math.Max(0.0, aY - yComp - bY);
+				}
+			}
+			// Both steps are brackets. No compensation should occur.
+			else
+			{
+				dx = bX - aX;
+				dy = bY - aY;
+			}
+
+			return Math.Sqrt(dx * dx + dy * dy);
 		}
 
 		/// <summary>
@@ -767,40 +923,6 @@ public partial class PerformedChart
 			}
 
 			return distributionCost;
-		}
-
-		/// <summary>
-		/// Gets the stretch cost of this SearchNode.
-		/// The stretch cost represents how much this node stretches beyond desired limits from
-		/// the Config.
-		/// </summary>
-		/// <returns>Stretch cost.</returns>
-		private double GetStretchCost(StepGraph stepGraph, Config.StepTighteningConfig config)
-		{
-			if (!config.IsStretchTighteningEnabled())
-				return 0.0;
-
-			var stretchCost = 0.0;
-
-			// Determine the stretch distance.
-			var (lx, ly) = stepGraph.GetFootPosition(GraphNode, L);
-			var (rx, ry) = stepGraph.GetFootPosition(GraphNode, R);
-			var stretchDistance = stepGraph.PadData.GetDistanceWithCompensation(lx, ly, rx, ry,
-				config.DistanceCompensationX, config.DistanceCompensationY);
-
-			// Determine the cost based on the stretch distance.
-			if (stretchDistance >= config.StretchDistanceMin)
-			{
-				stretchCost = 1.0;
-				var stretchRange = config.StretchDistanceMax - config.StretchDistanceMin;
-				if (stretchRange > 0.0)
-				{
-					stretchCost = Math.Min(1.0, Math.Max(0.0,
-						(stretchDistance - config.StretchDistanceMin) / stretchRange));
-				}
-			}
-
-			return stretchCost;
 		}
 
 		/// <summary>
@@ -1161,8 +1283,8 @@ public partial class PerformedChart
 				return AmbiguousStepCount < other.AmbiguousStepCount ? -1 : 1;
 
 			// TODO
-			if (TotalNumSameArrowStepsInARowPerFootOverMax != other.TotalNumSameArrowStepsInARowPerFootOverMax)
-				return TotalNumSameArrowStepsInARowPerFootOverMax < other.TotalNumSameArrowStepsInARowPerFootOverMax ? -1 : 1;
+			//if (TotalNumSameArrowStepsInARowPerFootOverMax != other.TotalNumSameArrowStepsInARowPerFootOverMax)
+			//	return TotalNumSameArrowStepsInARowPerFootOverMax < other.TotalNumSameArrowStepsInARowPerFootOverMax ? -1 : 1;
 
 			// Next consider total stretch cost. These are steps which stretch beyond desired amounts.
 			if (Math.Abs(TotalStretchCost - other.TotalStretchCost) > 0.00001)
@@ -1184,8 +1306,8 @@ public partial class PerformedChart
 				return TotalIndividualStepTravelSpeedCost < other.TotalIndividualStepTravelSpeedCost ? -1 : 1;
 
 			// TODO
-			if (Math.Abs(SectionStepTypeCost - other.SectionStepTypeCost) > 0.00001)
-				return SectionStepTypeCost < other.SectionStepTypeCost ? -1 : 1;
+			//if (Math.Abs(SectionStepTypeCost - other.SectionStepTypeCost) > 0.00001)
+			//	return SectionStepTypeCost < other.SectionStepTypeCost ? -1 : 1;
 
 			// Next consider lateral movement speed. We want to avoid moving on bursts.
 			if (Math.Abs(TotalLateralMovementSpeedCost - other.TotalLateralMovementSpeedCost) > 0.00001)

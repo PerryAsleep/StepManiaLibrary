@@ -8,10 +8,35 @@ namespace StepManiaLibrary;
 /// of one or more pads. This data informs how the other arrows are associated with
 /// this arrow. For example, per arrow, it is useful to know which other arrows
 /// are bracketable with it, are steppable to from it, form crossovers with it, etc.
+/// This data assumes square panels with integer positions where a panel dimension is 1x1.
 /// Deserialized from json.
 /// </summary>
 public class ArrowData
 {
+	/// <summary>
+	/// Panel width.
+	/// Ideally this should be defined per ArrowData instance to support pads with non-square panels.
+	/// </summary>
+	public const float PanelWidth = 1.0f;
+
+	/// <summary>
+	/// Half panel width.
+	/// Ideally this should be defined per ArrowData instance to support pads with non-square panels.
+	/// </summary>
+	public const float HalfPanelWidth = 0.5f;
+
+	/// <summary>
+	/// Panel height.
+	/// Ideally this should be defined per ArrowData instance to support pads with non-square panels.
+	/// </summary>
+	public const float PanelHeight = 1.0f;
+
+	/// <summary>
+	/// Half panel height.
+	/// Ideally this should be defined per ArrowData instance to support pads with non-square panels.
+	/// </summary>
+	public const float HalfPanelHeight = 0.5f;
+
 	/// <summary>
 	/// The lane / index of this arrow.
 	/// Set after deserialization based on index of this ArrowData in the containing array.
@@ -31,12 +56,12 @@ public class ArrowData
 	[JsonIgnore] public int FlippedLane = InvalidArrowIndex;
 
 	/// <summary>
-	/// X position of the center of this arrow on the pads.
+	/// X position of the top left of this panel on the pads.
 	/// </summary>
 	[JsonInclude] public int X;
 
 	/// <summary>
-	/// Y position of the center of this arrow on the pads.
+	/// Y position of the top left of this panel on the pads.
 	/// </summary>
 	[JsonInclude] public int Y;
 
