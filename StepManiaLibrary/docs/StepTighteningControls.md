@@ -130,57 +130,16 @@ Number (double) type. End of the distance range for applying costs to individual
 
 # Speed Tightening
 
+| Without Distance or Speed Tightening     | With Speed Tightening                    | No Min Distance (Penalize Candles)       | Min Distance (Allow Candles)             |
+:-----------------------------------------:|:----------------------------------------:|:----------------------------------------:|:-----------------------------------------:
+| ![](no-distance-or-speed-tightening.png) | ![](speed-tightening.png)                | ![](no-candles.png)                      | ![](candles.png)                         |
+
 <table width="100%">
 <tr>
-<th width="50%"> Speed Tightening </th>
-<th width="50%"> Min Distance </th>
-</tr>
-<td>
-<table width="100%">
-<tr>
-<th width="50%"> Without Distance or Speed Tightening </th>
-<th width="50%"> With Speed Tightening </th>
-</tr>
-<tr>
-<td>
-
-[<img src="no-distance-or-speed-tightening.png" width="100%"/>](no-distance-or-speed-tightening.png)
-
-</td>
-<td>
-
-[<img src="speed-tightening.png" width="100%"/>](speed-tightening.png)
-
-</td>
-</tr>
-</table>
-</td>
-<td>
-<table width="100%">
-<tr>
-<th width="50%"> No Min Distance (Penalize Candles) </th>
-<th width="50%"> Min Distance (Allow Candles) </th>
-</tr>
-<tr>
-<td>
-
-[<img src="no-candles.png" width="100%"/>](no-candles.png)
-
-</td>
-<td>
-
-[<img src="candles.png" width="100%"/>](candles.png)
-
-</td>
-
-</tr>
-</table>
-</td>
-<tr>
-<td>
+<td width = 50%>
 <em>Example conversion of a dance-single chart to a dance-double chart without speed tightening and with speed tightening. Note that only the fast sections are tightened.</em>
 </td>
-<td>
+<td width = 50%>
 <em>Example conversion of a dance-single chart to a dance-double chart without a min distance for speed tightening and with a min distance. Note how adding a min distance can allow more moves like candles.</em>
 </td>
 </tr>
