@@ -133,10 +133,10 @@ Number (double) type. End of the distance range for applying costs to individual
 <table width="100%">
 
 <tr>
-<th width="25%"> Speed Tightening </th>
-<th width="25%"> Min Distance </th>
 <th width="25%"> Without Distance or Speed Tightening </th>
 <th width="25%"> With Speed Tightening </th>
+<th width="25%"> No Min Distance (Penalize Candles) </th>
+<th width="25%"> Min Distance (Allow Candles) </th>
 </tr>
 <tr>
 <td>
