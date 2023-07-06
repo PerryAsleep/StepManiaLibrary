@@ -7,7 +7,7 @@ Step tightening controls are a part of [PerformedChart Configuration](PerformedC
 
 ## Example Configuration
 
-```json
+```json5
 "StepTightening":
 {
 	// Laterally, consider a foot moving 1/6 into a panel as the minimum distance to trigger it.
@@ -46,7 +46,7 @@ Step tightening controls are a part of [PerformedChart Configuration](PerformedC
 
 # Minimum Panel Distances
 
-```json
+```json5
 // Laterally, consider a foot moving 1/6 into a panel as the minimum distance to trigger it.
 "LongitudinalMinPanelDistance": 0.166667,
 // Longitudinally, consider a foot moving 1/8 outside of a panel as the minimum distance to trigger it.
@@ -99,7 +99,7 @@ Number (double) type. Distance in panel lengths measured inward from the edge of
 
 *Example conversion of a dance-single chart to a dance-double chart without distance tightening and with distance tightening. Note that both the slow and fast sections are tightened.*
 
-```json
+```json5
 // Enable distance tightening.
 "DistanceTighteningEnabled": true,
 // With the above min panel distance values, 1.4 will:
@@ -131,14 +131,11 @@ Number (double) type. End of the distance range for applying costs to individual
 # Speed Tightening
 
 <table width="100%">
-
 <tr>
 <th width="50%"> Speed Tightening </th>
 <th width="50%"> Min Distance </th>
 </tr>
-
 <td>
-
 <table width="100%">
 <tr>
 <th width="50%"> Without Distance or Speed Tightening </th>
@@ -155,14 +152,10 @@ Number (double) type. End of the distance range for applying costs to individual
 [<img src="speed-tightening.png" width="100%"/>](speed-tightening.png)
 
 </td>
-
 </tr>
 </table>
-
 </td>
-
 <td>
-
 <table width="100%">
 <tr>
 <th width="50%"> No Min Distance (Penalize Candles) </th>
@@ -182,9 +175,7 @@ Number (double) type. End of the distance range for applying costs to individual
 
 </tr>
 </table>
-
 </td>
-
 <tr>
 <td>
 <em>Example conversion of a dance-single chart to a dance-double chart without speed tightening and with speed tightening. Note that only the fast sections are tightened.</em>
@@ -193,10 +184,9 @@ Number (double) type. End of the distance range for applying costs to individual
 <em>Example conversion of a dance-single chart to a dance-double chart without a min distance for speed tightening and with a min distance. Note how adding a min distance can allow more moves like candles.</em>
 </td>
 </tr>
-
 </table>
 
-```json
+```json5
 // Enable speed tightening.
 "SpeedTighteningEnabled": true,
 // Stop increasing costs at 16th notes at 170bpm.
@@ -256,7 +246,7 @@ Number (double) type. Minimum distance a foot must travel to be considered for s
 
 *Example conversions from a dance-double chart to new dance-double charts without stretch tightening and with stretch tightening.*
 
-```json
+```json5
 // Enable stretch tightening.
 "StretchTighteningEnabled": true,
 // Start limiting stretch moves at 2 1/3, which is a 3 panel move in X.

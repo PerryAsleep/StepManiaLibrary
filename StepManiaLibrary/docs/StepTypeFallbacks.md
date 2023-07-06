@@ -4,7 +4,7 @@
 
 ## Example
 
-```json
+```json5
 // A NewArrow step can fallback to a SameArrow step.
 "NewArrow": [
 	"NewArrow",

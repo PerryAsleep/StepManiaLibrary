@@ -10,7 +10,7 @@
 
 ## Example Configuration
 
-```json
+```json5
 {
 	"DefaultBracketParsingMethod": "Balanced",
 	"BracketParsingDetermination": "ChooseMethodDynamically",

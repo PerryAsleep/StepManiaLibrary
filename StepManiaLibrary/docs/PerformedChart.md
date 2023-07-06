@@ -37,23 +37,23 @@ When comparing paths through a chart a series of comparisons are made to determi
 <details>
 	<summary>Example</summary>
 
-```json
+```json5
 {
 	"ArrowWeights":
 	{
-		"dance-single": [25, 25, 25, 25],						// Determined without parsing charts.
-		"dance-double": [6, 12, 10, 22, 22, 12, 10, 6],			// Determined by parsing a large number of community-made charts.
-		"dance-solo": [13, 12, 25, 25, 12, 13],					// Determined without parsing charts.
-		"dance-threepanel": [25, 50, 25],						// Determined without parsing charts.
+		"dance-single": [25, 25, 25, 25],
+		"dance-double": [6, 12, 10, 22, 22, 12, 10, 6],
+		"dance-solo": [13, 12, 25, 25, 12, 13],
+		"dance-threepanel": [25, 50, 25],
 
-		"pump-single": [17, 16, 34, 16, 17],					// Determined without parsing charts.
-		"pump-halfdouble": [25, 12, 13, 13, 12, 25],			// Determined without parsing charts.
-		"pump-double": [4, 4, 17, 12, 13, 13, 12, 17, 4, 4],	// Determined without parsing charts.
+		"pump-single": [17, 16, 34, 16, 17],
+		"pump-halfdouble": [25, 12, 13, 13, 12, 25],
+		"pump-double": [4, 4, 17, 12, 13, 13, 12, 17, 4, 4],
 
-		"smx-beginner": [25, 50, 25],							// Determined without parsing charts.
-		"smx-single": [25, 21, 8, 21, 25],						// Determined by parsing a small number of SMX charts.
-		"smx-dual": [8, 17, 25, 25, 17, 8],						// Determined without parsing charts.
-		"smx-full": [6, 8, 7, 8, 22, 22, 8, 7, 8, 6],			// Determined by parsing a small number of SMX charts.
+		"smx-beginner": [25, 50, 25],
+		"smx-single": [25, 21, 8, 21, 25],
+		"smx-dual": [8, 17, 25, 25, 17, 8],
+		"smx-full": [6, 8, 7, 8, 22, 22, 8, 7, 8, 6],
 	},
 
 	"StepTightening":
@@ -124,21 +124,21 @@ When comparing paths through a chart a series of comparisons are made to determi
 
 ## `ArrowWeights`
 
-```json
+```json5
 {
-	"dance-single": [25, 25, 25, 25],						// Determined without parsing charts.
-	"dance-double": [6, 12, 10, 22, 22, 12, 10, 6],			// Determined by parsing a large number of community-made charts.
-	"dance-solo": [13, 12, 25, 25, 12, 13],					// Determined without parsing charts.
-	"dance-threepanel": [25, 50, 25],						// Determined without parsing charts.
+	"dance-single": [25, 25, 25, 25],
+	"dance-double": [6, 12, 10, 22, 22, 12, 10, 6],
+	"dance-solo": [13, 12, 25, 25, 12, 13],
+	"dance-threepanel": [25, 50, 25],
 
-	"pump-single": [17, 16, 34, 16, 17],					// Determined without parsing charts.
-	"pump-halfdouble": [25, 12, 13, 13, 12, 25],			// Determined without parsing charts.
-	"pump-double": [4, 4, 17, 12, 13, 13, 12, 17, 4, 4],	// Determined without parsing charts.
+	"pump-single": [17, 16, 34, 16, 17],
+	"pump-halfdouble": [25, 12, 13, 13, 12, 25],
+	"pump-double": [4, 4, 17, 12, 13, 13, 12, 17, 4, 4],
 
-	"smx-beginner": [25, 50, 25],							// Determined without parsing charts.
-	"smx-single": [25, 21, 8, 21, 25],						// Determined by parsing a small number of SMX charts.
-	"smx-dual": [8, 17, 25, 25, 17, 8],						// Determined without parsing charts.
-	"smx-full": [6, 8, 7, 8, 22, 22, 8, 7, 8, 6],			// Determined by parsing a small number of SMX charts.
+	"smx-beginner": [25, 50, 25],
+	"smx-single": [25, 21, 8, 21, 25],
+	"smx-dual": [8, 17, 25, 25, 17, 8],
+	"smx-full": [6, 8, 7, 8, 22, 22, 8, 7, 8, 6],
 },
 ```
 

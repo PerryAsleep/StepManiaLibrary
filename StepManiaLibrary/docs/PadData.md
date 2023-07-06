@@ -54,7 +54,7 @@ Number (integer) type. Y Position of the panel relative to other panels.
 
 For the array types below the index is the foot under consideration. It is expected this is of length 2, with the first index being the left foot and the second index being the right foot. For each foot, the value is another array where the index in that array is the arrow index in the pads. The value at that index is a boolean which defines whether that arrow forms a valid pairing with this arrow and the original foot.
 
-```json
+```json5
 // Example OtherFootPairings for dance-single arrow 0: the left arrow.
 "OtherFootPairings": [
     [ false, true,  true,  true ], // Left foot on left arrow can support the right foot on any other arrow without twisting.
@@ -104,7 +104,7 @@ When a foot is on this ArrowData's arrow, whether this corresponding arrow is a 
 
 ## Example: dance-single.json
 
-```json
+```json5
 {
   "StartingPositions": [
     [

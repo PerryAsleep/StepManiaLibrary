@@ -40,7 +40,7 @@ Transition controls are a part of [PerformedChart Configuration](PerformedChart.
 
 ## Example Configuration
 
-```json
+```json5
 "Transitions":
 {
 	// Enable transition limits.

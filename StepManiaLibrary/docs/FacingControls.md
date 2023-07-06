@@ -33,7 +33,7 @@ Facing controls are a part of [PerformedChart Configuration](PerformedChart.md#p
 
 ## Example Configuration
 
-```json
+```json5
 "Facing":
 {
 	// Penalize all inward facing steps.

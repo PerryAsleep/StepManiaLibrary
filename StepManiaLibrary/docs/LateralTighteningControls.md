@@ -26,7 +26,7 @@ Lateral tightening controls are a part of [PerformedChart Configuration](Perform
 
 ## Example Configuration
 
-```json
+```json5
 "LateralTightening":
 {
 	// Enable lateral tightening.
