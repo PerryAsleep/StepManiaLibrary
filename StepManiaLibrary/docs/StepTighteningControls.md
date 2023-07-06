@@ -10,17 +10,21 @@ Step tightening controls are a part of [PerformedChart Configuration](PerformedC
 ```json
 "StepTightening":
 {
-	// Do not modify the x dimension for distance measurements.
-	"DistanceCompensationX": 0.0,
-	// Subtract a half arrow from the y dimension for distance measurements.
-	"DistanceCompensationY": 0.5,
+	// Laterally, consider a foot moving 1/6 into a panel as the minimum distance to trigger it.
+	"LateralMinPanelDistance": 0.166667,
+	// Longitudinally, consider a foot moving 1/8 outside of a panel as the minimum distance to trigger it.
+	"LongitudinalMinPanelDistance": -0.125,
 	
 	// Enable distance tightening.
 	"DistanceTighteningEnabled": true,
-	// Start limiting steps moving at 2.25 arrow lengths.
-	"DistanceMin": 2.25,
-	// Stop increasing costs for moves at 3 arrow lengths.
-	"DistanceMax": 3.0,
+	// With the above min panel distance values, 1.4 will:
+	// - Allow a 2X1Y move.
+	// - Penalize a 2X2Y move.
+	// - Penalize a 3X move.
+	// - Penalize a bracket move moving an average of 2 panels.
+	"DistanceMin": 1.4,
+	// 2 1/3 is the cutoff for 3 panel stretch in X.
+	"DistanceMax": 2.333333,
 
 	// Enable speed tightening.
 	"SpeedTighteningEnabled": true,
@@ -28,57 +32,48 @@ Step tightening controls are a part of [PerformedChart Configuration](PerformedC
 	"SpeedMinTimeSeconds": 0.176471,
 	// Start limiting at 16th notes at 125bpm.
 	"SpeedMaxTimeSeconds": 0.24,
+	// Do not use a distance cutoff for speed tightening.
+	"SpeedTighteningMinDistance": 0.0,
 
 	// Enable stretch tightening.
 	"StretchTighteningEnabled": true,
-	// Start limiting stretch moving at 3 arrow lengths.
-	"StretchDistanceMin": 3.0,
-	// Stop increasing costs for stretch moves at 4 arrow lengths.
-	"StretchDistanceMax": 4.0,
+	// Start limiting stretch moves at 2 1/3, which is a 3 panel move in X.
+	"StretchDistanceMin": 2.333333,
+	// Stop increasing costs for stretch moves at 3 1/3 which is a 4 panel move in X.
+	"StretchDistanceMax": 3.333333,
 },
 ```
 
-# Distance Compensation
+# Minimum Panel Distances
 
-Step tightening checks involve measuring distances in panel lengths that the feet move to satisfy steps. These distance measurements can be altered to account for the foot needing to move shorter distances in Y than it does in X for equally spaced arrows since the foot is significantly longer than it is wide.
+```json
+// Laterally, consider a foot moving 1/6 into a panel as the minimum distance to trigger it.
+"LongitudinalMinPanelDistance": 0.166667,
+// Longitudinally, consider a foot moving 1/8 outside of a panel as the minimum distance to trigger it.
+"LongitudinalMinPanelDistance": -0.125,
+```
+
+All step tightening checks involve measuring distances in panel lengths that the feet move to satisfy steps. These movements in practice are often much less than the full distance between the centers of the panels being stepped on. These configuration values allow for more accurate distance measurements.
 
 ## Explanation
 
-When paths are chosen, many steps' step tightening costs are considered. It is important to make sure the distances used for these costs are representative of real movements, otherwise undesired movements may be generated as some shorter movements may cancel out a larger movement. Consider the following examples.
+`LateralMinPanelDistance` and `LongitudinalMinPanelDistance` define the distances inward from the edges of a panel that a foot actually moves to in order to trigger the panel.
 
-<table width="66%">
-<tr>
-<th width="50%"> Distance Tightening with 0.0 Y Compensation </th>
-<th width="50%"> Distance Tightening with 0.5 Y Compensation </th>
-</tr>
-<tr>
-<td>
+When moving laterally (side to side) the foot often only moves slightly over the panel to trigger it. This distance is `LateralMinPanelDistance`.
 
-[<img src="y-compensation-none.png" width="100%"/>](y-compensation-none.png)
+When moving longitudinally (forwards and backwards), the foot often moves so little that it isn't even centered over the panel being triggered. Consider hitting the up arrow in `dance-single`. The foot is usually centered over the center panel, which results is a *negative* distance as measured from the edge of the up arrow towards its center. This distance is described by `LongitudinalMinPanelDistance`.
 
-</td>
-<td>
-
-[<img src="y-compensation.png" width="100%"/>](y-compensation.png)
-
-</td>
-
-</tr>
-</table>
-
-In these examples costs are assigned based on distances for all steps. Costs scale linearly with the distance. The pattern on the left uses no Y compensation and it generated candle patterns on the left foot. These steps move a length of two arrows, yet patterns could have been generated using steps all under two arrows in length. However because the relative cost of moving between the middles (a distance of one) is so much less than the candle, patterns can be found with a lower *total* cost by applying more middle steps (while still satisfying all other rules) that end up compensating for the candles.
-
-In the pattern on the right with 0.5 Y compensation no candles were generated and each individual step has a shorter distance, which is the intended result of individual step tightening rules. The Y compensation more accurately captures the required foot movement, resulting in a smaller difference between steps like candles and moving between the middles.
+When configuring these values it is important to use practical real-world values so that relative distances are accurate. The step tightening rules below often penalize movements proportional to how much the foot needs to move or how quickly it needs to move. When paths involve many movements with lots of costs, the relative values need to be accurate for the most desirable overall path to be chosen.
 
 ## Configuration
 
-### `DistanceCompensationX`
+### `LateralMinPanelDistance`
 
-Number (double) type. Distance in panel lengths to subtract from the X dimension when performing distance calculations for individual step tightening checks.
+Number (double) type. Distance in panel lengths measured inward from the edge of a panel that a foot needs to travel in order to trigger the panel when moving laterally (side-to-side).
 
-### `DistanceCompensationY`
+### `LongitudinalMinPanelDistance`
 
-Number (double) type. Distance in panel lengths to subtract from the Y dimension when performing distance calculations for individual step tightening checks.
+Number (double) type. Distance in panel lengths measured inward from the edge of a panel that a foot needs to travel in order to trigger the panel when moving longitudinally (forwards and backwards). Often negative.
 
 # Distance Tightening
 
@@ -104,6 +99,19 @@ Number (double) type. Distance in panel lengths to subtract from the Y dimension
 
 *Example conversion of a dance-single chart to a dance-double chart without distance tightening and with distance tightening. Note that both the slow and fast sections are tightened.*
 
+```json
+// Enable distance tightening.
+"DistanceTighteningEnabled": true,
+// With the above min panel distance values, 1.4 will:
+// - Allow a 2X1Y move.
+// - Penalize a 2X2Y move.
+// - Penalize a 3X move.
+// - Penalize a bracket move moving an average of 2 panels.
+"DistanceMin": 1.4,
+// 2 1/3 is the cutoff for 3 panel stretch in X.
+"DistanceMax": 2.333333,
+```
+
 Distance tightening limits individual step movements which move large distances, regardless of speed. Distance limits are defined as a range, over which costs increase.
 
 ## Configuration
@@ -122,7 +130,16 @@ Number (double) type. End of the distance range for applying costs to individual
 
 # Speed Tightening
 
-<table width="66%">
+<table width="100%">
+
+<tr>
+<th width="50%"> Speed Tightening </th>
+<th width="50%"> Min Distance </th>
+</tr>
+
+<td>
+
+<table width="100%">
 <tr>
 <th width="50%"> Without Distance or Speed Tightening </th>
 <th width="50%"> With Speed Tightening </th>
@@ -142,9 +159,55 @@ Number (double) type. End of the distance range for applying costs to individual
 </tr>
 </table>
 
-*Example conversion of a dance-single chart to a dance-double chart without speed tightening and with speed tightening. Note that only the fast sections are tightened.*
+</td>
 
-Speed tightening limits individual steps which move quickly. Speed limits are defined as a range, over which costs increase. Speeds are defined in arrow lengths per second. As an example, to penalize steps starting at 16th notes at 125bpm and peaking at 16th notes at 170bpm set `SpeedMaxTimeSeconds` to `0.24` and `SpeedMinTimeSeconds` to `0.176471`.
+<td>
+
+<table width="100%">
+<tr>
+<th width="50%"> No Min Distance (Penalize Candles) </th>
+<th width="50%"> Min Distance (Allow Candles) </th>
+</tr>
+<tr>
+<td>
+
+[<img src="no-candles.png" width="100%"/>](no-candles.png)
+
+</td>
+<td>
+
+[<img src="candles.png" width="100%"/>](candles.png)
+
+</td>
+
+</tr>
+</table>
+
+</td>
+
+<tr>
+<td>
+<em>Example conversion of a dance-single chart to a dance-double chart without speed tightening and with speed tightening. Note that only the fast sections are tightened.</em>
+</td>
+<td>
+<em>Example conversion of a dance-single chart to a dance-double chart without a min distance for speed tightening and with a min distance. Note how adding a min distance can allow more moves like candles.</em>
+</td>
+</tr>
+
+</table>
+
+```json
+// Enable speed tightening.
+"SpeedTighteningEnabled": true,
+// Stop increasing costs at 16th notes at 170bpm.
+"SpeedMinTimeSeconds": 0.176471,
+// Start limiting at 16th notes at 125bpm.
+"SpeedMaxTimeSeconds": 0.24,
+// Do not use a distance cutoff for speed tightening.
+"SpeedTighteningMinDistance": 0.0,
+```
+
+Speed tightening limits individual steps which move quickly. Speed limits are defined as a range, over which costs increase. Speeds are defined in panel lengths per second. As an example, to penalize steps starting at 16th notes at 125bpm and peaking at 16th notes at 170bpm set `SpeedMaxTimeSeconds` to `0.24` and `SpeedMinTimeSeconds` to `0.176471`.
 
 ```
 (60 seconds per minute / (4 notes per beat x 125 beats per minute)) x 2 feet) = 0.24 seconds
@@ -164,6 +227,10 @@ Number (double) type. Start of the distance range for applying costs to individu
 ### `SpeedMaxTimeSeconds`
 
 Number (double) type. End of the distance range for applying costs to individual steps. Steps with distances over this value will still receive non-zero distance costs.
+
+### `SpeedTighteningMinDistance`
+
+Number (double) type. Minimum distance a foot must travel to be considered for speed tightening rules. Setting this to a non-zero value will treat all movements under that value as equally preferable.
 
 # Stretch Tightening
 
@@ -188,6 +255,15 @@ Number (double) type. End of the distance range for applying costs to individual
 </table>
 
 *Example conversions from a dance-double chart to new dance-double charts without stretch tightening and with stretch tightening.*
+
+```json
+// Enable stretch tightening.
+"StretchTighteningEnabled": true,
+// Start limiting stretch moves at 2 1/3, which is a 3 panel move in X.
+"StretchDistanceMin": 2.333333,
+// Stop increasing costs for stretch moves at 3 1/3 which is a 4 panel move in X.
+"StretchDistanceMax": 3.333333,
+```
 
 Stretch tightening limits stretch movements to prefer tighter stretch patterns. Stretch distances measure the distance between the left foot and the right foot, rather than the distance an individual foot moves. Stretch tightening is only useful when converting from a source chart that has stretch steps. Stretch distance limits are defined as a range, over which costs increase.
 

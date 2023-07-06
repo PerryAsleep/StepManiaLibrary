@@ -34,38 +34,45 @@ When comparing paths through a chart a series of comparisons are made to determi
 
 ## Example Configuration
 
+<details>
+	<summary>Example</summary>
+
 ```json
 {
 	"ArrowWeights":
 	{
-		"dance-single": [25, 25, 25, 25],
-		"dance-double": [6, 12, 10, 22, 22, 12, 10, 6],
-		"dance-solo": [13, 12, 25, 25, 12, 13],
-		"dance-threepanel": [25, 50, 25],
+		"dance-single": [25, 25, 25, 25],						// Determined without parsing charts.
+		"dance-double": [6, 12, 10, 22, 22, 12, 10, 6],			// Determined by parsing a large number of community-made charts.
+		"dance-solo": [13, 12, 25, 25, 12, 13],					// Determined without parsing charts.
+		"dance-threepanel": [25, 50, 25],						// Determined without parsing charts.
 
-		"pump-single": [17, 16, 34, 16, 17],
-		"pump-halfdouble": [25, 12, 13, 13, 12, 25],
-		"pump-double": [4, 4, 17, 12, 13, 13, 12, 17, 4, 4],
+		"pump-single": [17, 16, 34, 16, 17],					// Determined without parsing charts.
+		"pump-halfdouble": [25, 12, 13, 13, 12, 25],			// Determined without parsing charts.
+		"pump-double": [4, 4, 17, 12, 13, 13, 12, 17, 4, 4],	// Determined without parsing charts.
 
-		"smx-beginner": [25, 50, 25],
-		"smx-single": [25, 21, 8, 21, 25],
-		"smx-dual": [8, 17, 25, 25, 17, 8],
-		"smx-full": [6, 8, 7, 8, 22, 22, 8, 7, 8, 6],
+		"smx-beginner": [25, 50, 25],							// Determined without parsing charts.
+		"smx-single": [25, 21, 8, 21, 25],						// Determined by parsing a small number of SMX charts.
+		"smx-dual": [8, 17, 25, 25, 17, 8],						// Determined without parsing charts.
+		"smx-full": [6, 8, 7, 8, 22, 22, 8, 7, 8, 6],			// Determined by parsing a small number of SMX charts.
 	},
 
 	"StepTightening":
 	{
-		// Do not modify the x dimension for distance measurements.
-		"DistanceCompensationX": 0.0,
-		// Subtract a half arrow from the y dimension for distance measurements.
-		"DistanceCompensationY": 0.5,
+		// Laterally, consider a foot moving 1/6 into a panel as the minimum distance to trigger it.
+		"LateralMinPanelDistance": 0.166667,
+		// Longitudinally, consider a foot moving 1/8 outside of a panel as the minimum distance to trigger it.
+		"LongitudinalMinPanelDistance": -0.125,
 		
 		// Enable distance tightening.
 		"DistanceTighteningEnabled": true,
-		// Start limiting steps moving at 2.25 arrow lengths.
-		"DistanceMin": 2.25,
-		// Stop increasing costs for moves at 3 arrow lengths.
-		"DistanceMax": 3.0,
+		// With the above min panel distance values, 1.4 will:
+		// - Allow a 2X1Y move.
+		// - Penalize a 2X2Y move.
+		// - Penalize a 3X move.
+		// - Penalize a bracket move moving an average of 2 panels.
+		"DistanceMin": 1.4,
+		// 2 1/3 is the cutoff for 3 panel stretch in X.
+		"DistanceMax": 2.333333,
 
 		// Enable speed tightening.
 		"SpeedTighteningEnabled": true,
@@ -73,13 +80,15 @@ When comparing paths through a chart a series of comparisons are made to determi
 		"SpeedMinTimeSeconds": 0.176471,
 		// Start limiting at 16th notes at 125bpm.
 		"SpeedMaxTimeSeconds": 0.24,
+		// Do not use a distance cutoff for speed tightening.
+		"SpeedTighteningMinDistance": 0.0,
 
 		// Enable stretch tightening.
 		"StretchTighteningEnabled": true,
-		// Start limiting stretch moving at 3 arrow lengths.
-		"StretchDistanceMin": 3.0,
-		// Stop increasing costs for stretch moves at 4 arrow lengths.
-		"StretchDistanceMax": 4.0,
+		// Start limiting stretch moves at 2 1/3, which is a 3 panel move in X.
+		"StretchDistanceMin": 2.333333,
+		// Stop increasing costs for stretch moves at 3 1/3 which is a 4 panel move in X.
+		"StretchDistanceMax": 3.333333,
 	},
 
 	"LateralTightening":
@@ -106,41 +115,50 @@ When comparing paths through a chart a series of comparisons are made to determi
 
 	"Transitions":
 	{
-		// Enable transition limits.
-		"Enabled": true,
-		// Prefer steps which do not transition more than once every two measures.
-		"StepsPerTransitionMin": 32,
-		// Do not penalize slow transitions.
-		"StepsPerTransitionMax": 1024,
-		// Don't limit transitions for narrow ChartTypes.
-		"MinimumPadWidth": 5,
-		// Consider a transition to be moving from one half of the pads to the other half.
-		"TransitionCutoffPercentage": 0.5,
-	}
+		// Do not enable transition limits.
+		"Enabled": false,
+	},
+},
+```
+</details>
+
+## `ArrowWeights`
+
+```json
+{
+	"dance-single": [25, 25, 25, 25],						// Determined without parsing charts.
+	"dance-double": [6, 12, 10, 22, 22, 12, 10, 6],			// Determined by parsing a large number of community-made charts.
+	"dance-solo": [13, 12, 25, 25, 12, 13],					// Determined without parsing charts.
+	"dance-threepanel": [25, 50, 25],						// Determined without parsing charts.
+
+	"pump-single": [17, 16, 34, 16, 17],					// Determined without parsing charts.
+	"pump-halfdouble": [25, 12, 13, 13, 12, 25],			// Determined without parsing charts.
+	"pump-double": [4, 4, 17, 12, 13, 13, 12, 17, 4, 4],	// Determined without parsing charts.
+
+	"smx-beginner": [25, 50, 25],							// Determined without parsing charts.
+	"smx-single": [25, 21, 8, 21, 25],						// Determined by parsing a small number of SMX charts.
+	"smx-dual": [8, 17, 25, 25, 17, 8],						// Determined without parsing charts.
+	"smx-full": [6, 8, 7, 8, 22, 22, 8, 7, 8, 6],			// Determined by parsing a small number of SMX charts.
 },
 ```
 
-## Configuration
-
-### `ArrowWeights`
-
 Object type. Each value in this object is a key value pair. The key is a string representing a [ChartType](ChartType.md) and the value is an array of integers representing the desired weights per lane for that type. When generating charts `ArrowWeights` is used to control, for each lane, what percentage of the chart's steps should fall in that lane. The values do not need to sum to 100. They will be compared against each other and normalized when used to generate charts.
 
-### `StepTightening`
+## `StepTightening`
 
 See [Step Tightening Controls](StepTighteningControls.md). Step tightening controls include:
 - [Distance Tightening](StepTighteningControls.md#distance-tightening)
 - [Speed Tightening](StepTighteningControls.md#speed-tightening)
 - [Stretch Tightening](StepTighteningControls.md#stretch-tightening)
 
-### `LateralTightening`
+## `LateralTightening`
 
 See [Lateral Tightening Controls](LateralTighteningControls.md).
 
-### `Facing`
+## `Facing`
 
 See [Facing Controls](FacingControls.md).
 
-### `Transitions`
+## `Transitions`
 
 See [Transition Controls](TransitionControls.md).
