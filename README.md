@@ -5,7 +5,7 @@ StepManiaLibrary is a library built on [Fumen](https://github.com/PerryAsleep/Fu
 See the [docs](StepManiaLibrary/docs) folder for documentation.
 
 ## Notable Sub-Projects
-- [ExpressedChartTestGenerator](ExpressedChartTestGenerator/Readme.md): Application for generating test cases for [ExpressedCharts](StepManiaLibrary/docs/ExpressedChart.md).
+- [ExpressedChartTestGenerator](ExpressedChartTestGenerator/README.md): Application for generating test cases for [ExpressedCharts](StepManiaLibrary/docs/ExpressedChart.md).
 
 ## Building From Source
 Building from source requires Windows 10 or greater and Microsoft Visual Studio Community 2022.
