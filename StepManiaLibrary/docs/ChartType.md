@@ -1,8 +1,8 @@
 # ChartType
 
-`ChartTypes` describe the kind of chart being played. In StepMania this is described as a [StepsType](https://github.com/stepmania/stepmania/blob/6a645b4710dd6a89a5f22a2d849e86a98af5c9a3/src/GameManager.cpp#L47). The supported `ChartTypes` are listed below. They match the StepMania `StepsTypes` with the addition of [StepManiaX](https://stepmaniax.com/) types.
+`ChartTypes` describe the kind of chart being played. In [StepMania](https://www.stepmania.com/) this is described as a [StepsType](https://github.com/stepmania/stepmania/blob/6a645b4710dd6a89a5f22a2d849e86a98af5c9a3/src/GameManager.cpp#L47). The supported `ChartTypes` are listed below. They match the [StepMania](https://www.stepmania.com/) [StepsType](https://github.com/stepmania/stepmania/blob/6a645b4710dd6a89a5f22a2d849e86a98af5c9a3/src/GameManager.cpp#L47) with the addition of [StepManiaX](https://stepmaniax.com/) types.
 
-The library often uses StepMania `StepsTypes` interchangeably with its `ChartType`, converting the `-` character from `StepsType`, which is an invalid character in C# enums, into `_`. Serialized data often uses the `StepsTypes` naming scheme with `-`.
+The library often uses [StepMania](https://www.stepmania.com/) [StepsType](https://github.com/stepmania/stepmania/blob/6a645b4710dd6a89a5f22a2d849e86a98af5c9a3/src/GameManager.cpp#L47) interchangeably with its `ChartType`, converting the `-` character from [StepsType](https://github.com/stepmania/stepmania/blob/6a645b4710dd6a89a5f22a2d849e86a98af5c9a3/src/GameManager.cpp#L47), which is an invalid character in C# enums, into `_`. Serialized data often uses the [StepsType](https://github.com/stepmania/stepmania/blob/6a645b4710dd6a89a5f22a2d849e86a98af5c9a3/src/GameManager.cpp#L47) naming scheme with `-`.
 
 ## Supported ChartTypes
 

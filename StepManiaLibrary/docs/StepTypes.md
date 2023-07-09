@@ -22,11 +22,11 @@ The foot steps on a new arrow, crossing over in back of the other foot without s
 
 ### `InvertFront`
 
-The foot steps on a new arrow, crossing over in front of the other foot and ending in an orientation facing away directly away from the machine.
+The foot steps on a new arrow, crossing over in front of the other foot and ending in an orientation facing directly away from the machine.
 
 ### `InvertBehind`
 
-The foot steps on a new arrow, crossing over in back of the other foot and ending in an orientation facing away directly away from the machine.
+The foot steps on a new arrow, crossing over in back of the other foot and ending in an orientation facing directly away from the machine.
 
 ### `FootSwap`
 
@@ -54,15 +54,15 @@ The foot steps on a new arrow while stretching, crossing over in back of the oth
 
 ### `InvertFrontStretch`
 
-The foot steps on a new arrow while stretching, crossing over in front of the other foot and ending in an orientation facing away directly away from the machine.
+The foot steps on a new arrow while stretching, crossing over in front of the other foot and ending in an orientation facing directly away from the machine.
 
 ### `InvertBehindStretch`
 
-The foot steps on a new arrow while stretching, crossing over in back of the other foot and ending in an orientation facing away directly away from the machine.
+The foot steps on a new arrow while stretching, crossing over in back of the other foot and ending in an orientation facing directly away from the machine.
 
 # Brackets
 
-Brackets are steps that involve one foot stepping on multiple arrows simultaneously. The library supports brackets of up to two arrows. When bracketing the heel portion of the foot steps on one arrow while the toe steps on the other arrow.
+Brackets are steps that involve one foot stepping on multiple arrows simultaneously. The library supports brackets of up to two arrows. When bracketing the heel portion of the foot steps on one arrow while the toe steps on another arrow.
 
 ## Simple Brackets
 
@@ -176,7 +176,7 @@ Both the heel and toe portions of the foot move to unoccupied new arrows while s
 
 ### `BracketStretchHeelNewToeSame`
 
-The heel portion steps on an unoccupied new arrow and the toe portion steps on an arrow that this foot was already resting on while stretching
+The heel portion steps on an unoccupied new arrow and the toe portion steps on an arrow that this foot was already resting on while stretching.
 
 ### `BracketStretchHeelSameToeNew`
 

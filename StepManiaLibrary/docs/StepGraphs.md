@@ -6,4 +6,4 @@ Positions are defined by [PadData](PadData.md). Moves are defined by [StepTypes]
 
 ## StepGraph Files
 
-Step graphs are defined in files named after their [ChartType](ChartType.md) with the `fsg` extension. For example `dance-single.fsg`. These files can be generated through the [PadDataGenerator](https://github.com/PerryAsleep/PadDataGenerator) application.
+`StepGraphs` are defined in files named after their [ChartType](ChartType.md) with the `fsg` extension. For example `dance-single.fsg`. These files can be generated through the [PadDataGenerator](https://github.com/PerryAsleep/PadDataGenerator) application.
