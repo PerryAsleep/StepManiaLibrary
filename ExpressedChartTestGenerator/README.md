@@ -4,7 +4,7 @@
 
 The expected workflow is to first write a test `sm` or `ssc` chart, verify the chart's [ExpressedChart](../StepManiaLibrary/docs/ExpressedChart.md) matches expectations, then copy the chart's song folder to `ChartGeneratorTests\TestData`, and then run `ExpressedChartTestGenerator` to generate a test class for it.
 
-To verify a chart's `ExpressedChart` matches expectations consider using [StepManiaChartGenerator](https://github.com/PerryAsleep/StepManiaChartGenerator/README.md) with `OutputVisualizations` set to `true` (see [Config](https://github.com/PerryAsleep/StepManiaChartGenerator/blob/main/StepManiaChartGenerator/docs/Config.md) and then examining the [Visualization](https://github.com/PerryAsleep/StepManiaChartGenerator/blob/main/StepManiaChartGenerator/docs/Visualizations.md) for the test file.
+To verify a chart's `ExpressedChart` matches expectations consider using [StepManiaChartGenerator](https://github.com/PerryAsleep/StepManiaChartGenerator) with `OutputVisualizations` set to `true` (see [Config](https://github.com/PerryAsleep/StepManiaChartGenerator/blob/main/StepManiaChartGenerator/docs/Config.md) and then examining the [Visualization](https://github.com/PerryAsleep/StepManiaChartGenerator/blob/main/StepManiaChartGenerator/docs/Visualizations.md) for the test file.
 
 ## Usage
 ```
