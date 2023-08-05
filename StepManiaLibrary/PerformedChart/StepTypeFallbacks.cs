@@ -60,7 +60,7 @@ public class StepTypeFallbacks
 			await using var openStream = File.OpenRead(Fumen.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName));
 			fallbacks = await JsonSerializer.DeserializeAsync<StepTypeFallbacks>(openStream, options);
 			fallbacks?.Init();
-			if (fallbacks == null || fallbacks.Validate(fileName))
+			if (fallbacks == null || !fallbacks.Validate(fileName))
 				throw new Exception("Invalid StepTypeFallbacks.");
 		}
 		catch (Exception e)
@@ -158,7 +158,7 @@ public class StepTypeFallbacks
 	/// Lor errors if any StepType fallbacks aren't present.
 	/// </summary>
 	/// <param name="id">Identifier for logging.</param>
-	/// <returns>True if errors were found and false otherwise.</returns>
+	/// <returns>True if no errors were found and false otherwise.</returns>
 	public bool Validate(string id)
 	{
 		var stepTypes = Enum.GetValues(typeof(StepType)).Cast<StepType>().ToList();
@@ -175,7 +175,7 @@ public class StepTypeFallbacks
 			}
 		}
 
-		return errors;
+		return !errors;
 	}
 
 	public Dictionary<StepType, List<StepType>> GetFallbacks()

@@ -1,4 +1,5 @@
-﻿using Fumen.Converters;
+﻿using System;
+using Fumen.Converters;
 using Fumen;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -13,7 +14,7 @@ namespace StepManiaLibrary.PerformedChart;
 ///  Call Init to perform needed initialization after loading and after SetAsOverrideOf.
 ///  Call Validate after Init to perform validation.
 /// </summary>
-public class Config
+public class Config : IEquatable<Config>
 {
 	/// <summary>
 	/// Tag for logging messages.
@@ -24,7 +25,7 @@ public class Config
 	/// Configuration for controlling transitions.
 	/// See TransitionControls.md for more information.
 	/// </summary>
-	public class TransitionConfig
+	public class TransitionConfig : IEquatable<TransitionConfig>
 	{
 		/// <summary>
 		/// Whether or not to use this TransitionConfig.
@@ -83,7 +84,7 @@ public class Config
 		/// Log errors if any values are not valid and return whether or not there are errors.
 		/// </summary>
 		/// <param name="pccId">Identifier for logging.</param>
-		/// <returns>True if errors were found and false otherwise.</returns>
+		/// <returns>True if no errors were found and false otherwise.</returns>
 		public bool Validate(string pccId)
 		{
 			var errors = false;
@@ -124,7 +125,7 @@ public class Config
 				errors = true;
 			}
 
-			return errors;
+			return !errors;
 		}
 
 		public bool IsEnabled()
@@ -133,13 +134,50 @@ public class Config
 				return false;
 			return Enabled.Value;
 		}
+
+		#region IEquatable
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			if (obj.GetType() != GetType())
+				return false;
+			return Equals((TransitionConfig)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			// ReSharper disable NonReadonlyMemberInGetHashCode
+			return HashCode.Combine(Enabled, StepsPerTransitionMin, StepsPerTransitionMax, MinimumPadWidth,
+				TransitionCutoffPercentage);
+			// ReSharper restore NonReadonlyMemberInGetHashCode
+		}
+
+		public bool Equals(TransitionConfig other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+
+			return Enabled == other.Enabled
+			       && StepsPerTransitionMin == other.StepsPerTransitionMin
+			       && StepsPerTransitionMax == other.StepsPerTransitionMax
+			       && MinimumPadWidth == other.MinimumPadWidth
+			       && TransitionCutoffPercentage.DoubleEquals(other.TransitionCutoffPercentage);
+		}
+
+		#endregion IEquatable
 	}
 
 	/// <summary>
 	/// Configuration for controlling facing.
 	/// See FacingControls.md for more information.
 	/// </summary>
-	public class FacingConfig
+	public class FacingConfig : IEquatable<FacingConfig>
 	{
 		/// <summary>
 		/// Maximum percentage of steps which should be inward facing.
@@ -192,7 +230,7 @@ public class Config
 		/// Log errors if any values are not valid and return whether or not there are errors.
 		/// </summary>
 		/// <param name="pccId">Identifier for logging.</param>
-		/// <returns>True if errors were found and false otherwise.</returns>
+		/// <returns>True if no errors were found and false otherwise.</returns>
 		public bool Validate(string pccId)
 		{
 			var errors = false;
@@ -268,15 +306,50 @@ public class Config
 				errors = true;
 			}
 
-			return errors;
+			return !errors;
 		}
+
+		#region IEquatable
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			if (obj.GetType() != GetType())
+				return false;
+			return Equals((FacingConfig)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			// ReSharper disable NonReadonlyMemberInGetHashCode
+			return HashCode.Combine(MaxInwardPercentage, InwardPercentageCutoff, MaxOutwardPercentage, OutwardPercentageCutoff);
+			// ReSharper restore NonReadonlyMemberInGetHashCode
+		}
+
+		public bool Equals(FacingConfig other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+
+			return MaxInwardPercentage.DoubleEquals(other.MaxInwardPercentage)
+			       && InwardPercentageCutoff.DoubleEquals(other.InwardPercentageCutoff)
+			       && MaxOutwardPercentage.DoubleEquals(other.MaxOutwardPercentage)
+			       && OutwardPercentageCutoff.DoubleEquals(other.OutwardPercentageCutoff);
+		}
+
+		#endregion IEquatable
 	}
 
 	/// <summary>
 	/// Configuration for tightening steps.
 	/// See PerformedChart.md for more information.
 	/// </summary>
-	public class StepTighteningConfig
+	public class StepTighteningConfig : IEquatable<StepTighteningConfig>
 	{
 		private const double InvalidMinPanelDistance = -100.0;
 
@@ -406,7 +479,7 @@ public class Config
 		/// Called after SetAsOverrideOf and Init.
 		/// </summary>
 		/// <param name="pccId">Identifier for logging.</param>
-		/// <returns>True if errors were found and false otherwise.</returns>
+		/// <returns>True if no errors were found and false otherwise.</returns>
 		public bool Validate(string pccId)
 		{
 			var errors = false;
@@ -503,7 +576,7 @@ public class Config
 				errors = true;
 			}
 
-			return errors;
+			return !errors;
 		}
 
 		public bool IsSpeedTighteningEnabled()
@@ -526,13 +599,67 @@ public class Config
 				return false;
 			return StretchTighteningEnabled.Value;
 		}
+
+		#region IEquatable
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			if (obj.GetType() != GetType())
+				return false;
+			return Equals((StepTighteningConfig)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			// ReSharper disable NonReadonlyMemberInGetHashCode
+			return HashCode.Combine(HashCode.Combine(SpeedTighteningEnabled,
+					SpeedMinTimeSeconds,
+					SpeedMaxTimeSeconds,
+					SpeedTighteningMinDistance,
+					DistanceTighteningEnabled,
+					DistanceMin,
+					DistanceMax,
+					StretchTighteningEnabled),
+				StretchDistanceMin,
+				StretchDistanceMax,
+				LateralMinPanelDistance,
+				LongitudinalMinPanelDistance);
+			// ReSharper restore NonReadonlyMemberInGetHashCode
+		}
+
+		public bool Equals(StepTighteningConfig other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+
+			return SpeedTighteningEnabled == other.SpeedTighteningEnabled
+			       && SpeedMinTimeSeconds.DoubleEquals(other.SpeedMinTimeSeconds)
+			       && SpeedMaxTimeSeconds.DoubleEquals(other.SpeedMaxTimeSeconds)
+			       && SpeedTighteningMinDistance.DoubleEquals(other.SpeedTighteningMinDistance)
+			       && DistanceTighteningEnabled == other.DistanceTighteningEnabled
+			       && DistanceMin.DoubleEquals(other.DistanceMin)
+			       && DistanceMax.DoubleEquals(other.DistanceMax)
+			       && StretchTighteningEnabled == other.StretchTighteningEnabled
+			       && StretchDistanceMin.DoubleEquals(other.StretchDistanceMin)
+			       && StretchDistanceMax.DoubleEquals(other.StretchDistanceMax)
+			       && LateralMinPanelDistance.DoubleEquals(other.LateralMinPanelDistance)
+			       && LongitudinalMinPanelDistance.DoubleEquals(other.LongitudinalMinPanelDistance);
+		}
+
+		#endregion IEquatable
 	}
 
 	/// <summary>
 	/// Configuration for tightening lateral body movement.
 	/// See PerformedChart.md for more information.
 	/// </summary>
-	public class LateralTighteningConfig
+	public class LateralTighteningConfig : IEquatable<LateralTighteningConfig>
 	{
 		/// <summary>
 		/// Whether or not to use this LateralTighteningConfig.
@@ -584,7 +711,7 @@ public class Config
 		/// Log errors if any values are not valid and return whether or not there are errors.
 		/// </summary>
 		/// <param name="pccId">Identifier for logging.</param>
-		/// <returns>True if errors were found and false otherwise.</returns>
+		/// <returns>True if no errors were found and false otherwise.</returns>
 		public bool Validate(string pccId)
 		{
 			var errors = false;
@@ -616,7 +743,7 @@ public class Config
 				errors = true;
 			}
 
-			return errors;
+			return !errors;
 		}
 
 		public bool IsEnabled()
@@ -625,6 +752,41 @@ public class Config
 				return false;
 			return Enabled.Value;
 		}
+
+		#region IEquatable
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			if (obj.GetType() != GetType())
+				return false;
+			return Equals((LateralTighteningConfig)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			// ReSharper disable NonReadonlyMemberInGetHashCode
+			return HashCode.Combine(Enabled, RelativeNPS, AbsoluteNPS, Speed);
+			// ReSharper restore NonReadonlyMemberInGetHashCode
+		}
+
+		public bool Equals(LateralTighteningConfig other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+
+			return Enabled == other.Enabled
+			       && RelativeNPS.DoubleEquals(other.RelativeNPS)
+			       && AbsoluteNPS.DoubleEquals(other.AbsoluteNPS)
+			       && Speed.DoubleEquals(other.Speed);
+		}
+
+		#endregion IEquatable
 	}
 
 	/// <summary>
@@ -767,12 +929,13 @@ public class Config
 	/// Called after SetAsOverrideOf and Init.
 	/// </summary>
 	/// <param name="pccId">Identifier for logging.</param>
-	/// <returns>True if errors were found and false otherwise.</returns>
+	/// <returns>True if no errors were found and false otherwise.</returns>
 	public bool Validate(string pccId = null)
 	{
-		var errors = LateralTightening.Validate(pccId);
-		errors = StepTightening.Validate(pccId) || errors;
-		errors = Facing.Validate(pccId) || errors;
+		var errors = !LateralTightening.Validate(pccId);
+		errors = !StepTightening.Validate(pccId) || errors;
+		errors = !Facing.Validate(pccId) || errors;
+		errors = !Transitions.Validate(pccId) || errors;
 		return !errors;
 	}
 
@@ -783,7 +946,7 @@ public class Config
 	/// <param name="smChartType">ChartType. May not be valid.</param>
 	/// <param name="smChartTypeValid">Whether the given ChartType is valid.</param>
 	/// <param name="pccId">Identifier for logging.</param>
-	/// <returns>True if errors were found and false otherwise.</returns>
+	/// <returns>True if no errors were found and false otherwise.</returns>
 	public bool ValidateArrowWeights(
 		string chartType,
 		SMCommon.ChartType smChartType,
@@ -836,4 +999,80 @@ public class Config
 	}
 
 	#endregion Logging
+
+	#region IEquatable
+
+	public bool Equals(Config other)
+	{
+		if (ReferenceEquals(null, other))
+			return false;
+		if (ReferenceEquals(this, other))
+			return true;
+
+		// Compare ArrowWeights.
+		if (ArrowWeights.Count != other.ArrowWeights.Count)
+			return false;
+		foreach (var (key, weights) in ArrowWeights)
+		{
+			if (!other.ArrowWeights.ContainsKey(key))
+				return false;
+			var otherWeights = other.ArrowWeights[key];
+			if (weights.Count != otherWeights.Count)
+				return false;
+			for (var i = 0; i < weights.Count; i++)
+				if (weights[i] != otherWeights[i])
+					return false;
+		}
+
+		// Compare ArrowWeightsNormalized.
+		if (ArrowWeightsNormalized.Count != other.ArrowWeightsNormalized.Count)
+			return false;
+		foreach (var (key, weights) in ArrowWeightsNormalized)
+		{
+			if (!other.ArrowWeightsNormalized.ContainsKey(key))
+				return false;
+			var otherWeights = other.ArrowWeightsNormalized[key];
+			if (weights.Count != otherWeights.Count)
+				return false;
+			for (var i = 0; i < weights.Count; i++)
+				if (!weights[i].DoubleEquals(otherWeights[i]))
+					return false;
+		}
+
+		if (!Transitions.Equals(other.Transitions))
+			return false;
+		if (!Facing.Equals(other.Facing))
+			return false;
+		if (!LateralTightening.Equals(other.LateralTightening))
+			return false;
+		if (!StepTightening.Equals(other.StepTightening))
+			return false;
+		return true;
+	}
+
+	public override bool Equals(object obj)
+	{
+		if (ReferenceEquals(null, obj))
+			return false;
+		if (ReferenceEquals(this, obj))
+			return true;
+		if (obj.GetType() != GetType())
+			return false;
+		return Equals((Config)obj);
+	}
+
+	public override int GetHashCode()
+	{
+		// ReSharper disable NonReadonlyMemberInGetHashCode
+		return HashCode.Combine(
+			Transitions,
+			Facing,
+			LateralTightening,
+			StepTightening,
+			ArrowWeights,
+			ArrowWeightsNormalized);
+		// ReSharper restore NonReadonlyMemberInGetHashCode
+	}
+
+	#endregion IEquatable
 }

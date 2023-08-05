@@ -551,6 +551,12 @@ public class GraphLinkInstance : IEquatable<GraphLinkInstance>
 		InstanceTypes = new InstanceStepType[NumFeet, NumFootPortions];
 	}
 
+	public GraphLinkInstance(GraphLink graphLink)
+	{
+		GraphLink = graphLink;
+		InstanceTypes = new InstanceStepType[NumFeet, NumFootPortions];
+	}
+
 	public GraphLinkInstance(GraphLink graphLink, InstanceStepType[,] instanceTypes)
 	{
 		GraphLink = graphLink;

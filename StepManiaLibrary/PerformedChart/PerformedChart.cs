@@ -15,10 +15,29 @@ namespace StepManiaLibrary.PerformedChart;
 /// A PerformedChart can be used to generate an SM Chart.
 /// A PerformedChart's representation comes from GraphLinkInstances and
 /// GraphNodeInstances.
-/// TODO: Consider consolidating search logic with ExpressedChart?
 /// </summary>
 public partial class PerformedChart
 {
+	/// <summary>
+	/// Event to use when sorting with rate altering events to determine the time of events to generate.
+	/// </summary>
+	private class PatternEvent : Event
+	{
+		public PatternEvent()
+		{
+		}
+
+		private PatternEvent(Event other)
+			: base(other)
+		{
+		}
+
+		public override Event Clone()
+		{
+			return new PatternEvent(this);
+		}
+	}
+
 	private const string LogTag = "Performed Chart";
 
 	/// <summary>
@@ -40,7 +59,7 @@ public partial class PerformedChart
 	/// Enumeration of states each arrow can be in at each position.
 	/// Used to assist with translating a PerformedChart into an SM Chart.
 	/// </summary>
-	private enum PerformanceFootAction
+	public enum PerformanceFootAction
 	{
 		None,
 		Tap,
@@ -59,7 +78,7 @@ public partial class PerformedChart
 	/// <summary>
 	/// List of PerformanceNodes representing the roots of each section of the PerformedChart.
 	/// </summary>
-	private readonly List<PerformanceNode> SectionRoots = new();
+	private readonly PerformanceNode Root;
 
 	/// <summary>
 	/// Number of arrows in the Chart.
@@ -84,20 +103,16 @@ public partial class PerformedChart
 	private PerformedChart(int numArrows, PerformanceNode root, string logIdentifier)
 	{
 		NumArrows = numArrows;
-		SectionRoots.Add(root);
+		Root = root;
 		LogIdentifier = logIdentifier;
 	}
 
-	//private PerformedChart(int numArrows, string logIdentifier)
-	//{
-	//	NumArrows = numArrows;
-	//	LogIdentifier = logIdentifier;
-	//}
-
-	public List<PerformanceNode> GetRootNodes()
+	public PerformanceNode GetRootNode()
 	{
-		return SectionRoots;
+		return Root;
 	}
+
+	#region Creation From ExpressedChart
 
 	/// <summary>
 	/// Creates a PerformedChart by iteratively searching for a series of GraphNodes that satisfy
@@ -172,7 +187,9 @@ public partial class PerformedChart
 						stepGraph,
 						nps,
 						random.NextDouble(),
-						config);
+						config,
+						null,
+						null);
 					var currentSearchNodes = new HashSet<SearchNode> { rootSearchNode };
 
 					while (true)
@@ -244,7 +261,9 @@ public partial class PerformedChart
 										stepGraph,
 										nps,
 										random.NextDouble(),
-										config);
+										config,
+										null,
+										null);
 
 									// Hook up the new SearchNode and store it in the nextSearchNodes for pruning.
 									if (!AddChildNode(searchNode, nextSearchNode, graphLink, nextSearchNodes, stepGraph,
@@ -294,7 +313,9 @@ public partial class PerformedChart
 											stepGraph,
 											nps,
 											random.NextDouble(),
-											config);
+											config,
+											null,
+											null);
 
 										// Hook up the new SearchNode and store it in the nextSearchNodes for pruning.
 										if (!AddChildNode(searchNode, nextSearchNode, graphLink, nextSearchNodes, stepGraph,
@@ -351,7 +372,7 @@ public partial class PerformedChart
 			logIdentifier);
 
 		// Add the StepPerformanceNodes to the PerformedChart
-		var currentPerformanceNode = performedChart.SectionRoots[0];
+		var currentPerformanceNode = performedChart.Root;
 		var currentSearchNode = rootSearchNode;
 		currentSearchNode = currentSearchNode?.GetNextNode();
 		while (currentSearchNode != null)
@@ -443,433 +464,20 @@ public partial class PerformedChart
 		{
 			return BlankSingleStepCost;
 		}
-		else
-		{
-			var numStepsRemoved = LinkCache.GetNumStepsRemoved(parentNode.GraphLinks[0], graphLinkToChild);
-			if (numStepsRemoved > 0)
-			{
-				stepRemovalCost += numStepsRemoved * IndividualDroppedArrowStepCost;
-			}
-		}
 
 		// The first link out of this search node is the most preferred node. The
 		// links at higher indexes are less preferred fallbacks that should cost more.
 		if (numLinks == 1)
 			return 0.0;
+
+		var numStepsRemoved = LinkCache.GetNumStepsRemoved(parentNode.GraphLinks[0], graphLinkToChild);
+		if (numStepsRemoved > 0)
+		{
+			stepRemovalCost += numStepsRemoved * IndividualDroppedArrowStepCost;
+		}
+
 		return stepRemovalCost + (double)graphLinkIndexToChild / (numLinks - 1);
 	}
-
-	// TODO: Rewrite
-	//public static PerformedChart CreateByFilling(
-	//	StepGraph stepGraph,
-	//	List<FillSectionConfig> fillSections,
-	//	Chart chart,
-	//	int randomSeed,
-	//	string logIdentifier)
-	//{
-	//	var performedChart = new PerformedChart(stepGraph.NumArrows, logIdentifier);
-	//	var random = new Random(randomSeed);
-
-	//	var validStepTypes = new[] {StepType.NewArrow, StepType.SameArrow};
-
-	//	// up front, loop over all the events in the chart and the configs to make a mapping
-	//	// with the cached time and positions by index.
-	//	var timingPerSection = DetermineFillSectionTiming(fillSections, chart);
-
-	//	var sectionIndex = 0;
-	//	var previousSectionLastL = InvalidArrowIndex;
-	//	var previousSectionLastR = InvalidArrowIndex;
-	//	var previousSectionEnd = 0;
-	//	var previousSectionLastFoot = InvalidFoot;
-	//	foreach (var sectionConfig in fillSections)
-	//	{
-	//		var sectionTiming = timingPerSection[sectionIndex];
-	//		var startingWherePreviousSectionEnded = false;
-
-	//		// Get the starting position for this section.
-	//		var lStart = sectionConfig.LeftFootStartLane;
-	//		var rStart = sectionConfig.RightFootStartLane;
-	//		GraphNode rootGraphNode;
-	//		if (lStart == InvalidArrowIndex || rStart == InvalidArrowIndex)
-	//		{
-	//			if (previousSectionEnd == sectionConfig.StartPosition
-	//			    && previousSectionLastL != InvalidArrowIndex
-	//			    && previousSectionLastR != InvalidArrowIndex)
-	//			{
-	//				startingWherePreviousSectionEnded = true;
-	//				rootGraphNode = stepGraph.FindGraphNode(previousSectionLastL, GraphArrowState.Resting, previousSectionLastR, GraphArrowState.Resting);
-	//			}
-	//			else
-	//			{
-	//				rootGraphNode = stepGraph.Root;
-	//			}
-	//		}
-	//		else
-	//		{
-	//			rootGraphNode = stepGraph.FindGraphNode(lStart, GraphArrowState.Resting, rStart, GraphArrowState.Resting);
-	//			if (rootGraphNode == null)
-	//			{
-	//				performedChart.LogError($"Section {sectionIndex}: Could not find starting node for left foot on {lStart} and right foot on {rStart}.");
-	//				return null;
-	//			}
-	//		}
-
-	//		var root = new StepPerformanceNode
-	//		{
-	//			Position = 0,
-	//			GraphNodeInstance = new GraphNodeInstance { Node = rootGraphNode },
-	//		};
-
-	//		// Get the starting foot to start on.
-	//		var foot = sectionConfig.FootToStartOn;
-	//		if (foot == InvalidFoot)
-	//		{
-	//			if (previousSectionEnd == sectionConfig.StartPosition
-	//			    && previousSectionLastFoot != InvalidFoot)
-	//			{
-	//				foot = OtherFoot(previousSectionLastFoot);
-	//			}
-	//			else
-	//			{
-	//				foot = random.Next(NumFeet);
-	//			}
-	//		}
-
-	//		var depth = 0;
-
-	//		// Set up a root search node at the root GraphNode.
-	//		var possibleGraphLinksToNextNode = new List<GraphLink>();
-
-	//		if (startingWherePreviousSectionEnded)
-	//		{
-	//			foreach (var stepType in validStepTypes)
-	//			{
-	//				var link = new GraphLink();
-	//				link.Links[foot, DefaultFootPortion] = new GraphLink.FootArrowState(stepType, FootAction.Tap);
-	//				possibleGraphLinksToNextNode.Add(link);
-	//			}
-	//		}
-	//		else
-	//		{
-	//			var rootGraphLink = new GraphLink();
-	//			rootGraphLink.Links[foot, DefaultFootPortion] = new GraphLink.FootArrowState(StepType.SameArrow, FootAction.Tap);
-	//			possibleGraphLinksToNextNode.Add(rootGraphLink);
-	//		}
-
-	//		var rootSearchNode = new SearchNode(
-	//			rootGraphNode,
-	//			possibleGraphLinksToNextNode,
-	//			null,
-	//			0L,
-	//			depth,
-	//			null,
-	//			new PerformanceFootAction[stepGraph.NumArrows],
-	//			stepGraph,
-	//			0,
-	//			random.NextDouble(),
-	//			sectionConfig.Config,
-	//			sectionConfig);
-
-	//		var currentSearchNodes = new HashSet<SearchNode>();
-	//		currentSearchNodes.Add(rootSearchNode);
-
-	//		foreach(var timingInfo in sectionTiming)
-	//		{
-	//			var timeSeconds = timingInfo.Item1;
-
-	//			// Failed to find a path.
-	//			if (currentSearchNodes.Count == 0)
-	//			{
-	//				performedChart.LogError($"Section {sectionIndex}: Failed to find path.");
-	//				break;
-	//			}
-
-	//			// Accumulate the next level of SearchNodes by looping over each SearchNode
-	//			// in the current set.
-	//			var nextDepth = depth + 1;
-	//			foot = OtherFoot(foot);
-	//			var nextSearchNodes = new HashSet<SearchNode>();
-
-	//			foreach (var searchNode in currentSearchNodes)
-	//			{
-	//				// Check every GraphLink out of the SearchNode.
-	//				var deadEnd = true;
-	//				for (var l = 0; l < searchNode.GraphLinks.Count; l++)
-	//				{
-	//					var graphLink = searchNode.GraphLinks[l];
-	//					// The GraphNode may not actually have this GraphLink due to
-	//					// the StepTypeReplacements.
-	//					if (!searchNode.GraphNode.Links.ContainsKey(graphLink))
-	//						continue;
-
-	//					// Check every GraphNode linked to by this GraphLink.
-	//					var nextNodes = searchNode.GraphNode.Links[graphLink];
-	//					for (var n = 0; n < nextNodes.Count; n++)
-	//					{
-	//						var nextGraphNode = nextNodes[n];
-	//						// Determine new step information.
-	//						var actions = GetActionsForNode(nextGraphNode, graphLink, stepGraph.NumArrows);
-
-	//						possibleGraphLinksToNextNode = new List<GraphLink>();
-	//						foreach (var stepType in validStepTypes)
-	//						{
-	//							if (depth == 1 && !startingWherePreviousSectionEnded && stepType != StepType.SameArrow)
-	//								continue;
-	//							var link = new GraphLink();
-	//							link.Links[foot, DefaultFootPortion] = new GraphLink.FootArrowState(stepType, FootAction.Tap);
-	//							possibleGraphLinksToNextNode.Add(link);
-	//						}
-
-	//						// Set up a new SearchNode.
-	//						var nextSearchNode = new SearchNode(
-	//							nextGraphNode,
-	//							possibleGraphLinksToNextNode,
-	//							graphLink,
-	//							timeSeconds,
-	//							nextDepth,
-	//							searchNode,
-	//							actions,
-	//							stepGraph,
-	//							0,
-	//							random.NextDouble(),
-	//							sectionConfig.Config,
-	//							sectionConfig
-	//						);
-
-	//						// Update the previous SearchNode's NextNodes to include the new SearchNode.
-	//						if (!searchNode.NextNodes.ContainsKey(graphLink))
-	//							searchNode.NextNodes[graphLink] = new HashSet<SearchNode>();
-	//						searchNode.NextNodes[graphLink].Add(nextSearchNode);
-
-	//						// Add this node to the set of next SearchNodes to be pruned after they are all found.
-	//						nextSearchNodes.Add(nextSearchNode);
-	//						deadEnd = false;
-	//					}
-	//				}
-
-	//				// This SearchNode has no valid children. Prune it.
-	//				if (deadEnd)
-	//					Prune(searchNode);
-	//			}
-
-	//			// Prune all the next SearchNodes, store them in currentSearchNodes, and advance.
-	//			currentSearchNodes = Prune(nextSearchNodes);
-	//			depth = nextDepth;
-	//		}
-
-	//		// Finished
-	//		{
-	//			// Check for ending at the correct location.
-	//			if (sectionConfig.LeftFootEndLane != InvalidArrowIndex &&
-	//			    sectionConfig.RightFootEndLane != InvalidArrowIndex)
-	//			{
-	//				var remainingNodes = new HashSet<SearchNode>();
-	//				foreach (var node in currentSearchNodes)
-	//				{
-	//					if (node.GraphNode.State[L, DefaultFootPortion].Arrow == sectionConfig.LeftFootEndLane
-	//					    && node.GraphNode.State[R, DefaultFootPortion].Arrow == sectionConfig.RightFootEndLane)
-	//					{
-	//						remainingNodes.Add(node);
-	//						continue;
-	//					}
-
-	//					Prune(node);
-	//				}
-
-	//				currentSearchNodes = remainingNodes;
-	//				if (currentSearchNodes.Count == 0)
-	//				{
-	//					performedChart.LogError(
-	//						$"Section {sectionIndex}: Could not find path ending with left on {sectionConfig.LeftFootEndLane} and right foot on {sectionConfig.RightFootEndLane}.");
-	//				}
-	//			}
-
-	//			// Choose path with lowest cost.
-	//			SearchNode bestNode = null;
-	//			foreach (var node in currentSearchNodes)
-	//				if (bestNode == null || node.CompareTo(bestNode) < 0)
-	//					bestNode = node;
-
-	//			// Remove any nodes that are not chosen so there is only one path through the chart.
-	//			foreach (var node in currentSearchNodes)
-	//			{
-	//				if (node.Equals(bestNode))
-	//					continue;
-	//				Prune(node);
-	//			}
-
-	//			previousSectionEnd = sectionConfig.EndPosition;
-	//			previousSectionLastL = bestNode.GraphNode.State[L, DefaultFootPortion].Arrow;
-	//			previousSectionLastR = bestNode.GraphNode.State[R, DefaultFootPortion].Arrow;
-	//			previousSectionLastFoot = OtherFoot(foot);
-	//		}
-
-	//		performedChart.SectionRoots.Add(root);
-	//		sectionIndex++;
-
-	//		// Add the StepPerformanceNodes to the PerformedChart
-	//		var currentPerformanceNode = root;
-	//		var currentSearchNode = rootSearchNode;
-	//		currentSearchNode = currentSearchNode?.GetNextNode();
-	//		var index = 0;
-	//		while (currentSearchNode != null)
-	//		{
-	//			// Create GraphNodeInstance.
-	//			var graphNodeInstance = new GraphNodeInstance { Node = currentSearchNode.GraphNode };
-
-	//			// Create GraphLinkInstance.
-	//			var graphLink = currentSearchNode.GraphLinkFromPreviousNode;
-	//			GraphLinkInstance graphLinkInstance = new GraphLinkInstance { GraphLink = graphLink };
-
-	//			// Add new StepPerformanceNode and advance.
-	//			var newNode = new StepPerformanceNode
-	//			{
-	//				Position = sectionTiming[index].Item2,
-	//				GraphLinkInstance = graphLinkInstance,
-	//				GraphNodeInstance = graphNodeInstance,
-	//				Prev = currentPerformanceNode
-	//			};
-	//			currentPerformanceNode.Next = newNode;
-	//			currentPerformanceNode = newNode;
-	//			currentSearchNode = currentSearchNode.GetNextNode();
-	//			index++;
-	//		}
-	//	}
-
-	//	return performedChart;
-	//}
-
-	//private class FillEvent
-	//{
-	//	public Event Event;
-
-	//	public int SectionIndex;
-	//	public int IndexWithinSection;
-	//	public int Position;
-	//}
-
-	//public class FillEventComparer : IComparer<FillEvent>
-	//{
-	//	private SMCommon.SMEventComparer SMEventComparer = new SMCommon.SMEventComparer();
-
-	//	int IComparer<FillEvent>.Compare(FillEvent e1, FillEvent e2)
-	//	{
-	//		// First, compare by position.
-	//		int comparison = e1.Position.CompareTo(e2.Position);
-	//		if (comparison != 0)
-	//			return comparison;
-
-	//		// If one event is for an Event from the Chart, that should come first.
-	//		if ((e1.Event == null) != (e2.Event == null))
-	//			return e1.Event == null ? 1 : -1;
-
-	//		// If neither event is from the Chart, the are the same.
-	//		if (e1.Event == null)
-	//			return 0;
-
-	//		// Both events are Chart Events. Compare them with the standard StepMania sort rules.
-	//		return SMEventComparer.Compare(e1.Event, e2.Event);
-	//	}
-	//}
-
-	// TODO: Rewrite
-	//private static Tuple<double, int>[][] DetermineFillSectionTiming(
-	//	List<FillSectionConfig> fillSections,
-	//	Chart chart)
-	//{
-	//	var FillEvents = new List<FillEvent>();
-	//	foreach(var chartEvent in chart.Layers[0].Events)
-	//		FillEvents.Add(new FillEvent { Event = chartEvent, Position = chartEvent.IntegerPosition});
-
-	//	var numSections = fillSections.Count;
-	//	var numEventsInSection = new int[numSections];
-	//	var sectionIndex = 0;
-	//	foreach (var config in fillSections)
-	//	{
-	//		var indexWithinSection = 0;
-	//		var pos = config.StartPosition;
-	//		while (pos < config.EndPosition)
-	//		{
-	//			numEventsInSection[sectionIndex]++;
-	//			FillEvents.Add(new FillEvent
-	//			{
-	//				SectionIndex = sectionIndex,
-	//				IndexWithinSection = indexWithinSection,
-	//				Position = pos
-	//			});
-
-	//			indexWithinSection++;
-	//			pos += SMCommon.MaxValidDenominator / config.BeatSubDivisionToFill;
-	//		}
-	//		sectionIndex++;
-	//	}
-
-	//	FillEvents.Sort(new FillEventComparer());
-
-	//	var sectionData = new Tuple<double, int>[numSections][];
-	//	for (var si = 0; si < numSections; si++)
-	//		sectionData[si] = new Tuple<double, int>[numEventsInSection[si]];
-
-	//	var bpm = 0.0;
-	//	var timeSignature = new Fraction(4, 4);
-	//	double beatTime = 0.0;
-	//	double currentTime = 0.0;
-
-	//	var previousPosition = 0;
-	//	foreach (var fillEvent in FillEvents)
-	//	{
-	//		if (fillEvent.Position > previousPosition)
-	//		{
-	//			var currentBeats =
-	//				fillEvent.Position.Measure * timeSignature.Numerator
-	//				+ fillEvent.Position.Beat
-	//				+ (fillEvent.Position.SubDivision.Denominator == 0 ? 0 : fillEvent.Position.SubDivision.ToDouble());
-	//			var previousBeats =
-	//				previousPosition.Measure * timeSignature.Numerator
-	//				+ previousPosition.Beat
-	//				+ (previousPosition.SubDivision.Denominator == 0 ? 0 : previousPosition.SubDivision.ToDouble());
-	//			currentTime += (currentBeats - previousBeats) * beatTime;
-	//		}
-
-	//		// Add the timing data.
-	//		if (fillEvent.Event == null)
-	//		{
-	//			sectionData[fillEvent.SectionIndex][fillEvent.IndexWithinSection] =
-	//				new Tuple<double, int>(currentTime, fillEvent.Position);
-	//		}
-
-	//		// Process tempo changes and stops.
-	//		if (fillEvent.Event != null)
-	//		{
-	//			var chartEvent = fillEvent.Event;
-	//			var beatTimeDirty = false;
-	//			if (chartEvent is Stop stop)
-	//				currentTime += stop.LengthSeconds;
-	//			else if (chartEvent is TimeSignature ts)
-	//			{
-	//				timeSignature = ts.Signature;
-	//				beatTimeDirty = true;
-	//			}
-	//			else if (chartEvent is Tempo tc)
-	//			{
-	//				bpm = tc.TempoBPM;
-	//				beatTimeDirty = true;
-	//			}
-
-	//			if (beatTimeDirty)
-	//			{
-	//				if (bpm == 0.0 || timeSignature.Denominator == 0.0)
-	//					beatTime = 0.0;
-	//				else
-	//					beatTime = (60 / bpm) * (4.0 / timeSignature.Denominator);
-	//			}
-	//		}
-
-	//		previousPosition = fillEvent.Position;
-	//	}
-
-	//	return sectionData;
-	//}
 
 	/// <summary>
 	/// Finds the notes per second of the entire Chart represented by the given ExpressedChart.
@@ -910,104 +518,6 @@ public partial class PerformedChart
 	}
 
 	/// <summary>
-	/// Prunes the given HashSet of SearchNodes to a HashSet that contains
-	/// only the lowest cost SearchNode per unique GraphNode.
-	/// </summary>
-	/// <param name="nodes">HashSet of SearchNodes to prune.</param>
-	/// <returns>Pruned SearchNodes.</returns>
-	private static HashSet<SearchNode> Prune(HashSet<SearchNode> nodes)
-	{
-		// Set up a Dictionary to track the best ChartSearchNode per GraphNode.
-		var bestNodes = new Dictionary<GraphNode, SearchNode>();
-		foreach (var node in nodes)
-		{
-			// There is already a best node for this GraphNode, compare them.
-			if (bestNodes.TryGetValue(node.GraphNode, out var currentNode))
-			{
-				// This node is better.
-				if (node.CompareTo(currentNode) < 1)
-				{
-					Prune(currentNode);
-
-					// Set the currentNode to this new best node so we record it below.
-					currentNode = node;
-				}
-				else
-				{
-					Prune(node);
-				}
-			}
-			// There is not yet a best node recorded for this GraphNode. Record this node
-			// as the current best.
-			else
-			{
-				currentNode = node;
-			}
-
-			bestNodes[currentNode.GraphNode] = currentNode;
-		}
-
-		return bestNodes.Values.ToHashSet();
-	}
-
-	/// <summary>
-	/// Removes the given SearchNode from the tree.
-	/// Removes all parents up until the first parent with other children.
-	/// </summary>
-	/// <param name="node">SearchNode to prune.</param>
-	private static void Prune(SearchNode node)
-	{
-		// Prune the node up until parent that has other children.
-		while (node.PreviousNode != null)
-		{
-			node.PreviousNode.NextNodes[node.GraphLinkFromPreviousNode].Remove(node);
-			if (node.PreviousNode.NextNodes[node.GraphLinkFromPreviousNode].Count == 0)
-				node.PreviousNode.NextNodes.Remove(node.GraphLinkFromPreviousNode);
-			if (node.PreviousNode.NextNodes.Count != 0)
-				break;
-			node = node.PreviousNode;
-		}
-	}
-
-	/// <summary>
-	/// Checks whether the given node has a step that occurs at the same time as a release on the same arrow.
-	/// Some valid expressions might otherwise cause this kind of pattern to be generated in a PerformedChart
-	/// but this does not represent a valid SM Chart. This can happen when there is a jump and the foot in
-	/// question is supposed to jump on the same arrow but the previous step was a bracket so there are two
-	/// arrows to choose from. We could apply the SameArrow step to the arrow which just released even though
-	/// that is impossible in the ExpressedChart.
-	/// </summary>
-	/// <param name="node">The SearchNode to check.</param>
-	/// <param name="expressedChart">The ExpressedChart so we can check GraphLinks.</param>
-	/// <param name="numArrows">Number of arrows in the Chart.</param>
-	/// <returns>
-	/// True if this SearchNode has a step that occurs at the same time as a release on the same arrow.
-	/// </returns>
-	private static bool DoesNodeStepOnReleaseAtSamePosition(SearchNode node, ExpressedChart expressedChart, int numArrows)
-	{
-		var previousNode = node.PreviousNode;
-		if (previousNode == null)
-			return false;
-		var previousPreviousNode = previousNode.PreviousNode;
-		if (previousPreviousNode == null)
-			return false;
-
-		// This node and the previous node must occur at the same time for the problem to arise.
-		if (expressedChart.StepEvents[previousNode.Depth - 1].Position != expressedChart.StepEvents[node.Depth - 1].Position)
-			return false;
-
-		// Check if the previous node released on the same arrow tha the current node is stepping on.
-		for (var a = 0; a < numArrows; a++)
-		{
-			if (previousNode.Actions[a] == PerformanceFootAction.Release &&
-			    node.Actions[a] != PerformanceFootAction.None && node.Actions[a] != PerformanceFootAction.Release)
-				return true;
-		}
-
-		return false;
-	}
-
-	/// <summary>
 	/// Add Mines to the PerformedChart. Done after the steps are added since mine placement is
 	/// relative to arrows in the chart. Mines are added to the end of the PerformanceNode list
 	/// and sorted later.
@@ -1034,34 +544,32 @@ public partial class PerformedChart
 		var lanesWithNoArrows = new bool[stepGraph.NumArrows];
 		for (var a = 0; a < stepGraph.NumArrows; a++)
 			lanesWithNoArrows[a] = true;
-		foreach (var root in performedChart.SectionRoots)
+
+		var currentPerformanceNode = performedChart.Root;
+		while (currentPerformanceNode != null)
 		{
-			var currentPerformanceNode = root;
-			while (currentPerformanceNode != null)
+			if (currentPerformanceNode is StepPerformanceNode stepNode)
 			{
-				if (currentPerformanceNode is StepPerformanceNode stepNode)
+				for (var f = 0; f < NumFeet; f++)
 				{
-					for (var f = 0; f < NumFeet; f++)
+					for (var p = 0; p < NumFootPortions; p++)
 					{
-						for (var p = 0; p < NumFootPortions; p++)
+						if (stepNode.GraphNodeInstance.Node.State[f, p].Arrow != InvalidArrowIndex)
 						{
-							if (stepNode.GraphNodeInstance.Node.State[f, p].Arrow != InvalidArrowIndex)
+							if (lanesWithNoArrows[stepNode.GraphNodeInstance.Node.State[f, p].Arrow])
 							{
-								if (lanesWithNoArrows[stepNode.GraphNodeInstance.Node.State[f, p].Arrow])
-								{
-									lanesWithNoArrows[stepNode.GraphNodeInstance.Node.State[f, p].Arrow] = false;
-									numLanesWithArrows++;
-								}
+								lanesWithNoArrows[stepNode.GraphNodeInstance.Node.State[f, p].Arrow] = false;
+								numLanesWithArrows++;
 							}
 						}
 					}
-
-					if (numLanesWithArrows == stepGraph.NumArrows)
-						break;
 				}
 
-				currentPerformanceNode = currentPerformanceNode.Next;
+				if (numLanesWithArrows == stepGraph.NumArrows)
+					break;
 			}
+
+			currentPerformanceNode = currentPerformanceNode.Next;
 		}
 
 		// Get the first lane with no arrow, if one exists.
@@ -1076,15 +584,12 @@ public partial class PerformedChart
 
 		// Create sorted lists of releases.
 		var stepEvents = new List<StepPerformanceNode>();
-		foreach (var root in performedChart.SectionRoots)
+		currentPerformanceNode = performedChart.Root;
+		while (currentPerformanceNode != null)
 		{
-			var currentPerformanceNode = root;
-			while (currentPerformanceNode != null)
-			{
-				if (currentPerformanceNode is StepPerformanceNode stepNode)
-					stepEvents.Add(stepNode);
-				currentPerformanceNode = currentPerformanceNode.Next;
-			}
+			if (currentPerformanceNode is StepPerformanceNode stepNode)
+				stepEvents.Add(stepNode);
+			currentPerformanceNode = currentPerformanceNode.Next;
 		}
 
 		var (releases, steps) = MineUtils.GetReleasesAndSteps(stepEvents, stepGraph.NumArrows);
@@ -1170,6 +675,730 @@ public partial class PerformedChart
 				}
 			}
 		}
+	}
+
+	#endregion Creation From ExpressedChart
+
+	#region Creation From PatternConfig
+
+	public static PerformedChart CreateWithPattern(
+		StepGraph stepGraph,
+		PatternConfig patternConfig,
+		Config config,
+		int startPosition,
+		int endPosition,
+		bool endPositionInclusive,
+		int randomSeed,
+		int previousStepFoot,
+		double previousStepTime,
+		int[] previousFooting,
+		int[] followingFooting,
+		int[] currentLaneCounts,
+		IReadOnlyList<Event> currentEvents,
+		string logIdentifier)
+	{
+		var random = new Random(randomSeed);
+
+		var validStepTypes = new[] { StepType.NewArrow, StepType.SameArrow };
+		const double stepTypeFallbackCost = 0.0;
+
+		// Determine the times and positions of all events to generate.
+		// This depends on the currently present rate altering events.
+		var timingData = DeterminePatternTiming(patternConfig, currentEvents, startPosition, endPosition, endPositionInclusive);
+		if (timingData == null)
+		{
+			var endInclusiveExclusiveString = endPositionInclusive ? "inclusive" : "exclusive";
+			LogError(
+				$"Range from {startPosition} to {endPosition} ({endInclusiveExclusiveString}) is not large enough to generate steps.",
+				logIdentifier);
+			return null;
+		}
+
+		// Determine the NPS now that we know the timing data.
+		var nps = FindNPS(currentEvents, timingData);
+
+		// Get the starting position.
+		var rootLeft = patternConfig.LeftFootStartLaneSpecified;
+		var rootRight = patternConfig.RightFootStartLaneSpecified;
+		var firstStepTypeLeft = StepType.SameArrow;
+		var firstStepTypeRight = StepType.SameArrow;
+		switch (patternConfig.LeftFootStartChoice)
+		{
+			case PatternConfigStartFootChoice.AutomaticSameLane:
+				rootLeft = previousFooting[L];
+				break;
+			case PatternConfigStartFootChoice.AutomaticNewLane:
+				rootLeft = previousFooting[L];
+				firstStepTypeLeft = StepType.NewArrow;
+				break;
+		}
+
+		switch (patternConfig.RightFootStartChoice)
+		{
+			case PatternConfigStartFootChoice.AutomaticSameLane:
+				rootRight = previousFooting[R];
+				break;
+			case PatternConfigStartFootChoice.AutomaticNewLane:
+				rootRight = previousFooting[R];
+				firstStepTypeRight = StepType.NewArrow;
+				break;
+		}
+
+		var rootGraphNode = stepGraph.FindGraphNode(rootLeft, GraphArrowState.Resting, rootRight, GraphArrowState.Resting);
+		if (rootGraphNode == null)
+		{
+			LogError($"Could not find starting node for left foot on {rootLeft} and right foot on {rootRight}.", logIdentifier);
+			return null;
+		}
+
+		var root = new StepPerformanceNode
+		{
+			Position = 0,
+			GraphNodeInstance = new GraphNodeInstance { Node = rootGraphNode },
+		};
+		var performedChart = new PerformedChart(stepGraph.NumArrows, root, logIdentifier);
+
+		// Get the starting foot to start on.
+		var foot = patternConfig.StartingFootSpecified;
+		switch (patternConfig.StartingFootChoice)
+		{
+			case PatternConfigStartingFootChoice.Random:
+			{
+				foot = random.NextDouble() < 0.5 ? L : R;
+				break;
+			}
+			case PatternConfigStartingFootChoice.Automatic:
+			{
+				foot = OtherFoot(previousStepFoot);
+				break;
+			}
+		}
+
+		var firstStepType = foot == L ? firstStepTypeLeft : firstStepTypeRight;
+		var secondStepType = foot == L ? firstStepTypeRight : firstStepTypeLeft;
+
+		var depth = 0;
+
+		// Set up a root search node at the root GraphNode.
+		var possibleGraphLinksToNextNode = new List<GraphLinkInstance>();
+		var rootGraphLink = new GraphLink
+		{
+			Links =
+			{
+				[foot, DefaultFootPortion] = new GraphLink.FootArrowState(firstStepType, FootAction.Tap),
+			},
+		};
+		possibleGraphLinksToNextNode.Add(new GraphLinkInstance(rootGraphLink));
+
+		var rootSearchNode = new SearchNode(
+			rootGraphNode,
+			possibleGraphLinksToNextNode,
+			null,
+			stepTypeFallbackCost,
+			previousStepTime,
+			depth,
+			null,
+			new PerformanceFootAction[stepGraph.NumArrows],
+			stepGraph,
+			nps,
+			random.NextDouble(),
+			config,
+			patternConfig,
+			currentLaneCounts);
+
+		var currentSearchNodes = new HashSet<SearchNode> { rootSearchNode };
+
+		foreach (var timingInfo in timingData)
+		{
+			var timeSeconds = timingInfo.Item1;
+
+			// Failed to find a path.
+			if (currentSearchNodes.Count == 0)
+			{
+				performedChart.LogError("Failed to find path.");
+				break;
+			}
+
+			// Accumulate the next level of SearchNodes by looping over each SearchNode
+			// in the current set.
+			var nextDepth = depth + 1;
+			foot = OtherFoot(foot);
+			var nextSearchNodes = new HashSet<SearchNode>();
+
+			foreach (var searchNode in currentSearchNodes)
+			{
+				// Check every GraphLink out of the SearchNode.
+				var deadEnd = true;
+				for (var l = 0; l < searchNode.GraphLinks.Count; l++)
+				{
+					var graphLink = searchNode.GraphLinks[l];
+					// The GraphNode may not actually have this GraphLink due to
+					// the StepTypeReplacements.
+					if (!searchNode.GraphNode.Links.ContainsKey(graphLink.GraphLink))
+						continue;
+
+					// Check every GraphNode linked to by this GraphLink.
+					var nextNodes = searchNode.GraphNode.Links[graphLink.GraphLink];
+					for (var n = 0; n < nextNodes.Count; n++)
+					{
+						var nextGraphNode = nextNodes[n];
+
+						// Determine new step information.
+						var actions = GetActionsForNode(nextGraphNode, graphLink.GraphLink,
+							stepGraph.NumArrows);
+
+						// Set up the graph links leading out of this node to its next nodes.
+						possibleGraphLinksToNextNode = new List<GraphLinkInstance>();
+						foreach (var stepType in validStepTypes)
+						{
+							if (depth == 1 && stepType != secondStepType)
+								continue;
+							var link = new GraphLink
+							{
+								Links =
+								{
+									[foot, DefaultFootPortion] = new GraphLink.FootArrowState(stepType, FootAction.Tap),
+								},
+							};
+							possibleGraphLinksToNextNode.Add(new GraphLinkInstance(link));
+						}
+
+						// Set up a new SearchNode.
+						var nextSearchNode = new SearchNode(
+							nextGraphNode,
+							possibleGraphLinksToNextNode,
+							graphLink,
+							stepTypeFallbackCost,
+							timeSeconds,
+							nextDepth,
+							searchNode,
+							actions,
+							stepGraph,
+							nps,
+							random.NextDouble(),
+							config,
+							patternConfig,
+							null
+						);
+
+						// Update the previous SearchNode's NextNodes to include the new SearchNode.
+						if (!searchNode.NextNodes.ContainsKey(graphLink))
+							searchNode.NextNodes[graphLink] = new HashSet<SearchNode>();
+						searchNode.NextNodes[graphLink].Add(nextSearchNode);
+
+						// Add this node to the set of next SearchNodes to be pruned after they are all found.
+						nextSearchNodes.Add(nextSearchNode);
+						deadEnd = false;
+					}
+				}
+
+				// This SearchNode has no valid children. Prune it.
+				if (deadEnd)
+					Prune(searchNode);
+			}
+
+			// Prune all the next SearchNodes, store them in currentSearchNodes, and advance.
+			currentSearchNodes = Prune(nextSearchNodes);
+			depth = nextDepth;
+		}
+
+		// Finished
+		{
+			// Filter the set of current nodes to ones which end at acceptable positions.
+			RemoveNodesEndingInUnwantedLocations(stepGraph, ref currentSearchNodes, patternConfig, followingFooting);
+			if (currentSearchNodes.Count == 0)
+			{
+				performedChart.LogError("Failed to find path ending at desired location.");
+				return null;
+			}
+
+			// Choose path with lowest cost.
+			SearchNode bestNode = null;
+			foreach (var node in currentSearchNodes)
+				if (bestNode == null || node.CompareTo(bestNode) < 0)
+					bestNode = node;
+
+			// Remove any nodes that are not chosen so there is only one path through the chart.
+			foreach (var node in currentSearchNodes)
+			{
+				if (node.Equals(bestNode))
+					continue;
+				Prune(node);
+			}
+
+			//previousSectionEnd = endPosition;
+			//previousSectionLastL = bestNode.GraphNode.State[L, DefaultFootPortion].Arrow;
+			//previousSectionLastR = bestNode.GraphNode.State[R, DefaultFootPortion].Arrow;
+			//previousSectionLastFoot = OtherFoot(foot);
+		}
+
+		// Add the StepPerformanceNodes to the PerformedChart
+		var currentPerformanceNode = root;
+		var currentSearchNode = rootSearchNode;
+		currentSearchNode = currentSearchNode?.GetNextNode();
+		var index = 0;
+		while (currentSearchNode != null)
+		{
+			// Create GraphNodeInstance.
+			var graphNodeInstance = new GraphNodeInstance { Node = currentSearchNode.GraphNode };
+			var graphLinkInstance = currentSearchNode.GraphLinkFromPreviousNode;
+			for (var f = 0; f < NumFeet; f++)
+				for (var p = 0; p < NumFootPortions; p++)
+					graphNodeInstance.InstanceTypes[f, p] = graphLinkInstance.InstanceTypes[f, p];
+
+			// Add new StepPerformanceNode and advance.
+			var newNode = new StepPerformanceNode
+			{
+				Position = timingData[index].Item2,
+				GraphLinkInstance = graphLinkInstance,
+				GraphNodeInstance = graphNodeInstance,
+				Prev = currentPerformanceNode,
+			};
+			currentPerformanceNode.Next = newNode;
+			currentPerformanceNode = newNode;
+			currentSearchNode = currentSearchNode.GetNextNode();
+			index++;
+		}
+
+		return performedChart;
+	}
+
+	/// <summary>
+	/// Given a set of possible final nodes for pattern generation, remove nodes which end
+	/// in unwanted ending locations based on the rules in the given PatternConfig.
+	/// </summary>
+	/// <param name="stepGraph">StepGraph to use.</param>
+	/// <param name="currentSearchNodes">Set of possible ending SearchNodes to remove nodes from.</param>
+	/// <param name="patternConfig">PatternConfig with rules for how the pattern should end.</param>
+	/// <param name="followingFooting">Array of lanes per foot representing the footing of steps following this pattern.</param>
+	private static void RemoveNodesEndingInUnwantedLocations(
+		StepGraph stepGraph,
+		ref HashSet<SearchNode> currentSearchNodes,
+		PatternConfig patternConfig,
+		int[] followingFooting)
+	{
+		// Accumulate a list of GraphNodes which represent the set of nodes which are valid to
+		// be stepped to for ending this pattern section. If this is empty, then any nodes is
+		// acceptable.
+		var destinationNodes = new List<GraphNode>();
+
+		// Accumulate the valid types of steps which can be taken to end at the valid destination
+		// nodes. If both feet have an empty list, then there is no restriction by 
+		var validAutoStepTypes = new List<StepType>[NumFeet];
+		for (var f = 0; f < NumFeet; f++)
+		{
+			validAutoStepTypes[f] = new List<StepType>();
+			if (followingFooting[f] != InvalidArrowIndex)
+			{
+				switch (f == L ? patternConfig.LeftFootEndChoice : patternConfig.RightFootEndChoice)
+				{
+					case PatternConfigEndFootChoice.AutomaticSameLaneToFollowing:
+						validAutoStepTypes[f].Add(StepType.SameArrow);
+						break;
+					case PatternConfigEndFootChoice.AutomaticNewLaneToFollowing:
+						validAutoStepTypes[f].Add(StepType.NewArrow);
+						break;
+					case PatternConfigEndFootChoice.AutomaticSameOrNewLaneAsFollowing:
+						validAutoStepTypes[f].Add(StepType.SameArrow);
+						validAutoStepTypes[f].Add(StepType.NewArrow);
+						break;
+				}
+			}
+		}
+
+		var leftFootShouldAutoStep = validAutoStepTypes[L].Count > 0;
+		var rightFootShouldAutoStep = validAutoStepTypes[R].Count > 0;
+		var bothFeetShouldAutoStep = leftFootShouldAutoStep && rightFootShouldAutoStep;
+		var shouldFilterByDestinationNodes = leftFootShouldAutoStep || rightFootShouldAutoStep;
+
+		// Helper method for updating destinationNodes and validAutoStepTypes when only a single
+		// foot is auto-stepping to a specified end position.
+		void AddDestinationNodesAndUpdateOtherFootValidStepTypesForSingleFoot(int foot)
+		{
+			var otherFoot = OtherFoot(foot);
+
+			// If we are only restricting by a single foot, allow the other foot to perform any move.
+			validAutoStepTypes[otherFoot].Add(StepType.SameArrow);
+			validAutoStepTypes[otherFoot].Add(StepType.NewArrow);
+
+			// This foot must end on a specific lane.
+			var endLaneForFoot = followingFooting[foot];
+
+			// Create GraphNodes for all valid other foot pairings with the specified lane.
+			for (var a = 0; a < stepGraph.NumArrows; a++)
+			{
+				// Only consider lanes which are valid other foot pairings.
+				if (!stepGraph.PadData.ArrowData[endLaneForFoot].OtherFootPairings[foot][a])
+					continue;
+
+				// This is a valid pairing, add a new GraphNode for this state.
+				var state = new GraphNode.FootArrowState[NumFeet, NumFootPortions];
+				for (var p = 0; p < NumFootPortions; p++)
+				{
+					if (p == DefaultFootPortion)
+					{
+						state[foot, p] = new GraphNode.FootArrowState(endLaneForFoot, GraphArrowState.Resting);
+						state[otherFoot, p] = new GraphNode.FootArrowState(a, GraphArrowState.Resting);
+					}
+					else
+					{
+						state[L, p] = GraphNode.InvalidFootArrowState;
+						state[R, p] = GraphNode.InvalidFootArrowState;
+					}
+				}
+
+				destinationNodes.Add(new GraphNode(state, BodyOrientation.Normal));
+			}
+		}
+
+		// Update destinationNodes and validAutoStepTypes based on which feed are auto-stepping.
+		if (bothFeetShouldAutoStep)
+		{
+			// When both feet should auto-step, validAutoStepTypes is already set. We just need
+			// to add one GraphNode to step to which represents both feet at the desired end position.
+			var state = new GraphNode.FootArrowState[NumFeet, NumFootPortions];
+			for (var p = 0; p < NumFootPortions; p++)
+			{
+				if (p == DefaultFootPortion)
+				{
+					state[L, p] = new GraphNode.FootArrowState(followingFooting[L], GraphArrowState.Resting);
+					state[R, p] = new GraphNode.FootArrowState(followingFooting[R], GraphArrowState.Resting);
+				}
+				else
+				{
+					state[L, p] = GraphNode.InvalidFootArrowState;
+					state[R, p] = GraphNode.InvalidFootArrowState;
+				}
+			}
+
+			destinationNodes.Add(new GraphNode(state, BodyOrientation.Normal));
+		}
+		else if (leftFootShouldAutoStep)
+		{
+			AddDestinationNodesAndUpdateOtherFootValidStepTypesForSingleFoot(L);
+		}
+		else if (rightFootShouldAutoStep)
+		{
+			AddDestinationNodesAndUpdateOtherFootValidStepTypesForSingleFoot(R);
+		}
+
+		// Filter the currentSearchNodes if the end choice is set to end on a specified lane.
+		for (var f = 0; f < NumFeet; f++)
+		{
+			switch (f == L ? patternConfig.LeftFootEndChoice : patternConfig.RightFootEndChoice)
+			{
+				case PatternConfigEndFootChoice.SpecifiedLane:
+				{
+					var lane = f == L ? patternConfig.LeftFootEndLaneSpecified : patternConfig.RightFootEndLaneSpecified;
+					var specifiedRemainingNodes = new HashSet<SearchNode>();
+					foreach (var node in currentSearchNodes)
+					{
+						if (node.GraphNode.State[f, DefaultFootPortion].Arrow == lane)
+						{
+							specifiedRemainingNodes.Add(node);
+							continue;
+						}
+
+						Prune(node);
+					}
+
+					currentSearchNodes = specifiedRemainingNodes;
+					break;
+				}
+			}
+		}
+
+		// Now filter by stepping to destination nodes.
+		if (!shouldFilterByDestinationNodes)
+			return;
+
+		// Construct a list of valid GraphLinks.
+		var validGraphLinks = new List<GraphLink>();
+		foreach (var leftFootStepType in validAutoStepTypes[L])
+		{
+			foreach (var rightFootStepType in validAutoStepTypes[R])
+			{
+				var link = new GraphLink
+				{
+					Links =
+					{
+						[L, DefaultFootPortion] = new GraphLink.FootArrowState(leftFootStepType, FootAction.Tap),
+						[R, DefaultFootPortion] = new GraphLink.FootArrowState(rightFootStepType, FootAction.Tap),
+					},
+				};
+				validGraphLinks.Add(link);
+			}
+		}
+
+		// For each nodes, ensure at least one of the valid GraphLinks links it to
+		// at least one of the valid destination nodes.
+		var remainingNodes = new HashSet<SearchNode>();
+		foreach (var node in currentSearchNodes)
+		{
+			var found = false;
+			foreach (var destinationNode in destinationNodes)
+			{
+				foreach (var link in validGraphLinks)
+				{
+					if (!node.GraphNode.Links.TryGetValue(link, out var nextNodes))
+						continue;
+					foreach (var nextNode in nextNodes)
+					{
+						if (!nextNode.Equals(destinationNode))
+							continue;
+						found = true;
+						break;
+					}
+
+					if (found)
+						break;
+				}
+
+				if (found)
+					break;
+			}
+
+			if (found)
+				remainingNodes.Add(node);
+		}
+
+		currentSearchNodes = remainingNodes;
+	}
+
+	/// <summary>
+	/// Determines the time in seconds and integer position of all events to generate for a PatternConfig.
+	/// </summary>
+	/// <param name="patternConfig">PatternConfig for generating steps.</param>
+	/// <param name="chartEvents">All Events currently in the Chart.</param>
+	/// <param name="startPosition">Starting IntegerPosition of pattern to generate.</param>
+	/// <param name="endPosition">Ending IntegerPosition of pattern to generate.</param>
+	/// <param name="endPositionInclusive">Whether or not the endPosition is inclusive.</param>
+	/// <returns>Array of Tuples of times in seconds and integer positions of all steps to generate.</returns>
+	private static Tuple<double, int>[] DeterminePatternTiming(
+		PatternConfig patternConfig,
+		IReadOnlyList<Event> chartEvents,
+		int startPosition,
+		int endPosition,
+		bool endPositionInclusive)
+	{
+		var patternEvents = new List<Event>();
+
+		// Add PatternEvents for the steps to be added with correct IntegerPositions.
+		var numEvents = 0;
+		var pos = startPosition;
+		while (endPositionInclusive ? pos <= endPosition : pos < endPosition)
+		{
+			numEvents++;
+			patternEvents.Add(new PatternEvent
+			{
+				IntegerPosition = pos,
+			});
+			pos += SMCommon.MaxValidDenominator / patternConfig.BeatSubDivision;
+		}
+
+		if (numEvents == 0)
+			return null;
+
+		// Clone all events which affect timing.
+		foreach (var existingEvent in chartEvents)
+		{
+			if (SMCommon.DoesEventAffectTiming(existingEvent))
+				patternEvents.Add(existingEvent.Clone());
+		}
+
+		// Sort all events.
+		var patternList = new List<string>();
+		var defaultEventOrder = SMCommon.SMEventComparer.SMEventOrderList;
+		foreach (var eventString in defaultEventOrder)
+		{
+			patternList.Add(eventString);
+			if (eventString == nameof(LaneTapNote))
+			{
+				patternList.Add(nameof(PatternEvent));
+			}
+		}
+
+		patternEvents.Sort(new SMCommon.SMEventComparer(patternList));
+
+		// Set the time on the pattern events.
+		SMCommon.SetEventTimeAndMetricPositionsFromRows(patternEvents);
+
+		// Now that the times are set, copy them to the data to return.
+		var timingData = new Tuple<double, int>[numEvents];
+		var index = 0;
+		foreach (var patternEvent in patternEvents)
+		{
+			if (patternEvent is not PatternEvent)
+				continue;
+			timingData[index] = new Tuple<double, int>(patternEvent.TimeSeconds, patternEvent.IntegerPosition);
+			index++;
+		}
+
+		return timingData;
+	}
+
+	/// <summary>
+	/// Finds the notes per second of the entire Chart represented by the given List of Events and the
+	/// timing data to be used to generate a pattern.
+	/// </summary>
+	/// <param name="currentEvents">Current Events.</param>
+	/// <param name="timingData">Timing data for new events to generate.</param>
+	/// <returns>Notes per second of the steps represented by the given parameters.</returns>
+	private static double FindNPS(IReadOnlyList<Event> currentEvents, Tuple<double, int>[] timingData)
+	{
+		var nps = 0.0;
+		var startTime = double.MaxValue;
+		var endTime = 0.0;
+		var numSteps = 0;
+
+		// Consider steps from the current Events.
+		foreach (var chartEvent in currentEvents)
+		{
+			switch (chartEvent)
+			{
+				case LaneTapNote when chartEvent.SourceType == SMCommon.NoteChars[(int)SMCommon.NoteType.Mine].ToString():
+					continue;
+				case LaneTapNote:
+				case LaneHoldStartNote:
+					break;
+				default:
+					continue;
+			}
+
+			startTime = Math.Min(startTime, chartEvent.TimeSeconds);
+			endTime = Math.Max(endTime, chartEvent.TimeSeconds);
+			numSteps++;
+		}
+
+		// Consider steps from the timing data.
+		if (timingData.Length > 0)
+		{
+			numSteps += timingData.Length;
+			endTime = Math.Max(endTime, timingData[^1].Item1);
+		}
+
+		if (endTime > startTime)
+		{
+			nps = numSteps / (endTime - startTime);
+		}
+
+		return nps;
+	}
+
+	#endregion Creation From PatternConfig
+
+	#region Pruning
+
+	/// <summary>
+	/// Prunes the given HashSet of SearchNodes to a HashSet that contains
+	/// only the lowest cost SearchNode per unique GraphNode.
+	/// </summary>
+	/// <param name="nodes">HashSet of SearchNodes to prune.</param>
+	/// <returns>Pruned SearchNodes.</returns>
+	private static HashSet<SearchNode> Prune(HashSet<SearchNode> nodes)
+	{
+		// Set up a Dictionary to track the best ChartSearchNode per GraphNode.
+		var bestNodes = new Dictionary<GraphNode, SearchNode>();
+		foreach (var node in nodes)
+		{
+			// There is already a best node for this GraphNode, compare them.
+			if (bestNodes.TryGetValue(node.GraphNode, out var currentNode))
+			{
+				// This node is better.
+				if (node.CompareTo(currentNode) < 1)
+				{
+					Prune(currentNode);
+
+					// Set the currentNode to this new best node so we record it below.
+					currentNode = node;
+				}
+				else
+				{
+					Prune(node);
+				}
+			}
+			// There is not yet a best node recorded for this GraphNode. Record this node
+			// as the current best.
+			else
+			{
+				currentNode = node;
+			}
+
+			bestNodes[currentNode.GraphNode] = currentNode;
+		}
+
+		return bestNodes.Values.ToHashSet();
+	}
+
+	/// <summary>
+	/// Removes the given SearchNode from the tree.
+	/// Removes all parents up until the first parent with other children.
+	/// </summary>
+	/// <param name="node">SearchNode to prune.</param>
+	private static void Prune(SearchNode node)
+	{
+		// Prune the node up until parent that has other children.
+		while (node.PreviousNode != null)
+		{
+			node.PreviousNode.NextNodes[node.GraphLinkFromPreviousNode].Remove(node);
+			if (node.PreviousNode.NextNodes[node.GraphLinkFromPreviousNode].Count == 0)
+				node.PreviousNode.NextNodes.Remove(node.GraphLinkFromPreviousNode);
+			if (node.PreviousNode.NextNodes.Count != 0)
+				break;
+			node = node.PreviousNode;
+		}
+	}
+
+	#endregion Pruning
+
+	#region Helpers
+
+	/// <summary>
+	/// Returns whether or not the given PerformanceFootAction represents a step.
+	/// </summary>
+	/// <param name="footAction">PerformanceFootAction to check.</param>
+	/// <returns>True if footAction represents a step and false otherwise.</returns>
+	public static bool IsStep(PerformanceFootAction footAction)
+	{
+		return footAction is PerformanceFootAction.Tap or PerformanceFootAction.Hold or PerformanceFootAction.Roll;
+	}
+
+	/// <summary>
+	/// Checks whether the given node has a step that occurs at the same time as a release on the same arrow.
+	/// Some valid expressions might otherwise cause this kind of pattern to be generated in a PerformedChart
+	/// but this does not represent a valid SM Chart. This can happen when there is a jump and the foot in
+	/// question is supposed to jump on the same arrow but the previous step was a bracket so there are two
+	/// arrows to choose from. We could apply the SameArrow step to the arrow which just released even though
+	/// that is impossible in the ExpressedChart.
+	/// </summary>
+	/// <param name="node">The SearchNode to check.</param>
+	/// <param name="expressedChart">The ExpressedChart so we can check GraphLinks.</param>
+	/// <param name="numArrows">Number of arrows in the Chart.</param>
+	/// <returns>
+	/// True if this SearchNode has a step that occurs at the same time as a release on the same arrow.
+	/// </returns>
+	private static bool DoesNodeStepOnReleaseAtSamePosition(SearchNode node, ExpressedChart expressedChart, int numArrows)
+	{
+		var previousNode = node.PreviousNode;
+		if (previousNode == null)
+			return false;
+		var previousPreviousNode = previousNode.PreviousNode;
+		if (previousPreviousNode == null)
+			return false;
+
+		// This node and the previous node must occur at the same time for the problem to arise.
+		if (expressedChart.StepEvents[previousNode.Depth - 1].Position != expressedChart.StepEvents[node.Depth - 1].Position)
+			return false;
+
+		// Check if the previous node released on the same arrow tha the current node is stepping on.
+		for (var a = 0; a < numArrows; a++)
+		{
+			if (previousNode.Actions[a] == PerformanceFootAction.Release &&
+			    node.Actions[a] != PerformanceFootAction.None && node.Actions[a] != PerformanceFootAction.Release)
+				return true;
+		}
+
+		return false;
 	}
 
 	/// <summary>
@@ -1277,6 +1506,10 @@ public partial class PerformedChart
 		return actions;
 	}
 
+	#endregion Helpers
+
+	#region StepMania Event Generation
+
 	/// <summary>
 	/// Creates a List of Events representing the Events of an SM Chart.
 	/// </summary>
@@ -1285,92 +1518,93 @@ public partial class PerformedChart
 	{
 		var events = new List<Event>();
 
-		foreach (var root in SectionRoots)
+		var currentNode = Root;
+		// Skip first rest position node.
+		currentNode = currentNode.Next;
+		while (currentNode != null)
 		{
-			var currentNode = root;
-			// Skip first rest position node.
-			currentNode = currentNode.Next;
-			while (currentNode != null)
+			// StepPerformanceNode
+			if (currentNode is StepPerformanceNode stepNode)
 			{
-				// StepPerformanceNode
-				if (currentNode is StepPerformanceNode stepNode)
-				{
-					var actions = GetActionsForNode(
-						stepNode.GraphNodeInstance,
-						stepNode.GraphLinkInstance,
-						NumArrows);
+				var actions = GetActionsForNode(
+					stepNode.GraphNodeInstance,
+					stepNode.GraphLinkInstance,
+					NumArrows);
 
-					for (var arrow = 0; arrow < NumArrows; arrow++)
+				for (var arrow = 0; arrow < NumArrows; arrow++)
+				{
+					var action = actions[arrow];
+					switch (action)
 					{
-						var action = actions[arrow];
-						switch (action)
+						case PerformanceFootAction.Release:
 						{
-							case PerformanceFootAction.Release:
-								events.Add(new LaneHoldEndNote
-								{
-									IntegerPosition = stepNode.Position,
-									Lane = arrow,
-									Player = 0,
-									SourceType = SMCommon.NoteChars[(int)SMCommon.NoteType.HoldEnd].ToString(),
-								});
-								break;
-							case PerformanceFootAction.Tap:
-							case PerformanceFootAction.Fake:
-							case PerformanceFootAction.Lift:
+							events.Add(new LaneHoldEndNote
 							{
-								var instanceAction = SMCommon.NoteType.Tap;
-								if (action == PerformanceFootAction.Fake)
-									instanceAction = SMCommon.NoteType.Fake;
-								else if (action == PerformanceFootAction.Lift)
-									instanceAction = SMCommon.NoteType.Lift;
-								events.Add(new LaneTapNote
-								{
-									IntegerPosition = stepNode.Position,
-									Lane = arrow,
-									Player = 0,
-									SourceType = SMCommon.NoteChars[(int)instanceAction].ToString(),
-								});
-								break;
-							}
-							case PerformanceFootAction.Hold:
-							case PerformanceFootAction.Roll:
+								IntegerPosition = stepNode.Position,
+								Lane = arrow,
+								Player = 0,
+								SourceType = SMCommon.NoteChars[(int)SMCommon.NoteType.HoldEnd].ToString(),
+							});
+							break;
+						}
+						case PerformanceFootAction.Tap:
+						case PerformanceFootAction.Fake:
+						case PerformanceFootAction.Lift:
+						{
+							var instanceAction = SMCommon.NoteType.Tap;
+							if (action == PerformanceFootAction.Fake)
+								instanceAction = SMCommon.NoteType.Fake;
+							else if (action == PerformanceFootAction.Lift)
+								instanceAction = SMCommon.NoteType.Lift;
+							events.Add(new LaneTapNote
 							{
-								// Hold or Roll Start
-								var holdRollType = action == PerformanceFootAction.Hold
-									? SMCommon.NoteType.HoldStart
-									: SMCommon.NoteType.RollStart;
-								events.Add(new LaneHoldStartNote
-								{
-									IntegerPosition = stepNode.Position,
-									Lane = arrow,
-									Player = 0,
-									SourceType = SMCommon.NoteChars[(int)holdRollType].ToString(),
-								});
-								break;
-							}
+								IntegerPosition = stepNode.Position,
+								Lane = arrow,
+								Player = 0,
+								SourceType = SMCommon.NoteChars[(int)instanceAction].ToString(),
+							});
+							break;
+						}
+						case PerformanceFootAction.Hold:
+						case PerformanceFootAction.Roll:
+						{
+							// Hold or Roll Start
+							var holdRollType = action == PerformanceFootAction.Hold
+								? SMCommon.NoteType.HoldStart
+								: SMCommon.NoteType.RollStart;
+							events.Add(new LaneHoldStartNote
+							{
+								IntegerPosition = stepNode.Position,
+								Lane = arrow,
+								Player = 0,
+								SourceType = SMCommon.NoteChars[(int)holdRollType].ToString(),
+							});
+							break;
 						}
 					}
 				}
-
-				// MinePerformanceNode
-				else if (currentNode is MinePerformanceNode mineNode)
-				{
-					events.Add(new LaneNote
-					{
-						IntegerPosition = mineNode.Position,
-						Lane = mineNode.Arrow,
-						Player = 0,
-						SourceType = SMCommon.NoteChars[(int)SMCommon.NoteType.Mine].ToString(),
-					});
-				}
-
-				// Advance
-				currentNode = currentNode.Next;
 			}
+
+			// MinePerformanceNode
+			else if (currentNode is MinePerformanceNode mineNode)
+			{
+				events.Add(new LaneNote
+				{
+					IntegerPosition = mineNode.Position,
+					Lane = mineNode.Arrow,
+					Player = 0,
+					SourceType = SMCommon.NoteChars[(int)SMCommon.NoteType.Mine].ToString(),
+				});
+			}
+
+			// Advance
+			currentNode = currentNode.Next;
 		}
 
 		return events;
 	}
+
+	#endregion StepMania Event Generation
 
 	#region Logging
 

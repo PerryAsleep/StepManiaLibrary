@@ -1,6 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 using Fumen;
-using static StepManiaLibrary.Constants;
 
 namespace StepManiaLibrary;
 
@@ -97,7 +97,7 @@ public enum CopyBehavior
 /// <summary>
 /// Configuration data for ExpressedChart behavior.
 /// </summary>
-public class ExpressedChartConfig
+public class ExpressedChartConfig : IEquatable<ExpressedChartConfig>
 {
 	/// <summary>
 	/// Tag for logging messages.
@@ -183,6 +183,57 @@ public class ExpressedChartConfig
 		return !errors;
 	}
 
+	#region IEquatable
+
+	public bool Equals(ExpressedChartConfig other)
+	{
+		if (ReferenceEquals(null, other))
+			return false;
+		if (ReferenceEquals(this, other))
+			return true;
+
+		if (DefaultBracketParsingMethod != other.DefaultBracketParsingMethod)
+			return false;
+		if (BracketParsingDetermination != other.BracketParsingDetermination)
+			return false;
+		if (MinLevelForBrackets != other.MinLevelForBrackets)
+			return false;
+		if (UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets !=
+		    other.UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets)
+			return false;
+		if (!BalancedBracketsPerMinuteForAggressiveBrackets.DoubleEquals(other.BalancedBracketsPerMinuteForAggressiveBrackets))
+			return false;
+		if (!BalancedBracketsPerMinuteForNoBrackets.DoubleEquals(other.BalancedBracketsPerMinuteForNoBrackets))
+			return false;
+		return true;
+	}
+
+	public override bool Equals(object obj)
+	{
+		if (ReferenceEquals(null, obj))
+			return false;
+		if (ReferenceEquals(this, obj))
+			return true;
+		if (obj.GetType() != GetType())
+			return false;
+		return Equals((ExpressedChartConfig)obj);
+	}
+
+	public override int GetHashCode()
+	{
+		// ReSharper disable NonReadonlyMemberInGetHashCode
+		return HashCode.Combine(
+			DefaultBracketParsingMethod,
+			BracketParsingDetermination,
+			MinLevelForBrackets,
+			UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets,
+			BalancedBracketsPerMinuteForAggressiveBrackets,
+			BalancedBracketsPerMinuteForNoBrackets);
+		// ReSharper restore NonReadonlyMemberInGetHashCode
+	}
+
+	#endregion IEquatable
+
 	#region Logging
 
 	private static void LogError(string message, string eccId)
@@ -194,85 +245,6 @@ public class ExpressedChartConfig
 	}
 
 	#endregion Logging
-}
-
-public enum FillConfigStartFootChoice
-{
-	AutomaticSameLane,
-	AutomaticNewLane,
-	SpecifiedLane,
-}
-
-public enum FillConfigEndFootChoice
-{
-	AutomaticIgnoreFollowingSteps,
-	AutomaticSameLaneAsFollowing,
-	AutomaticNewLaneFromFollowing,
-	SpecifiedLane,
-}
-
-public enum FillConfigStartingFootChoice
-{
-	Random,
-	Automatic,
-	Specified,
-}
-
-public class FillConfig
-{
-	[JsonInclude] public int StartPosition;
-	[JsonInclude] public int EndPosition;
-
-	[JsonInclude] public int RandomSeed;
-
-	[JsonInclude] public int BeatSubDivisionToFill = 4;
-
-	[JsonInclude] public FillConfigStartingFootChoice StartingFootChoice;
-	[JsonInclude] public int StartingFootSpecified = InvalidArrowIndex;
-
-	[JsonInclude] public FillConfigStartFootChoice LeftFootStartChoice;
-	[JsonInclude] public int LeftFootStartLaneSpecified = InvalidArrowIndex;
-	[JsonInclude] public FillConfigEndFootChoice LeftFootEndChoice;
-	[JsonInclude] public int LeftFootEndLaneSpecified = InvalidArrowIndex;
-
-	[JsonInclude] public FillConfigStartFootChoice RightFootStartChoice;
-	[JsonInclude] public int RightFootStartLaneSpecified = InvalidArrowIndex;
-	[JsonInclude] public FillConfigEndFootChoice RightFootEndChoice;
-	[JsonInclude] public int RightFootEndLaneSpecified = InvalidArrowIndex;
-
-	[JsonInclude] public int SameArrowStepWeight;
-	[JsonInclude] public int NewArrowStepWeight;
-	[JsonInclude] public int NewArrowBracketableWeight = 1;
-	[JsonInclude] public int NewArrowNonBracketableWeight;
-
-	[JsonInclude] public int MaxSameArrowsInARowPerFoot = -1;
-
-	// Facing controls
-
-	[JsonInclude] public PerformedChart.Config PerformedChartConfig;
-
-	[JsonIgnore] public double SameArrowStepWeightNormalized;
-	[JsonIgnore] public double NewArrowStepWeightNormalized;
-	[JsonIgnore] public double NewArrowBracketableWeightNormalized;
-
-	public bool Validate()
-	{
-		// TODO: validate.
-
-		return PerformedChartConfig.Validate();
-	}
-
-	public void Init()
-	{
-		double totalStepTypeWeight = SameArrowStepWeight + NewArrowStepWeight;
-		SameArrowStepWeightNormalized = SameArrowStepWeight / totalStepTypeWeight;
-		NewArrowStepWeightNormalized = NewArrowStepWeight / totalStepTypeWeight;
-
-		double totalBracketableTypeWeight = NewArrowBracketableWeight + NewArrowNonBracketableWeight;
-		NewArrowBracketableWeightNormalized = NewArrowBracketableWeight / totalBracketableTypeWeight;
-
-		PerformedChartConfig.Init();
-	}
 }
 
 public class LoggerConfig
