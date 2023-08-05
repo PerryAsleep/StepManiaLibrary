@@ -8,9 +8,9 @@ using Fumen;
 using Fumen.ChartDefinition;
 using Fumen.Converters;
 using static StepManiaLibrary.Constants;
-using static StepManiaLibrary.ExpressedChartCosts;
+using static StepManiaLibrary.ExpressedChart.Costs;
 
-namespace StepManiaLibrary;
+namespace StepManiaLibrary.ExpressedChart;
 
 /// <summary>
 /// An ExpressedChart is a series of events which describe the intent of a chart.
@@ -622,10 +622,10 @@ public class ExpressedChart
 	/// </summary>
 	/// <param name="events">List of Events from the Chart to express.</param>
 	/// <param name="stepGraph">StepGraph to use for searching the Events.</param>
-	/// <param name="config">ExpressedChartConfig to use for generating the ExpressedChart.</param>
+	/// <param name="config">Config to use for generating the ExpressedChart.</param>
 	/// <param name="difficultyRating">
 	/// Difficulty rating of the Chart for the events. Used in some cases when the
-	/// ExpressedChartConfig specifies to use difficulty for bracket parsing.
+	/// Config specifies to use difficulty for bracket parsing.
 	/// </param>
 	/// <param name="logIdentifier">
 	/// Identifier to use when logging messages about this ExpressedChart.
@@ -636,7 +636,7 @@ public class ExpressedChart
 	public static ExpressedChart CreateFromSMEvents(
 		List<Event> events,
 		StepGraph stepGraph,
-		ExpressedChartConfig config,
+		Config config,
 		double difficultyRating,
 		string logIdentifier = null)
 	{

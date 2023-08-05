@@ -144,7 +144,7 @@ public partial class PerformedChart
 		Config config,
 		List<List<GraphNode>> rootNodes,
 		StepTypeFallbacks fallbacks,
-		ExpressedChart expressedChart,
+		ExpressedChart.ExpressedChart expressedChart,
 		int randomSeed,
 		string logIdentifier)
 	{
@@ -424,7 +424,7 @@ public partial class PerformedChart
 		GraphLinkInstance graphLink,
 		HashSet<SearchNode> nextSearchNodes,
 		StepGraph stepGraph,
-		ExpressedChart expressedChart)
+		ExpressedChart.ExpressedChart expressedChart)
 	{
 		// Do not consider this next SearchNode if it results in an invalid state.
 		if (DoesNodeStepOnReleaseAtSamePosition(childNode, expressedChart, stepGraph.NumArrows))
@@ -484,7 +484,7 @@ public partial class PerformedChart
 	/// </summary>
 	/// <param name="expressedChart">ExpressedChart to find the notes per second of.</param>
 	/// <returns>Notes per second of the Chart represented by the given ExpressedChart.</returns>
-	private static double FindNPS(ExpressedChart expressedChart)
+	private static double FindNPS(ExpressedChart.ExpressedChart expressedChart)
 	{
 		var nps = 0.0;
 		var startTime = double.MaxValue;
@@ -535,7 +535,7 @@ public partial class PerformedChart
 	private static void AddMinesToPerformedChart(
 		PerformedChart performedChart,
 		StepGraph stepGraph,
-		ExpressedChart expressedChart,
+		ExpressedChart.ExpressedChart expressedChart,
 		PerformanceNode lastPerformanceNode,
 		Random random)
 	{
@@ -1377,7 +1377,7 @@ public partial class PerformedChart
 	/// <returns>
 	/// True if this SearchNode has a step that occurs at the same time as a release on the same arrow.
 	/// </returns>
-	private static bool DoesNodeStepOnReleaseAtSamePosition(SearchNode node, ExpressedChart expressedChart, int numArrows)
+	private static bool DoesNodeStepOnReleaseAtSamePosition(SearchNode node, ExpressedChart.ExpressedChart expressedChart, int numArrows)
 	{
 		var previousNode = node.PreviousNode;
 		if (previousNode == null)

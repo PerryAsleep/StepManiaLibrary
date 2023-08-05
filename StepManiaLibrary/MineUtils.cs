@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Fumen.ChartDefinition;
 using static StepManiaLibrary.Constants;
+using static StepManiaLibrary.ExpressedChart.ExpressedChart;
 
 namespace StepManiaLibrary;
 
@@ -232,7 +233,7 @@ public class MineUtils
 	/// </param>
 	/// <param name="mine">The LaneNote representing a mine from the original chart.</param>
 	/// <returns>New MineEvent.</returns>
-	public static ExpressedChart.MineEvent CreateExpressedMineEvent(
+	public static MineEvent CreateExpressedMineEvent(
 		int numArrows,
 		List<FootActionEvent> releases,
 		int releaseIndex,
@@ -245,7 +246,7 @@ public class MineUtils
 		var (n, f) = GetHowRecentIsNeighboringArrow(true, releaseIndex, numArrows, releases, mine.Lane);
 		if (n >= 0)
 		{
-			return new ExpressedChart.MineEvent(mine.IntegerPosition, mine.TimeSeconds, mine.Lane)
+			return new MineEvent(mine.IntegerPosition, mine.TimeSeconds, mine.Lane)
 			{
 				Type = MineType.AfterArrow,
 				ArrowIsNthClosest = n,
@@ -258,7 +259,7 @@ public class MineUtils
 		(n, f) = GetHowRecentIsNeighboringArrow(false, stepIndex, numArrows, steps, mine.Lane);
 		if (n >= 0)
 		{
-			return new ExpressedChart.MineEvent(mine.IntegerPosition, mine.TimeSeconds, mine.Lane)
+			return new MineEvent(mine.IntegerPosition, mine.TimeSeconds, mine.Lane)
 			{
 				Type = MineType.BeforeArrow,
 				ArrowIsNthClosest = n,
@@ -267,7 +268,7 @@ public class MineUtils
 		}
 
 		// The mine could not be associated with an arrow, use the default NoArrow type.
-		return new ExpressedChart.MineEvent(mine.IntegerPosition, mine.TimeSeconds, mine.Lane);
+		return new MineEvent(mine.IntegerPosition, mine.TimeSeconds, mine.Lane);
 	}
 
 	/// <summary>

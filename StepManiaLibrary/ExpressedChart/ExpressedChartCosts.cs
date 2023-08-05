@@ -1,11 +1,11 @@
 ﻿// ReSharper disable InconsistentNaming
 
-namespace StepManiaLibrary;
+namespace StepManiaLibrary.ExpressedChart;
 
 /// <summary>
 /// Costs for ExpressedChart searches.
 /// </summary>
-internal sealed class ExpressedChartCosts
+internal sealed class Costs
 {
 	public const int CostUnknown = 1000;
 	public const int CostRelease = 0;
