@@ -14,7 +14,7 @@ namespace StepManiaLibrary.PerformedChart;
 ///  Call Init to perform needed initialization after loading and after SetAsOverrideOf.
 ///  Call Validate after Init to perform validation.
 /// </summary>
-public class Config : IEquatable<Config>
+public class Config : IConfig<Config>, IEquatable<Config>
 {
 	/// <summary>
 	/// Tag for logging messages.
@@ -25,7 +25,7 @@ public class Config : IEquatable<Config>
 	/// Configuration for controlling transitions.
 	/// See TransitionControls.md for more information.
 	/// </summary>
-	public class TransitionConfig : IEquatable<TransitionConfig>
+	public class TransitionConfig : IConfig<TransitionConfig>, IEquatable<TransitionConfig>
 	{
 		/// <summary>
 		/// Whether or not to use this TransitionConfig.
@@ -53,15 +53,6 @@ public class Config : IEquatable<Config>
 		[JsonInclude] public double TransitionCutoffPercentage = -1.0;
 
 		/// <summary>
-		/// Returns a new TransitionConfig that is a clone of this TransitionConfig.
-		/// </summary>
-		public TransitionConfig Clone()
-		{
-			// All members are value types.
-			return (TransitionConfig)MemberwiseClone();
-		}
-
-		/// <summary>
 		/// Sets this TransitionConfig to be an override of the the given other TransitionConfig.
 		/// Any values in this TransitionConfig which are at their default, invalid values will
 		/// be replaced with the corresponding values in the given other TransitionConfig.
@@ -80,12 +71,28 @@ public class Config : IEquatable<Config>
 				TransitionCutoffPercentage = other.TransitionCutoffPercentage;
 		}
 
+		#region IConfig
+
+		/// <summary>
+		/// Returns a new TransitionConfig that is a clone of this TransitionConfig.
+		/// </summary>
+		public TransitionConfig Clone()
+		{
+			// All members are value types.
+			return (TransitionConfig)MemberwiseClone();
+		}
+
+		public void Init()
+		{
+			// No initialization required.
+		}
+
 		/// <summary>
 		/// Log errors if any values are not valid and return whether or not there are errors.
 		/// </summary>
-		/// <param name="pccId">Identifier for logging.</param>
+		/// <param name="logId">Identifier for logging.</param>
 		/// <returns>True if no errors were found and false otherwise.</returns>
-		public bool Validate(string pccId)
+		public bool Validate(string logId = null)
 		{
 			var errors = false;
 
@@ -94,7 +101,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{StepsPerTransitionMin}\" specified for "
 					+ "StepsPerTransitionMin. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -103,7 +110,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{MinimumPadWidth}\" specified for "
 					+ "MinimumPadWidth. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -112,7 +119,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{TransitionCutoffPercentage}\" specified for "
 					+ "TransitionCutoffPercentage. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -121,12 +128,14 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"TransitionCutoffPercentage \"{TransitionCutoffPercentage}\" is greater 1.0. "
 					+ "TransitionCutoffPercentage must be less than or equal to 1.0.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
 			return !errors;
 		}
+
+		#endregion IConfig
 
 		public bool IsEnabled()
 		{
@@ -177,7 +186,7 @@ public class Config : IEquatable<Config>
 	/// Configuration for controlling facing.
 	/// See FacingControls.md for more information.
 	/// </summary>
-	public class FacingConfig : IEquatable<FacingConfig>
+	public class FacingConfig : IConfig<FacingConfig>, IEquatable<FacingConfig>
 	{
 		/// <summary>
 		/// Maximum percentage of steps which should be inward facing.
@@ -200,15 +209,6 @@ public class Config : IEquatable<Config>
 		[JsonInclude] public double OutwardPercentageCutoff = -1.0;
 
 		/// <summary>
-		/// Returns a new FacingConfig that is a clone of this FacingConfig.
-		/// </summary>
-		public FacingConfig Clone()
-		{
-			// All members are value types.
-			return (FacingConfig)MemberwiseClone();
-		}
-
-		/// <summary>
 		/// Sets this FacingConfig to be an override of the the given other FacingConfig.
 		/// Any values in this FacingConfig which are at their default, invalid values will
 		/// be replaced with the corresponding values in the given other FacingConfig.
@@ -226,12 +226,28 @@ public class Config : IEquatable<Config>
 				OutwardPercentageCutoff = other.OutwardPercentageCutoff;
 		}
 
+		#region IConfig
+
+		/// <summary>
+		/// Returns a new FacingConfig that is a clone of this FacingConfig.
+		/// </summary>
+		public FacingConfig Clone()
+		{
+			// All members are value types.
+			return (FacingConfig)MemberwiseClone();
+		}
+
+		public void Init()
+		{
+			// No initialization required.
+		}
+
 		/// <summary>
 		/// Log errors if any values are not valid and return whether or not there are errors.
 		/// </summary>
-		/// <param name="pccId">Identifier for logging.</param>
+		/// <param name="logId">Identifier for logging.</param>
 		/// <returns>True if no errors were found and false otherwise.</returns>
-		public bool Validate(string pccId)
+		public bool Validate(string logId = null)
 		{
 			var errors = false;
 			if (MaxInwardPercentage < 0.0)
@@ -239,7 +255,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{MaxInwardPercentage}\" specified for "
 					+ "MaxInwardPercentage. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -248,7 +264,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"MaxInwardPercentage \"{MaxInwardPercentage}\" is greater 1.0. "
 					+ "MaxInwardPercentage must be less than or equal to 1.0.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -257,7 +273,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{InwardPercentageCutoff}\" specified for "
 					+ "InwardPercentageCutoff. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -266,7 +282,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"InwardPercentageCutoff \"{InwardPercentageCutoff}\" is greater 1.0. "
 					+ "InwardPercentageCutoff must be less than or equal to 1.0.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -275,7 +291,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{MaxOutwardPercentage}\" specified for "
 					+ "MaxOutwardPercentage. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -284,7 +300,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"MaxOutwardPercentage \"{MaxOutwardPercentage}\" is greater 1.0. "
 					+ "MaxOutwardPercentage must be less than or equal to 1.0.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -293,7 +309,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{OutwardPercentageCutoff}\" specified for "
 					+ "OutwardPercentageCutoff. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -302,12 +318,14 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"OutwardPercentageCutoff \"{OutwardPercentageCutoff}\" is greater 1.0. "
 					+ "OutwardPercentageCutoff must be less than or equal to 1.0.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
 			return !errors;
 		}
+
+		#endregion IConfig
 
 		#region IEquatable
 
@@ -349,7 +367,7 @@ public class Config : IEquatable<Config>
 	/// Configuration for tightening steps.
 	/// See PerformedChart.md for more information.
 	/// </summary>
-	public class StepTighteningConfig : IEquatable<StepTighteningConfig>
+	public class StepTighteningConfig : IConfig<StepTighteningConfig>, IEquatable<StepTighteningConfig>
 	{
 		private const double InvalidMinPanelDistance = -100.0;
 
@@ -422,15 +440,6 @@ public class Config : IEquatable<Config>
 		[JsonInclude] public double LongitudinalMinPanelDistance = InvalidMinPanelDistance;
 
 		/// <summary>
-		/// Returns a new StepTighteningConfig that is a clone of this StepTighteningConfig.
-		/// </summary>
-		public StepTighteningConfig Clone()
-		{
-			// All members are value types.
-			return (StepTighteningConfig)MemberwiseClone();
-		}
-
-		/// <summary>
 		/// Sets this StepTighteningConfig to be an override of the the given other StepTighteningConfig.
 		/// Any values in this StepTighteningConfig which are at their default, invalid values will
 		/// be replaced with the corresponding values in the given other StepTighteningConfig.
@@ -462,6 +471,17 @@ public class Config : IEquatable<Config>
 				LongitudinalMinPanelDistance = other.LongitudinalMinPanelDistance;
 		}
 
+		#region IConfig
+
+		/// <summary>
+		/// Returns a new StepTighteningConfig that is a clone of this StepTighteningConfig.
+		/// </summary>
+		public StepTighteningConfig Clone()
+		{
+			// All members are value types.
+			return (StepTighteningConfig)MemberwiseClone();
+		}
+
 		/// <summary>
 		/// Initialize data.
 		/// Called after SetAsOverrideOf and before Validate.
@@ -478,9 +498,9 @@ public class Config : IEquatable<Config>
 		/// Log errors if any values are not valid and return whether or not there are errors.
 		/// Called after SetAsOverrideOf and Init.
 		/// </summary>
-		/// <param name="pccId">Identifier for logging.</param>
+		/// <param name="logId">Identifier for logging.</param>
 		/// <returns>True if no errors were found and false otherwise.</returns>
-		public bool Validate(string pccId)
+		public bool Validate(string logId = null)
 		{
 			var errors = false;
 			if (SpeedMinTimeSeconds < 0.0)
@@ -488,7 +508,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{SpeedMinTimeSeconds}\" "
 					+ "specified for SpeedMinTimeSeconds. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -497,7 +517,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{SpeedMaxTimeSeconds}\" "
 					+ "specified for SpeedMaxTimeSeconds. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -507,7 +527,7 @@ public class Config : IEquatable<Config>
 					$"SpeedMinTimeSeconds \"{SpeedMinTimeSeconds}\" "
 					+ $"is greater than SpeedMaxTimeSeconds \"{SpeedMaxTimeSeconds}\". "
 					+ "SpeedMinTimeSeconds must be less than or equal to SpeedMaxTimeSeconds.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -516,7 +536,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{SpeedTighteningMinDistance}\" "
 					+ "specified for SpeedTighteningMinDistance. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -525,7 +545,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{DistanceMin}\" "
 					+ "specified for DistanceMin. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -534,7 +554,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{DistanceMax}\" "
 					+ "specified for DistanceMax. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -544,7 +564,7 @@ public class Config : IEquatable<Config>
 					$"DistanceMin \"{DistanceMin}\" "
 					+ $"is greater than DistanceMax \"{DistanceMax}\". "
 					+ "DistanceMin must be less than or equal to DistanceMax.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -553,7 +573,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{StretchDistanceMin}\" "
 					+ "specified for StretchDistanceMin. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -562,7 +582,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{StretchDistanceMax}\" "
 					+ "specified for StretchDistanceMax. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -572,12 +592,14 @@ public class Config : IEquatable<Config>
 					$"StretchDistanceMin \"{StretchDistanceMin}\" "
 					+ $"is greater than StretchDistanceMax \"{StretchDistanceMax}\". "
 					+ "StretchDistanceMin must be less than or equal to StretchDistanceMax.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
 			return !errors;
 		}
+
+		#endregion IConfig
 
 		public bool IsSpeedTighteningEnabled()
 		{
@@ -659,7 +681,7 @@ public class Config : IEquatable<Config>
 	/// Configuration for tightening lateral body movement.
 	/// See PerformedChart.md for more information.
 	/// </summary>
-	public class LateralTighteningConfig : IEquatable<LateralTighteningConfig>
+	public class LateralTighteningConfig : IConfig<LateralTighteningConfig>, IEquatable<LateralTighteningConfig>
 	{
 		/// <summary>
 		/// Whether or not to use this LateralTighteningConfig.
@@ -682,15 +704,6 @@ public class Config : IEquatable<Config>
 		[JsonInclude] public double Speed = -1.0;
 
 		/// <summary>
-		/// Returns a new LateralTighteningConfig that is a clone of this LateralTighteningConfig.
-		/// </summary>
-		public LateralTighteningConfig Clone()
-		{
-			// All members are value types.
-			return (LateralTighteningConfig)MemberwiseClone();
-		}
-
-		/// <summary>
 		/// Sets this LateralTighteningConfig to be an override of the the given other LateralTighteningConfig.
 		/// Any values in this LateralTighteningConfig which are at their default, invalid values will
 		/// be replaced with the corresponding values in the given other LateralTighteningConfig.
@@ -707,12 +720,28 @@ public class Config : IEquatable<Config>
 				Speed = other.Speed;
 		}
 
+		#region IConfig
+
+		/// <summary>
+		/// Returns a new LateralTighteningConfig that is a clone of this LateralTighteningConfig.
+		/// </summary>
+		public LateralTighteningConfig Clone()
+		{
+			// All members are value types.
+			return (LateralTighteningConfig)MemberwiseClone();
+		}
+
+		public void Init()
+		{
+			// No initialization required.
+		}
+
 		/// <summary>
 		/// Log errors if any values are not valid and return whether or not there are errors.
 		/// </summary>
-		/// <param name="pccId">Identifier for logging.</param>
+		/// <param name="logId">Identifier for logging.</param>
 		/// <returns>True if no errors were found and false otherwise.</returns>
-		public bool Validate(string pccId)
+		public bool Validate(string logId = null)
 		{
 			var errors = false;
 
@@ -721,7 +750,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{RelativeNPS}\" specified for "
 					+ "RelativeNPS. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -730,7 +759,7 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{AbsoluteNPS}\" specified for "
 					+ "AbsoluteNPS. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
@@ -739,12 +768,14 @@ public class Config : IEquatable<Config>
 				LogError(
 					$"Negative value \"{Speed}\" specified for "
 					+ "Speed. Expected non-negative value.",
-					pccId);
+					logId);
 				errors = true;
 			}
 
 			return !errors;
 		}
+
+		#endregion IConfig
 
 		public bool IsEnabled()
 		{
@@ -823,6 +854,30 @@ public class Config : IEquatable<Config>
 	[JsonIgnore] public Dictionary<string, List<double>> ArrowWeightsNormalized = new();
 
 	/// <summary>
+	/// Sets this Config to be an override of the the given other Config.
+	/// Any values in this Config which are at their default, invalid values will
+	/// be replaced with the corresponding values in the given other Config.
+	/// Called before Init and Validate.
+	/// </summary>
+	/// <param name="other">Other Config to use as as a base.</param>
+	public void SetAsOverrideOf(Config other)
+	{
+		LateralTightening.SetAsOverrideOf(other.LateralTightening);
+		StepTightening.SetAsOverrideOf(other.StepTightening);
+		Facing.SetAsOverrideOf(other.Facing);
+
+		foreach (var kvp in other.ArrowWeights)
+		{
+			if (!ArrowWeights.ContainsKey(kvp.Key))
+			{
+				ArrowWeights.Add(kvp.Key, new List<int>(kvp.Value));
+			}
+		}
+	}
+
+	#region IConfig
+
+	/// <summary>
 	/// Returns a new Config that is a clone of this Config.
 	/// </summary>
 	public Config Clone()
@@ -855,40 +910,6 @@ public class Config : IEquatable<Config>
 	}
 
 	/// <summary>
-	/// Gets the desired arrow weights for the given chart type.
-	/// Values normalized to sum to 1.0.
-	/// </summary>
-	/// <returns>List of normalized weights.</returns>
-	public List<double> GetArrowWeightsNormalized(string chartType)
-	{
-		if (ArrowWeightsNormalized.TryGetValue(chartType, out var weights))
-			return weights;
-		return new List<double>();
-	}
-
-	/// <summary>
-	/// Sets this Config to be an override of the the given other Config.
-	/// Any values in this Config which are at their default, invalid values will
-	/// be replaced with the corresponding values in the given other Config.
-	/// Called before Init and Validate.
-	/// </summary>
-	/// <param name="other">Other Config to use as as a base.</param>
-	public void SetAsOverrideOf(Config other)
-	{
-		LateralTightening.SetAsOverrideOf(other.LateralTightening);
-		StepTightening.SetAsOverrideOf(other.StepTightening);
-		Facing.SetAsOverrideOf(other.Facing);
-
-		foreach (var kvp in other.ArrowWeights)
-		{
-			if (!ArrowWeights.ContainsKey(kvp.Key))
-			{
-				ArrowWeights.Add(kvp.Key, new List<int>(kvp.Value));
-			}
-		}
-	}
-
-	/// <summary>
 	/// Perform post-load initialization.
 	/// Called after SetAsOverrideOf and before Validate.
 	/// </summary>
@@ -908,6 +929,35 @@ public class Config : IEquatable<Config>
 	}
 
 	/// <summary>
+	/// Log errors if any values are not valid and return whether or not there are errors.
+	/// Called after SetAsOverrideOf and Init.
+	/// </summary>
+	/// <param name="logId">Identifier for logging.</param>
+	/// <returns>True if no errors were found and false otherwise.</returns>
+	public bool Validate(string logId = null)
+	{
+		var errors = !LateralTightening.Validate(logId);
+		errors = !StepTightening.Validate(logId) || errors;
+		errors = !Facing.Validate(logId) || errors;
+		errors = !Transitions.Validate(logId) || errors;
+		return !errors;
+	}
+
+	#endregion IConfig
+
+	/// <summary>
+	/// Gets the desired arrow weights for the given chart type.
+	/// Values normalized to sum to 1.0.
+	/// </summary>
+	/// <returns>List of normalized weights.</returns>
+	public List<double> GetArrowWeightsNormalized(string chartType)
+	{
+		if (ArrowWeightsNormalized.TryGetValue(chartType, out var weights))
+			return weights;
+		return new List<double>();
+	}
+
+	/// <summary>
 	/// Refreshes the normalized arrow weights from their non-normalized values.
 	/// </summary>
 	public void RefreshArrowWeightsNormalized(string chartTypeString)
@@ -922,21 +972,6 @@ public class Config : IEquatable<Config>
 				normalizedWeights.Add((double)weight / sum);
 			ArrowWeightsNormalized[chartTypeString] = normalizedWeights;
 		}
-	}
-
-	/// <summary>
-	/// Log errors if any values are not valid and return whether or not there are errors.
-	/// Called after SetAsOverrideOf and Init.
-	/// </summary>
-	/// <param name="pccId">Identifier for logging.</param>
-	/// <returns>True if no errors were found and false otherwise.</returns>
-	public bool Validate(string pccId = null)
-	{
-		var errors = !LateralTightening.Validate(pccId);
-		errors = !StepTightening.Validate(pccId) || errors;
-		errors = !Facing.Validate(pccId) || errors;
-		errors = !Transitions.Validate(pccId) || errors;
-		return !errors;
 	}
 
 	/// <summary>

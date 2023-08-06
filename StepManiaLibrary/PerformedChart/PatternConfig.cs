@@ -94,7 +94,7 @@ public enum PatternConfigStartingFootChoice
 ///  Call Init to perform needed initialization after loading.
 ///  Call Validate after Init to perform validation.
 /// </summary>
-public class PatternConfig : IEquatable<PatternConfig>
+public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 {
 	/// <summary>
 	/// Tag for logging messages.
@@ -185,6 +185,8 @@ public class PatternConfig : IEquatable<PatternConfig>
 	/// </summary>
 	[JsonIgnore] public double NewArrowStepWeightNormalized;
 
+	#region IConfig
+
 	/// <summary>
 	/// Returns a new PatternConfig that is a clone of this PatternConfig.
 	/// </summary>
@@ -195,11 +197,22 @@ public class PatternConfig : IEquatable<PatternConfig>
 	}
 
 	/// <summary>
+	/// Initialize data.
+	/// Called and before Validate.
+	/// </summary>
+	public void Init()
+	{
+		double totalStepTypeWeight = SameArrowStepWeight + NewArrowStepWeight;
+		SameArrowStepWeightNormalized = SameArrowStepWeight / totalStepTypeWeight;
+		NewArrowStepWeightNormalized = NewArrowStepWeight / totalStepTypeWeight;
+	}
+
+	/// <summary>
 	/// Log errors if any values are not valid and return whether or not there are errors.
 	/// </summary>
 	/// <param name="logId">Identifier for logging.</param>
 	/// <returns>True if no errors were found and false otherwise.</returns>
-	public bool Validate(string logId)
+	public bool Validate(string logId = null)
 	{
 		var errors = false;
 
@@ -295,16 +308,7 @@ public class PatternConfig : IEquatable<PatternConfig>
 		return !errors;
 	}
 
-	/// <summary>
-	/// Initialize data.
-	/// Called and before Validate.
-	/// </summary>
-	public void Init()
-	{
-		double totalStepTypeWeight = SameArrowStepWeight + NewArrowStepWeight;
-		SameArrowStepWeightNormalized = SameArrowStepWeight / totalStepTypeWeight;
-		NewArrowStepWeightNormalized = NewArrowStepWeight / totalStepTypeWeight;
-	}
+	#endregion IConfig
 
 	#region IEquatable
 

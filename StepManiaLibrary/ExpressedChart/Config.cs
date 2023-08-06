@@ -70,7 +70,7 @@ public enum CopyBehavior
 /// <summary>
 /// Configuration data for ExpressedChart behavior.
 /// </summary>
-public class Config : IEquatable<Config>
+public class Config : IConfig<Config>, IEquatable<Config>
 {
 	/// <summary>
 	/// Tag for logging messages.
@@ -112,6 +112,8 @@ public class Config : IEquatable<Config>
 	/// </summary>
 	[JsonInclude] public double BalancedBracketsPerMinuteForNoBrackets;
 
+	#region IConfig
+
 	/// <summary>
 	/// Returns a new Config that is a clone of this Config.
 	/// </summary>
@@ -121,14 +123,19 @@ public class Config : IEquatable<Config>
 		return (Config)MemberwiseClone();
 	}
 
-	public bool Validate(string eccId = null)
+	public void Init()
+	{
+		// No initialization required.
+	}
+
+	public bool Validate(string logId = null)
 	{
 		var errors = false;
 		if (BalancedBracketsPerMinuteForAggressiveBrackets < 0.0)
 		{
 			LogError($"BalancedBracketsPerMinuteForAggressiveBrackets "
 			         + $" {BalancedBracketsPerMinuteForAggressiveBrackets} must be non-negative.",
-				eccId);
+				logId);
 			errors = true;
 		}
 
@@ -136,7 +143,7 @@ public class Config : IEquatable<Config>
 		{
 			LogError($"BalancedBracketsPerMinuteForNoBrackets "
 			         + $" {BalancedBracketsPerMinuteForNoBrackets} must be non-negative.",
-				eccId);
+				logId);
 			errors = true;
 		}
 
@@ -149,12 +156,14 @@ public class Config : IEquatable<Config>
 			         + $" BalancedBracketsPerMinuteForNoBrackets {BalancedBracketsPerMinuteForNoBrackets}."
 			         + " If these values are non-zero, BalancedBracketsPerMinuteForAggressiveBrackets must be"
 			         + " greater than BalancedBracketsPerMinuteForNoBrackets.",
-				eccId);
+				logId);
 			errors = true;
 		}
 
 		return !errors;
 	}
+
+	#endregion IConfig
 
 	#region IEquatable
 
