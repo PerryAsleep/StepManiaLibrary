@@ -1000,7 +1000,7 @@ public class Config : IConfig<Config>, IEquatable<Config>
 
 		if (smChartTypeValid && desiredWeightsValid)
 		{
-			var expectedNumArrows = SMCommon.Properties[(int)smChartType].NumInputs;
+			var expectedNumArrows = SMCommon.GetChartProperties(smChartType).GetNumInputs();
 			if (ArrowWeights[chartType].Count != expectedNumArrows)
 			{
 				LogError($"ArrowWeights[\"{chartType}\"] has "

@@ -115,7 +115,7 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 	/// <summary>
 	/// Specified starting foot to use when StartingFootChoice is Specified.
 	/// </summary>
-	[JsonInclude] public int StartingFootSpecified = InvalidArrowIndex;
+	[JsonInclude] public int StartingFootSpecified;
 
 	/// <summary>
 	/// How to choose the starting lane for the left foot.
@@ -125,7 +125,7 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 	/// <summary>
 	/// Specified starting lane for the left foot to use when LeftFootStartChoice is SpecifiedLane.
 	/// </summary>
-	[JsonInclude] public int LeftFootStartLaneSpecified = InvalidArrowIndex;
+	[JsonInclude] public int LeftFootStartLaneSpecified;
 
 	/// <summary>
 	/// How to choose the ending lane for the left foot.
@@ -135,7 +135,7 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 	/// <summary>
 	/// Specified ending lane for the left foot to use when LeftFootEndChoice is SpecifiedLane.
 	/// </summary>
-	[JsonInclude] public int LeftFootEndLaneSpecified = InvalidArrowIndex;
+	[JsonInclude] public int LeftFootEndLaneSpecified;
 
 	/// <summary>
 	/// How to choose the starting lane for the right foot.
@@ -145,7 +145,7 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 	/// <summary>
 	/// Specified starting lane for the right foot to use when RightFootStartChoice is SpecifiedLane.
 	/// </summary>
-	[JsonInclude] public int RightFootStartLaneSpecified = InvalidArrowIndex;
+	[JsonInclude] public int RightFootStartLaneSpecified;
 
 	/// <summary>
 	/// How to choose the ending lane for the right foot.
@@ -155,7 +155,7 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 	/// <summary>
 	/// Specified ending lane for the right foot to use when RightFootEndChoice is SpecifiedLane.
 	/// </summary>
-	[JsonInclude] public int RightFootEndLaneSpecified = InvalidArrowIndex;
+	[JsonInclude] public int RightFootEndLaneSpecified;
 
 	/// <summary>
 	/// Weight of SameArrow steps in the pattern.
@@ -260,47 +260,47 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 			errors = true;
 		}
 
-		if (StartingFootChoice == PatternConfigStartingFootChoice.Specified && StartingFootSpecified < 0)
+		if (StartingFootSpecified != L && StartingFootSpecified != R)
 		{
 			LogError(
-				$"Negative value \"{StartingFootSpecified}\" "
-				+ "specified for StartingFootSpecified. If StartingFootChoice is Specified this must be non-negative.",
+				$"Invalid value \"{StartingFootSpecified}\" "
+				+ "specified for StartingFootSpecified. Expected 0 (left) or 1 (right).",
 				logId);
 			errors = true;
 		}
 
-		if (LeftFootStartChoice == PatternConfigStartFootChoice.SpecifiedLane && LeftFootStartLaneSpecified < 0)
+		if (LeftFootStartLaneSpecified < 0)
 		{
 			LogError(
 				$"Negative value \"{LeftFootStartLaneSpecified}\" "
-				+ "specified for LeftFootStartLaneSpecified. If LeftFootStartChoice is SpecifiedLane this must be non-negative.",
+				+ "specified for LeftFootStartLaneSpecified. Expected non-negative value.",
 				logId);
 			errors = true;
 		}
 
-		if (LeftFootEndChoice == PatternConfigEndFootChoice.SpecifiedLane && LeftFootEndLaneSpecified < 0)
+		if (LeftFootEndLaneSpecified < 0)
 		{
 			LogError(
 				$"Negative value \"{LeftFootEndLaneSpecified}\" "
-				+ "specified for LeftFootEndLaneSpecified. If LeftFootEndChoice is SpecifiedLane this must be non-negative.",
+				+ "specified for LeftFootEndLaneSpecified. Expected non-negative value.",
 				logId);
 			errors = true;
 		}
 
-		if (RightFootStartChoice == PatternConfigStartFootChoice.SpecifiedLane && RightFootStartLaneSpecified < 0)
+		if (RightFootStartLaneSpecified < 0)
 		{
 			LogError(
 				$"Negative value \"{RightFootStartLaneSpecified}\" "
-				+ "specified for RightFootStartLaneSpecified. If RightFootStartChoice is SpecifiedLane this must be non-negative.",
+				+ "specified for RightFootStartLaneSpecified. Expected non-negative value.",
 				logId);
 			errors = true;
 		}
 
-		if (RightFootEndChoice == PatternConfigEndFootChoice.SpecifiedLane && RightFootEndLaneSpecified < 0)
+		if (RightFootEndLaneSpecified < 0)
 		{
 			LogError(
 				$"Negative value \"{RightFootEndLaneSpecified}\" "
-				+ "specified for RightFootEndLaneSpecified. If RightFootEndChoice is SpecifiedLane this must be non-negative.",
+				+ "specified for RightFootEndLaneSpecified. Expected non-negative value.",
 				logId);
 			errors = true;
 		}

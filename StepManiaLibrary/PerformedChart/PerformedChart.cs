@@ -724,6 +724,15 @@ public partial class PerformedChart
 		var firstStepTypeRight = StepType.SameArrow;
 		switch (patternConfig.LeftFootStartChoice)
 		{
+			case PatternConfigStartFootChoice.SpecifiedLane:
+				// If the specified foot is not valid, fall back to the previous footing.
+				if (rootLeft < 0 || (rootLeft >= stepGraph.NumArrows
+				                     && previousFooting[L] >= 0 && previousFooting[L] < stepGraph.NumArrows))
+				{
+					rootLeft = previousFooting[L];
+				}
+
+				break;
 			case PatternConfigStartFootChoice.AutomaticSameLane:
 				rootLeft = previousFooting[L];
 				break;
@@ -735,6 +744,15 @@ public partial class PerformedChart
 
 		switch (patternConfig.RightFootStartChoice)
 		{
+			case PatternConfigStartFootChoice.SpecifiedLane:
+				// If the specified foot is not valid, fall back to the previous footing.
+				if (rootRight < 0 || (rootRight >= stepGraph.NumArrows
+				                      && previousFooting[R] >= 0 && previousFooting[R] < stepGraph.NumArrows))
+				{
+					rootRight = previousFooting[R];
+				}
+
+				break;
 			case PatternConfigStartFootChoice.AutomaticSameLane:
 				rootRight = previousFooting[R];
 				break;
@@ -1090,6 +1108,8 @@ public partial class PerformedChart
 				case PatternConfigEndFootChoice.SpecifiedLane:
 				{
 					var lane = f == L ? patternConfig.LeftFootEndLaneSpecified : patternConfig.RightFootEndLaneSpecified;
+					if (lane < 0 || lane >= stepGraph.NumArrows)
+						continue;
 					var specifiedRemainingNodes = new HashSet<SearchNode>();
 					foreach (var node in currentSearchNodes)
 					{
@@ -1377,7 +1397,8 @@ public partial class PerformedChart
 	/// <returns>
 	/// True if this SearchNode has a step that occurs at the same time as a release on the same arrow.
 	/// </returns>
-	private static bool DoesNodeStepOnReleaseAtSamePosition(SearchNode node, ExpressedChart.ExpressedChart expressedChart, int numArrows)
+	private static bool DoesNodeStepOnReleaseAtSamePosition(SearchNode node, ExpressedChart.ExpressedChart expressedChart,
+		int numArrows)
 	{
 		var previousNode = node.PreviousNode;
 		if (previousNode == null)
