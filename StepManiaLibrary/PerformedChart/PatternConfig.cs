@@ -168,10 +168,15 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 	[JsonInclude] public int NewArrowStepWeight;
 
 	/// <summary>
-	/// Maximum number of same arrows in a row per foot.
-	/// If less than zero then no limit will be imposed.
+	/// Whether or not to limit the number of same arrow steps per foot in a row.
 	/// </summary>
-	[JsonInclude] public int MaxSameArrowsInARowPerFoot = -1;
+	[JsonInclude] public bool LimitSameArrowsInARowPerFoot;
+
+	/// <summary>
+	/// Maximum number of same arrows in a row per foot to use if LimitSameArrowsInARowPerFoot
+	/// is true.
+	/// </summary>
+	[JsonInclude] public int MaxSameArrowsInARowPerFoot;
 
 	/// <summary>
 	/// Normalized weight of SameArrow steps.
@@ -333,6 +338,7 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 			&& RightFootEndLaneSpecified == other.RightFootEndLaneSpecified
 			&& SameArrowStepWeight == other.SameArrowStepWeight
 			&& NewArrowStepWeight == other.NewArrowStepWeight
+			&& LimitSameArrowsInARowPerFoot == other.LimitSameArrowsInARowPerFoot
 			&& MaxSameArrowsInARowPerFoot == other.MaxSameArrowsInARowPerFoot
 			&& SameArrowStepWeightNormalized.DoubleEquals(other.SameArrowStepWeightNormalized)
 			&& NewArrowStepWeightNormalized.DoubleEquals(other.NewArrowStepWeightNormalized);
@@ -367,8 +373,9 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 				RightFootEndLaneSpecified,
 				SameArrowStepWeight,
 				NewArrowStepWeight,
-				MaxSameArrowsInARowPerFoot,
+				LimitSameArrowsInARowPerFoot,
 				HashCode.Combine(
+					MaxSameArrowsInARowPerFoot,
 					SameArrowStepWeightNormalized,
 					NewArrowStepWeightNormalized)));
 		// ReSharper restore NonReadonlyMemberInGetHashCode

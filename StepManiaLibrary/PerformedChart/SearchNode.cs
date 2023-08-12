@@ -472,7 +472,7 @@ public partial class PerformedChart
 					case StepType.SameArrow:
 					{
 						totalNumSameArrowSteps++;
-						if (patternConfig?.MaxSameArrowsInARowPerFoot > 0)
+						if (patternConfig?.LimitSameArrowsInARowPerFoot == true && patternConfig.MaxSameArrowsInARowPerFoot > 0)
 						{
 							// Two because the previous step was the same arrow.
 							// One SameArrow step looks like steps in a row with the same foot.
