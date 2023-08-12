@@ -207,9 +207,7 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 	/// </summary>
 	public void Init()
 	{
-		double totalStepTypeWeight = SameArrowStepWeight + NewArrowStepWeight;
-		SameArrowStepWeightNormalized = SameArrowStepWeight / totalStepTypeWeight;
-		NewArrowStepWeightNormalized = NewArrowStepWeight / totalStepTypeWeight;
+		RefreshStepWeightsNormalized();
 	}
 
 	/// <summary>
@@ -314,6 +312,16 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 	}
 
 	#endregion IConfig
+
+	/// <summary>
+	/// Refreshes the normalized arrow weights from their non-normalized values.
+	/// </summary>
+	public void RefreshStepWeightsNormalized()
+	{
+		double totalStepTypeWeight = SameArrowStepWeight + NewArrowStepWeight;
+		SameArrowStepWeightNormalized = SameArrowStepWeight / totalStepTypeWeight;
+		NewArrowStepWeightNormalized = NewArrowStepWeight / totalStepTypeWeight;
+	}
 
 	#region IEquatable
 
