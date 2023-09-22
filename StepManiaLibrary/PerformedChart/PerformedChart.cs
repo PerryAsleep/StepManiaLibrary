@@ -18,26 +18,6 @@ namespace StepManiaLibrary.PerformedChart;
 /// </summary>
 public partial class PerformedChart
 {
-	/// <summary>
-	/// Event to use when sorting with rate altering events to determine the time of events to generate.
-	/// </summary>
-	private class PatternEvent : Event
-	{
-		public PatternEvent()
-		{
-		}
-
-		private PatternEvent(Event other)
-			: base(other)
-		{
-		}
-
-		public override Event Clone()
-		{
-			return new PatternEvent(this);
-		}
-	}
-
 	private const string LogTag = "Performed Chart";
 
 	/// <summary>
@@ -1209,7 +1189,7 @@ public partial class PerformedChart
 		while (endPositionInclusive ? pos <= endPosition : pos < endPosition)
 		{
 			numEvents++;
-			patternEvents.Add(new PatternEvent
+			patternEvents.Add(new Pattern
 			{
 				IntegerPosition = pos,
 			});
@@ -1227,18 +1207,7 @@ public partial class PerformedChart
 		}
 
 		// Sort all events.
-		var patternList = new List<string>();
-		var defaultEventOrder = SMCommon.SMEventComparer.SMEventOrderList;
-		foreach (var eventString in defaultEventOrder)
-		{
-			patternList.Add(eventString);
-			if (eventString == nameof(LaneTapNote))
-			{
-				patternList.Add(nameof(PatternEvent));
-			}
-		}
-
-		patternEvents.Sort(new SMCommon.SMEventComparer(patternList));
+		patternEvents.Sort(new SMCommon.SMEventComparer(EventOrder.Order));
 
 		// Set the time on the pattern events.
 		SMCommon.SetEventTimeAndMetricPositionsFromRows(patternEvents);
@@ -1248,7 +1217,7 @@ public partial class PerformedChart
 		var index = 0;
 		foreach (var patternEvent in patternEvents)
 		{
-			if (patternEvent is not PatternEvent)
+			if (patternEvent is not Pattern)
 				continue;
 			timingData[index] = new Tuple<double, int>(patternEvent.TimeSeconds, patternEvent.IntegerPosition);
 			index++;
