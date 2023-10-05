@@ -159,11 +159,6 @@ public partial class PerformedChart
 		private readonly int TotalNumOutwardSteps;
 
 		/// <summary>
-		/// Cost when generating patterns of deviating from desired step type weights.
-		/// </summary>
-		private readonly double PatternGenerationStepTypeCost;
-
-		/// <summary>
 		/// Total number of NewArrow steps up to and including this SearchNode.
 		/// </summary>
 		private readonly int TotalNumNewArrowSteps;
@@ -172,11 +167,6 @@ public partial class PerformedChart
 		/// Total number of SameArrow steps up to and including this SearchNode.
 		/// </summary>
 		private readonly int TotalNumSameArrowSteps;
-
-		/// <summary>
-		/// Total number of SameArrow steps in a row beyond the maximum specified for generating patters.
-		/// </summary>
-		private readonly int TotalNumSameArrowStepsInARowPerFootOverMax;
 
 		/// <summary>
 		/// This SearchNode's random weight for when all costs are equal.
@@ -407,15 +397,23 @@ public partial class PerformedChart
 			UpdateStepCounts(
 				patternConfig,
 				out TotalNumSameArrowSteps,
-				out TotalNumSameArrowStepsInARowPerFootOverMax,
 				out TotalNumNewArrowSteps);
-			PatternGenerationStepTypeCost = DeterminePatternGenerationStepCost(patternConfig);
 
 			var (ambiguous, misleading) = DetermineAmbiguity(stepGraph);
 			if (ambiguous)
 				AmbiguousStepCount++;
 			if (misleading)
 				MisleadingStepCount++;
+		}
+
+		/// <summary>
+		/// Removes this node from its PreviousNode's NextNodes.
+		/// </summary>
+		public void RemoveFromPreviousNode()
+		{
+			PreviousNode.NextNodes[GraphLinkFromPreviousNode].Remove(this);
+			if (PreviousNode.NextNodes[GraphLinkFromPreviousNode].Count == 0)
+				PreviousNode.NextNodes.Remove(GraphLinkFromPreviousNode);
 		}
 
 		/// <summary>
@@ -443,18 +441,13 @@ public partial class PerformedChart
 		/// </summary>
 		/// <param name="patternConfig">PatternConfig to use.</param>
 		/// <param name="totalNumSameArrowSteps">Total number of SameArrow steps to set.</param>
-		/// <param name="totalNumSameArrowStepsInARowPerFootOverMax">
-		/// Total number of SameArrow steps in a row per foot over the specified maximum from the PatternConfig.
-		/// </param>
 		/// <param name="totalNumNewArrowSteps">Total number of NewArrow steps to set.</param>
 		private void UpdateStepCounts(
 			PatternConfig patternConfig,
 			out int totalNumSameArrowSteps,
-			out int totalNumSameArrowStepsInARowPerFootOverMax,
 			out int totalNumNewArrowSteps)
 		{
 			totalNumSameArrowSteps = PreviousNode?.TotalNumSameArrowSteps ?? 0;
-			totalNumSameArrowStepsInARowPerFootOverMax = PreviousNode?.TotalNumSameArrowStepsInARowPerFootOverMax ?? 0;
 			totalNumNewArrowSteps = PreviousNode?.TotalNumNewArrowSteps ?? 0;
 
 			if (GraphLinkFromPreviousNode == null)
@@ -501,41 +494,12 @@ public partial class PerformedChart
 
 								previousNodeToCheck = previousNodeToCheck.PreviousNode;
 							}
-
-							if (numStepsInARow > patternConfig.MaxSameArrowsInARowPerFoot)
-							{
-								totalNumSameArrowStepsInARowPerFootOverMax++;
-							}
 						}
 
 						break;
 					}
 				}
 			}
-		}
-
-		/// <summary>
-		/// Determines and returns the cost to use for StepTypes when generating patterns.
-		/// </summary>
-		/// <param name="patternConfig">PatternConfig to use.</param>
-		/// <returns>Cost for StepTypes in the pattern.</returns>
-		private double DeterminePatternGenerationStepCost(PatternConfig patternConfig)
-		{
-			if (patternConfig == null)
-				return 0.0;
-
-			var totalSteps = TotalNumSameArrowSteps + TotalNumNewArrowSteps;
-			if (totalSteps == 0)
-				return 0.0;
-
-			var cost = 0.0;
-
-			var sameArrowNormalized = TotalNumSameArrowSteps / (double)totalSteps;
-			cost += Math.Abs(sameArrowNormalized - patternConfig.SameArrowStepWeightNormalized);
-			var newArrowNormalized = TotalNumNewArrowSteps / (double)totalSteps;
-			cost += Math.Abs(newArrowNormalized - patternConfig.NewArrowStepWeightNormalized);
-
-			return cost;
 		}
 
 		/// <summary>
@@ -1286,11 +1250,6 @@ public partial class PerformedChart
 			if (AmbiguousStepCount != other.AmbiguousStepCount)
 				return AmbiguousStepCount < other.AmbiguousStepCount ? -1 : 1;
 
-			// Pattern generation logic.
-			// Prefer patterns which don't exceed the maximum specified number of same arrow steps in a row.
-			if (TotalNumSameArrowStepsInARowPerFootOverMax != other.TotalNumSameArrowStepsInARowPerFootOverMax)
-				return TotalNumSameArrowStepsInARowPerFootOverMax < other.TotalNumSameArrowStepsInARowPerFootOverMax ? -1 : 1;
-
 			// Next consider total stretch cost. These are steps which stretch beyond desired amounts.
 			if (Math.Abs(TotalStretchCost - other.TotalStretchCost) > 0.00001)
 				return TotalStretchCost < other.TotalStretchCost ? -1 : 1;
@@ -1309,11 +1268,6 @@ public partial class PerformedChart
 			// quick steps move.
 			if (Math.Abs(TotalIndividualStepTravelSpeedCost - other.TotalIndividualStepTravelSpeedCost) > 0.00001)
 				return TotalIndividualStepTravelSpeedCost < other.TotalIndividualStepTravelSpeedCost ? -1 : 1;
-
-			// Pattern generation logic.
-			// Next consider the cost associated with generated patterns.
-			if (Math.Abs(PatternGenerationStepTypeCost - other.PatternGenerationStepTypeCost) > 0.00001)
-				return PatternGenerationStepTypeCost < other.PatternGenerationStepTypeCost ? -1 : 1;
 
 			// Next consider lateral movement speed. We want to avoid moving on bursts.
 			if (Math.Abs(TotalLateralMovementSpeedCost - other.TotalLateralMovementSpeedCost) > 0.00001)

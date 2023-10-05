@@ -679,13 +679,17 @@ public partial class PerformedChart
 	{
 		var random = new Random(randomSeed);
 
-		var validStepTypes = new[] { StepType.NewArrow, StepType.SameArrow };
 		const double stepTypeFallbackCost = 0.0;
 
 		// Determine the times and positions of all events to generate.
 		// This depends on the currently present rate altering events.
-		var timingData = DeterminePatternTiming(patternConfig, currentEvents, startPosition, endPosition, endPositionInclusive);
-		if (timingData == null)
+		// Here we intentionally pad the end position out to generate two extra steps.
+		// This allows us to easily ensure that the pattern ends at a position that can step
+		// to the specified following footing using normal tightening rules.
+		var extendedEndPosition = endPosition + SMCommon.MaxValidDenominator / patternConfig.BeatSubDivision * NumFeet;
+		var timingData = DeterminePatternTiming(patternConfig, currentEvents, startPosition, extendedEndPosition,
+			endPositionInclusive);
+		if (timingData == null || timingData.Length <= NumFeet)
 		{
 			var endInclusiveExclusiveString = endPositionInclusive ? "inclusive" : "exclusive";
 			LogError(
@@ -805,6 +809,7 @@ public partial class PerformedChart
 			currentLaneCounts);
 
 		var currentSearchNodes = new HashSet<SearchNode> { rootSearchNode };
+		var numSameArrowSteps = new int[NumFeet];
 
 		foreach (var timingInfo in timingData)
 		{
@@ -823,6 +828,71 @@ public partial class PerformedChart
 			foot = OtherFoot(foot);
 			var nextSearchNodes = new HashSet<SearchNode>();
 
+			// Determine the StepType to use.
+			var stepType = secondStepType;
+			if (depth > 1)
+			{
+				// Check to see if this step is one of the final steps which intentionally
+				// goes beyond the last step in the pattern to aid with ensuring the steps
+				// end in a way which can step to the following footing.
+				if (depth == timingData.Length - 3 || depth == timingData.Length - 2)
+				{
+					if (foot == L)
+					{
+						switch (patternConfig.LeftFootEndChoice)
+						{
+							case PatternConfigEndFootChoice.AutomaticNewLaneToFollowing:
+								stepType = StepType.NewArrow;
+								break;
+							case PatternConfigEndFootChoice.AutomaticSameLaneToFollowing:
+								stepType = StepType.SameArrow;
+								break;
+							case PatternConfigEndFootChoice.AutomaticIgnoreFollowingSteps:
+							case PatternConfigEndFootChoice.AutomaticSameOrNewLaneAsFollowing:
+								stepType = random.NextDouble() > patternConfig.NewArrowStepWeightNormalized
+									? StepType.SameArrow
+									: StepType.NewArrow;
+								break;
+						}
+					}
+					else
+					{
+						switch (patternConfig.RightFootEndChoice)
+						{
+							case PatternConfigEndFootChoice.AutomaticNewLaneToFollowing:
+								stepType = StepType.NewArrow;
+								break;
+							case PatternConfigEndFootChoice.AutomaticSameLaneToFollowing:
+								stepType = StepType.SameArrow;
+								break;
+							case PatternConfigEndFootChoice.AutomaticIgnoreFollowingSteps:
+							case PatternConfigEndFootChoice.AutomaticSameOrNewLaneAsFollowing:
+								stepType = random.NextDouble() > patternConfig.NewArrowStepWeightNormalized
+									? StepType.SameArrow
+									: StepType.NewArrow;
+								break;
+						}
+					}
+				}
+				else
+				{
+					stepType = random.NextDouble() > patternConfig.NewArrowStepWeightNormalized
+						? StepType.SameArrow
+						: StepType.NewArrow;
+
+					if (stepType == StepType.SameArrow)
+					{
+						numSameArrowSteps[foot]++;
+						if (numSameArrowSteps[foot] >= patternConfig.MaxSameArrowsInARowPerFoot)
+						{
+							stepType = StepType.NewArrow;
+							numSameArrowSteps[foot] = 0;
+						}
+					}
+				}
+			}
+
+			// Set up the graph links leading out of this node to its next nodes.
 			foreach (var searchNode in currentSearchNodes)
 			{
 				// Check every GraphLink out of the SearchNode.
@@ -845,21 +915,16 @@ public partial class PerformedChart
 						var actions = GetActionsForNode(nextGraphNode, graphLink.GraphLink,
 							stepGraph.NumArrows);
 
-						// Set up the graph links leading out of this node to its next nodes.
+						// Set up links to the next node.
 						possibleGraphLinksToNextNode = new List<GraphLinkInstance>();
-						foreach (var stepType in validStepTypes)
+						var link = new GraphLink
 						{
-							if (depth == 1 && stepType != secondStepType)
-								continue;
-							var link = new GraphLink
+							Links =
 							{
-								Links =
-								{
-									[foot, DefaultFootPortion] = new GraphLink.FootArrowState(stepType, FootAction.Tap),
-								},
-							};
-							possibleGraphLinksToNextNode.Add(new GraphLinkInstance(link));
-						}
+								[foot, DefaultFootPortion] = new GraphLink.FootArrowState(stepType, FootAction.Tap),
+							},
+						};
+						possibleGraphLinksToNextNode.Add(new GraphLinkInstance(link));
 
 						// Set up a new SearchNode.
 						var nextSearchNode = new SearchNode(
@@ -924,6 +989,18 @@ public partial class PerformedChart
 				Prune(node);
 			}
 
+			// Remove the last two nodes which were placeholders to ensure the pattern ends at
+			// the correct location.
+			var nodesToRemove = NumFeet;
+			while (nodesToRemove > 0)
+			{
+				if (bestNode.PreviousNode == null)
+					break;
+				bestNode.RemoveFromPreviousNode();
+				bestNode = bestNode.PreviousNode;
+				nodesToRemove--;
+			}
+
 			//previousSectionEnd = endPosition;
 			//previousSectionLastL = bestNode.GraphNode.State[L, DefaultFootPortion].Arrow;
 			//previousSectionLastR = bestNode.GraphNode.State[R, DefaultFootPortion].Arrow;
@@ -975,194 +1052,33 @@ public partial class PerformedChart
 		PatternConfig patternConfig,
 		int[] followingFooting)
 	{
-		// Accumulate a list of GraphNodes which represent the set of nodes which are valid to
-		// be stepped to for ending this pattern section. If this is empty, then any nodes is
-		// acceptable.
-		var destinationNodes = new List<GraphNode>();
-
-		// Accumulate the valid types of steps which can be taken to end at the valid destination
-		// nodes. If both feet have an empty list, then there is no restriction by 
-		var validAutoStepTypes = new List<StepType>[NumFeet];
-		for (var f = 0; f < NumFeet; f++)
-		{
-			validAutoStepTypes[f] = new List<StepType>();
-			if (followingFooting[f] != InvalidArrowIndex)
-			{
-				switch (f == L ? patternConfig.LeftFootEndChoice : patternConfig.RightFootEndChoice)
-				{
-					case PatternConfigEndFootChoice.AutomaticSameLaneToFollowing:
-						validAutoStepTypes[f].Add(StepType.SameArrow);
-						break;
-					case PatternConfigEndFootChoice.AutomaticNewLaneToFollowing:
-						validAutoStepTypes[f].Add(StepType.NewArrow);
-						break;
-					case PatternConfigEndFootChoice.AutomaticSameOrNewLaneAsFollowing:
-						validAutoStepTypes[f].Add(StepType.SameArrow);
-						validAutoStepTypes[f].Add(StepType.NewArrow);
-						break;
-				}
-			}
-		}
-
-		var leftFootShouldAutoStep = validAutoStepTypes[L].Count > 0;
-		var rightFootShouldAutoStep = validAutoStepTypes[R].Count > 0;
-		var bothFeetShouldAutoStep = leftFootShouldAutoStep && rightFootShouldAutoStep;
-		var shouldFilterByDestinationNodes = leftFootShouldAutoStep || rightFootShouldAutoStep;
-
-		// Helper method for updating destinationNodes and validAutoStepTypes when only a single
-		// foot is auto-stepping to a specified end position.
-		void AddDestinationNodesAndUpdateOtherFootValidStepTypesForSingleFoot(int foot)
-		{
-			var otherFoot = OtherFoot(foot);
-
-			// If we are only restricting by a single foot, allow the other foot to perform any move.
-			validAutoStepTypes[otherFoot].Add(StepType.SameArrow);
-			validAutoStepTypes[otherFoot].Add(StepType.NewArrow);
-
-			// This foot must end on a specific lane.
-			var endLaneForFoot = followingFooting[foot];
-
-			// Create GraphNodes for all valid other foot pairings with the specified lane.
-			for (var a = 0; a < stepGraph.NumArrows; a++)
-			{
-				// Only consider lanes which are valid other foot pairings.
-				if (!stepGraph.PadData.ArrowData[endLaneForFoot].OtherFootPairings[foot][a])
-					continue;
-
-				// This is a valid pairing, add a new GraphNode for this state.
-				var state = new GraphNode.FootArrowState[NumFeet, NumFootPortions];
-				for (var p = 0; p < NumFootPortions; p++)
-				{
-					if (p == DefaultFootPortion)
-					{
-						state[foot, p] = new GraphNode.FootArrowState(endLaneForFoot, GraphArrowState.Resting);
-						state[otherFoot, p] = new GraphNode.FootArrowState(a, GraphArrowState.Resting);
-					}
-					else
-					{
-						state[L, p] = GraphNode.InvalidFootArrowState;
-						state[R, p] = GraphNode.InvalidFootArrowState;
-					}
-				}
-
-				destinationNodes.Add(new GraphNode(state, BodyOrientation.Normal));
-			}
-		}
-
-		// Update destinationNodes and validAutoStepTypes based on which feed are auto-stepping.
-		if (bothFeetShouldAutoStep)
-		{
-			// When both feet should auto-step, validAutoStepTypes is already set. We just need
-			// to add one GraphNode to step to which represents both feet at the desired end position.
-			var state = new GraphNode.FootArrowState[NumFeet, NumFootPortions];
-			for (var p = 0; p < NumFootPortions; p++)
-			{
-				if (p == DefaultFootPortion)
-				{
-					state[L, p] = new GraphNode.FootArrowState(followingFooting[L], GraphArrowState.Resting);
-					state[R, p] = new GraphNode.FootArrowState(followingFooting[R], GraphArrowState.Resting);
-				}
-				else
-				{
-					state[L, p] = GraphNode.InvalidFootArrowState;
-					state[R, p] = GraphNode.InvalidFootArrowState;
-				}
-			}
-
-			destinationNodes.Add(new GraphNode(state, BodyOrientation.Normal));
-		}
-		else if (leftFootShouldAutoStep)
-		{
-			AddDestinationNodesAndUpdateOtherFootValidStepTypesForSingleFoot(L);
-		}
-		else if (rightFootShouldAutoStep)
-		{
-			AddDestinationNodesAndUpdateOtherFootValidStepTypesForSingleFoot(R);
-		}
+		var leftFinalStep = followingFooting[L];
+		if (patternConfig.LeftFootEndChoice == PatternConfigEndFootChoice.SpecifiedLane)
+			leftFinalStep = patternConfig.LeftFootEndLaneSpecified;
+		var rightFinalStep = followingFooting[R];
+		if (patternConfig.RightFootEndChoice == PatternConfigEndFootChoice.SpecifiedLane)
+			rightFinalStep = patternConfig.RightFootEndLaneSpecified;
 
 		// Filter the currentSearchNodes if the end choice is set to end on a specified lane.
 		for (var f = 0; f < NumFeet; f++)
 		{
-			switch (f == L ? patternConfig.LeftFootEndChoice : patternConfig.RightFootEndChoice)
+			var lane = f == L ? leftFinalStep : rightFinalStep;
+			if (lane < 0 || lane >= stepGraph.NumArrows)
+				continue;
+			var specifiedRemainingNodes = new HashSet<SearchNode>();
+			foreach (var node in currentSearchNodes)
 			{
-				case PatternConfigEndFootChoice.SpecifiedLane:
+				if (node.GraphNode.State[f, DefaultFootPortion].Arrow == lane)
 				{
-					var lane = f == L ? patternConfig.LeftFootEndLaneSpecified : patternConfig.RightFootEndLaneSpecified;
-					if (lane < 0 || lane >= stepGraph.NumArrows)
-						continue;
-					var specifiedRemainingNodes = new HashSet<SearchNode>();
-					foreach (var node in currentSearchNodes)
-					{
-						if (node.GraphNode.State[f, DefaultFootPortion].Arrow == lane)
-						{
-							specifiedRemainingNodes.Add(node);
-							continue;
-						}
-
-						Prune(node);
-					}
-
-					currentSearchNodes = specifiedRemainingNodes;
-					break;
-				}
-			}
-		}
-
-		// Now filter by stepping to destination nodes.
-		if (!shouldFilterByDestinationNodes)
-			return;
-
-		// Construct a list of valid GraphLinks.
-		var validGraphLinks = new List<GraphLink>();
-		foreach (var leftFootStepType in validAutoStepTypes[L])
-		{
-			foreach (var rightFootStepType in validAutoStepTypes[R])
-			{
-				var link = new GraphLink
-				{
-					Links =
-					{
-						[L, DefaultFootPortion] = new GraphLink.FootArrowState(leftFootStepType, FootAction.Tap),
-						[R, DefaultFootPortion] = new GraphLink.FootArrowState(rightFootStepType, FootAction.Tap),
-					},
-				};
-				validGraphLinks.Add(link);
-			}
-		}
-
-		// For each nodes, ensure at least one of the valid GraphLinks links it to
-		// at least one of the valid destination nodes.
-		var remainingNodes = new HashSet<SearchNode>();
-		foreach (var node in currentSearchNodes)
-		{
-			var found = false;
-			foreach (var destinationNode in destinationNodes)
-			{
-				foreach (var link in validGraphLinks)
-				{
-					if (!node.GraphNode.Links.TryGetValue(link, out var nextNodes))
-						continue;
-					foreach (var nextNode in nextNodes)
-					{
-						if (!nextNode.Equals(destinationNode))
-							continue;
-						found = true;
-						break;
-					}
-
-					if (found)
-						break;
+					specifiedRemainingNodes.Add(node);
+					continue;
 				}
 
-				if (found)
-					break;
+				Prune(node);
 			}
 
-			if (found)
-				remainingNodes.Add(node);
+			currentSearchNodes = specifiedRemainingNodes;
 		}
-
-		currentSearchNodes = remainingNodes;
 	}
 
 	/// <summary>
@@ -1329,9 +1245,7 @@ public partial class PerformedChart
 		// Prune the node up until parent that has other children.
 		while (node.PreviousNode != null)
 		{
-			node.PreviousNode.NextNodes[node.GraphLinkFromPreviousNode].Remove(node);
-			if (node.PreviousNode.NextNodes[node.GraphLinkFromPreviousNode].Count == 0)
-				node.PreviousNode.NextNodes.Remove(node.GraphLinkFromPreviousNode);
+			node.RemoveFromPreviousNode();
 			if (node.PreviousNode.NextNodes.Count != 0)
 				break;
 			node = node.PreviousNode;
