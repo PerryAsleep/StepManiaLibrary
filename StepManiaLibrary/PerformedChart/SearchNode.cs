@@ -305,7 +305,8 @@ public partial class PerformedChart
 			double randomWeight,
 			Config config,
 			PatternConfig patternConfig,
-			int[] specifiedStepCounts)
+			int[] specifiedStepCounts,
+			double[] specifiedStepTimes)
 		{
 			Id = Interlocked.Increment(ref IdCounter);
 			GraphNode = graphNode;
@@ -347,14 +348,25 @@ public partial class PerformedChart
 				}
 			}
 
-			// Copy the previous SearchNode's last step times to this nodes last step times.
-			// We will update them later if this SearchNode represents a step.
+			// Set the last step times either from specified values or the previous node.
 			LastTimeFootStepped = new double[NumFeet];
-			for (var f = 0; f < NumFeet; f++)
-				LastTimeFootStepped[f] = previousNode?.LastTimeFootStepped[f] ?? 0.0;
 			LastTimeFootReleased = new double[NumFeet];
-			for (var f = 0; f < NumFeet; f++)
-				LastTimeFootReleased[f] = previousNode?.LastTimeFootReleased[f] ?? 0.0;
+			if (specifiedStepTimes != null)
+			{
+				for (var f = 0; f < NumFeet; f++)
+					LastTimeFootStepped[f] = specifiedStepTimes[f];
+				for (var f = 0; f < NumFeet; f++)
+					LastTimeFootReleased[f] = specifiedStepTimes[f];
+			}
+			else
+			{
+				// Copy the previous SearchNode's last step times to this nodes last step times.
+				// We will update them later if this SearchNode represents a step.
+				for (var f = 0; f < NumFeet; f++)
+					LastTimeFootStepped[f] = previousNode?.LastTimeFootStepped[f] ?? 0.0;
+				for (var f = 0; f < NumFeet; f++)
+					LastTimeFootReleased[f] = previousNode?.LastTimeFootReleased[f] ?? 0.0;
+			}
 
 			// Copy the previous SearchNode's LastArrowsSteppedOnByFoot values.
 			// We will update them later if this SearchNode represents a step.

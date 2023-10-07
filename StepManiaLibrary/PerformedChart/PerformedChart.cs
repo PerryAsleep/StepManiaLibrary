@@ -169,6 +169,7 @@ public partial class PerformedChart
 						random.NextDouble(),
 						config,
 						null,
+						null,
 						null);
 					var currentSearchNodes = new HashSet<SearchNode> { rootSearchNode };
 
@@ -243,6 +244,7 @@ public partial class PerformedChart
 										random.NextDouble(),
 										config,
 										null,
+										null,
 										null);
 
 									// Hook up the new SearchNode and store it in the nextSearchNodes for pruning.
@@ -294,6 +296,7 @@ public partial class PerformedChart
 											nps,
 											random.NextDouble(),
 											config,
+											null,
 											null,
 											null);
 
@@ -670,7 +673,7 @@ public partial class PerformedChart
 		bool endPositionInclusive,
 		int randomSeed,
 		int previousStepFoot,
-		double previousStepTime,
+		double[] previousStepTimes,
 		int[] previousFooting,
 		int[] followingFooting,
 		int[] currentLaneCounts,
@@ -792,6 +795,7 @@ public partial class PerformedChart
 		};
 		possibleGraphLinksToNextNode.Add(new GraphLinkInstance(rootGraphLink));
 
+		var previousStepTime = previousStepTimes[foot];
 		var rootSearchNode = new SearchNode(
 			rootGraphNode,
 			possibleGraphLinksToNextNode,
@@ -806,7 +810,8 @@ public partial class PerformedChart
 			random.NextDouble(),
 			config,
 			patternConfig,
-			currentLaneCounts);
+			currentLaneCounts,
+			previousStepTimes);
 
 		var currentSearchNodes = new HashSet<SearchNode> { rootSearchNode };
 		var numSameArrowSteps = new int[NumFeet];
@@ -941,6 +946,7 @@ public partial class PerformedChart
 							random.NextDouble(),
 							config,
 							patternConfig,
+							null,
 							null
 						);
 
