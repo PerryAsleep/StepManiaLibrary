@@ -170,6 +170,8 @@ public partial class PerformedChart
 						config,
 						null,
 						null,
+						null,
+						null,
 						null);
 					var currentSearchNodes = new HashSet<SearchNode> { rootSearchNode };
 
@@ -245,6 +247,8 @@ public partial class PerformedChart
 										config,
 										null,
 										null,
+										null,
+										null,
 										null);
 
 									// Hook up the new SearchNode and store it in the nextSearchNodes for pruning.
@@ -296,6 +300,8 @@ public partial class PerformedChart
 											nps,
 											random.NextDouble(),
 											config,
+											null,
+											null,
 											null,
 											null,
 											null);
@@ -678,6 +684,9 @@ public partial class PerformedChart
 		int[] followingFooting,
 		int[] currentLaneCounts,
 		IReadOnlyList<Event> currentEvents,
+		int totalSteps,
+		int numStepsAtLastTransition,
+		bool? lastTransitionLeft,
 		string logIdentifier)
 	{
 		var random = new Random(randomSeed);
@@ -700,6 +709,8 @@ public partial class PerformedChart
 				logIdentifier);
 			return null;
 		}
+
+		var lastTransitionNode = SearchNode.MakeTransitionNode(lastTransitionLeft, numStepsAtLastTransition);
 
 		// Determine the NPS now that we know the timing data.
 		var nps = FindNPS(currentEvents, timingData);
@@ -811,7 +822,9 @@ public partial class PerformedChart
 			config,
 			patternConfig,
 			currentLaneCounts,
-			previousStepTimes);
+			previousStepTimes,
+			totalSteps,
+			lastTransitionNode);
 
 		var currentSearchNodes = new HashSet<SearchNode> { rootSearchNode };
 		var numSameArrowSteps = new int[NumFeet];
@@ -946,6 +959,8 @@ public partial class PerformedChart
 							random.NextDouble(),
 							config,
 							patternConfig,
+							null,
+							null,
 							null,
 							null
 						);

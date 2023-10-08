@@ -144,9 +144,15 @@ public partial class PerformedChart
 		private readonly double TotalFacingCost;
 
 		/// <summary>
-		/// Total number of steps up to and including this SearchNode.
+		/// Total number of steps in the chart up to and including this SearchNode.
 		/// </summary>
 		private readonly int TotalSteps;
+
+		/// <summary>
+		/// Total number of steps within the relevant pattern up to and including this SearchNode.
+		/// When generating an entire chart, this will match TotalSteps.
+		/// </summary>
+		private readonly int TotalStepsInPattern;
 
 		/// <summary>
 		/// Total number of steps in an inward facing orientation up to and including this SearchNode.
@@ -256,6 +262,43 @@ public partial class PerformedChart
 		public readonly PerformanceFootAction[] Actions;
 
 		/// <summary>
+		/// Factory method to create a SearchNode to use as for transition comparisons.
+		/// When determining when transitions occur we need to compare to a past node
+		/// which transitioned to determine the cost for transitioning too early or late.
+		/// When generating patterns that are only a small portion of the chart, that previous
+		/// transition SearchNode node can be created through this constructor.
+		/// </summary>
+		/// <param name="left">
+		/// Whether the node transition was to the left or right.
+		/// </param>	
+		/// <param name="totalSteps">
+		/// The total step count at the time of the transition.
+		/// </param>
+		public static SearchNode MakeTransitionNode(bool? left, int totalSteps)
+		{
+			return new SearchNode(left, totalSteps);
+		}
+
+		/// <summary>
+		/// Private constructor for making a SearchNode used for transition comparisons.
+		/// When determining when transitions occur we need to compare to a past node
+		/// which transitioned to determine the cost for transitioning too early or late.
+		/// When generating patterns that are only a small portion of the chart, that previous
+		/// transition SearchNode node can be created through this constructor.
+		/// </summary>
+		/// <param name="left">
+		/// Whether the node transition was to the left or right.
+		/// </param>
+		/// <param name="totalSteps">
+		/// The total step count at the time of the transition.
+		/// </param>
+		private SearchNode(bool? left, int totalSteps)
+		{
+			TransitionedLeft = left;
+			TotalSteps = totalSteps;
+		}
+
+		/// <summary>
 		/// Constructor.
 		/// </summary>
 		/// <param name="graphNode">
@@ -306,7 +349,9 @@ public partial class PerformedChart
 			Config config,
 			PatternConfig patternConfig,
 			int[] specifiedStepCounts,
-			double[] specifiedStepTimes)
+			double[] specifiedStepTimes,
+			int? specifiedTotalSteps,
+			SearchNode specifiedLastTransitionNode)
 		{
 			Id = Interlocked.Increment(ref IdCounter);
 			GraphNode = graphNode;
@@ -317,10 +362,18 @@ public partial class PerformedChart
 			Time = time;
 			RandomWeight = randomWeight;
 			Actions = actions;
-			LastTransitionStepNode = PreviousNode?.LastTransitionStepNode;
+
+			if (specifiedLastTransitionNode != null)
+				LastTransitionStepNode = specifiedLastTransitionNode;
+			else
+				LastTransitionStepNode = PreviousNode?.LastTransitionStepNode;
 
 			var isRelease = graphLinkFromPreviousNode?.GraphLink?.IsRelease() ?? false;
-			TotalSteps = (PreviousNode?.TotalSteps ?? 0) + (isRelease ? 0 : 1);
+			if (specifiedTotalSteps != null)
+				TotalSteps = specifiedTotalSteps.Value;
+			else
+				TotalSteps = (PreviousNode?.TotalSteps ?? 0) + (isRelease ? 0 : 1);
+			TotalStepsInPattern = (PreviousNode?.TotalStepsInPattern ?? 0) + (isRelease ? 0 : 1);
 
 			// Copy the previous SearchNode's ambiguous and misleading step counts.
 			// We will update them later after determining if this SearchNode represents
@@ -386,7 +439,11 @@ public partial class PerformedChart
 
 			TotalEarlyTransitionCost = PreviousNode?.TotalEarlyTransitionCost ?? 0;
 			TotalLateTransitionCost = PreviousNode?.TotalLateTransitionCost ?? 0;
-			UpdateTransitionCost(stepGraph, config.Transitions, out var earlyTransitionCost, out var lateTransitionCost,
+			UpdateTransitionCost(
+				stepGraph,
+				config.Transitions,
+				out var earlyTransitionCost,
+				out var lateTransitionCost,
 				out TransitionedLeft,
 				ref LastTransitionStepNode);
 			TotalEarlyTransitionCost += earlyTransitionCost;
@@ -822,6 +879,9 @@ public partial class PerformedChart
 				return;
 			}
 
+			// When considering transition limits, we want to compare against the total number of steps
+			// in the chart, not just within the pattern. We want to prevent short patterns from extending
+			// the sequences which don't transition.
 			var numStepsSinceLastTransition = TotalSteps - (lastTransitionStepNode?.TotalSteps ?? 0);
 
 			// Transition occurred.
@@ -869,15 +929,17 @@ public partial class PerformedChart
 			if (!isRelease && stepGraph.IsFacingOutward(GraphNode, config.Facing.OutwardPercentageCutoff))
 				totalNumOutwardSteps++;
 			totalFacingCost = PreviousNode?.TotalFacingCost ?? 0;
+
+			// When considering facing limits, we only want to limit within the range of the pattern.
 			if (config.Facing.MaxInwardPercentage < 1.0)
 			{
-				if (totalNumInwardSteps / (double)TotalSteps > config.Facing.MaxInwardPercentage)
+				if (totalNumInwardSteps / (double)TotalStepsInPattern > config.Facing.MaxInwardPercentage)
 					totalFacingCost++;
 			}
 
 			if (config.Facing.MaxOutwardPercentage < 1.0)
 			{
-				if (totalNumOutwardSteps / (double)TotalSteps > config.Facing.MaxOutwardPercentage)
+				if (totalNumOutwardSteps / (double)TotalStepsInPattern > config.Facing.MaxOutwardPercentage)
 					totalFacingCost++;
 			}
 		}
