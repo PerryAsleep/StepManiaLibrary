@@ -167,12 +167,7 @@ public partial class PerformedChart
 						stepGraph,
 						nps,
 						random.NextDouble(),
-						config,
-						null,
-						null,
-						null,
-						null,
-						null);
+						config);
 					var currentSearchNodes = new HashSet<SearchNode> { rootSearchNode };
 
 					while (true)
@@ -244,12 +239,7 @@ public partial class PerformedChart
 										stepGraph,
 										nps,
 										random.NextDouble(),
-										config,
-										null,
-										null,
-										null,
-										null,
-										null);
+										config);
 
 									// Hook up the new SearchNode and store it in the nextSearchNodes for pruning.
 									if (!AddChildNode(searchNode, nextSearchNode, graphLink, nextSearchNodes, stepGraph,
@@ -299,12 +289,7 @@ public partial class PerformedChart
 											stepGraph,
 											nps,
 											random.NextDouble(),
-											config,
-											null,
-											null,
-											null,
-											null,
-											null);
+											config);
 
 										// Hook up the new SearchNode and store it in the nextSearchNodes for pruning.
 										if (!AddChildNode(searchNode, nextSearchNode, graphLink, nextSearchNodes, stepGraph,
@@ -710,6 +695,11 @@ public partial class PerformedChart
 			return null;
 		}
 
+		// Transition logic looks back at the node from the previous transition. When generating
+		// a pattern within a larger chart, this transition will likely have occurred outside of
+		// this pattern search. We create a SearchNode specifically to hold the needed transition
+		// information here and use it on the root search node. This allows patterns to transition
+		// with the desired frequency even when patterns are short.
 		var lastTransitionNode = SearchNode.MakeTransitionNode(lastTransitionLeft, numStepsAtLastTransition);
 
 		// Determine the NPS now that we know the timing data.
@@ -739,7 +729,6 @@ public partial class PerformedChart
 				firstStepTypeLeft = StepType.NewArrow;
 				break;
 		}
-
 		switch (patternConfig.RightFootStartChoice)
 		{
 			case PatternConfigStartFootChoice.SpecifiedLane:
@@ -824,11 +813,13 @@ public partial class PerformedChart
 			currentLaneCounts,
 			previousStepTimes,
 			totalSteps,
-			lastTransitionNode);
+			lastTransitionNode,
+			0);
 
 		var currentSearchNodes = new HashSet<SearchNode> { rootSearchNode };
-		var numSameArrowSteps = new int[NumFeet];
 
+		var preferredStep = firstStepType;
+		var previousPreferredStep = preferredStep;
 		foreach (var timingInfo in timingData)
 		{
 			var timeSeconds = timingInfo.Item1;
@@ -847,7 +838,9 @@ public partial class PerformedChart
 			var nextSearchNodes = new HashSet<SearchNode>();
 
 			// Determine the StepType to use.
-			var stepType = secondStepType;
+			previousPreferredStep = preferredStep;
+			var validStepTypes = new[] { secondStepType };
+			preferredStep = secondStepType;
 			if (depth > 1)
 			{
 				// Check to see if this step is one of the final steps which intentionally
@@ -860,14 +853,17 @@ public partial class PerformedChart
 						switch (patternConfig.LeftFootEndChoice)
 						{
 							case PatternConfigEndFootChoice.AutomaticNewLaneToFollowing:
-								stepType = StepType.NewArrow;
+								validStepTypes[0] = StepType.NewArrow;
+								preferredStep = StepType.NewArrow;
 								break;
 							case PatternConfigEndFootChoice.AutomaticSameLaneToFollowing:
-								stepType = StepType.SameArrow;
+								validStepTypes[0] = StepType.SameArrow;
+								preferredStep= StepType.SameArrow;
 								break;
 							case PatternConfigEndFootChoice.AutomaticIgnoreFollowingSteps:
 							case PatternConfigEndFootChoice.AutomaticSameOrNewLaneAsFollowing:
-								stepType = random.NextDouble() > patternConfig.NewArrowStepWeightNormalized
+								validStepTypes = new[] { StepType.NewArrow, StepType.SameArrow };
+								preferredStep = random.NextDouble() > patternConfig.NewArrowStepWeightNormalized
 									? StepType.SameArrow
 									: StepType.NewArrow;
 								break;
@@ -878,14 +874,17 @@ public partial class PerformedChart
 						switch (patternConfig.RightFootEndChoice)
 						{
 							case PatternConfigEndFootChoice.AutomaticNewLaneToFollowing:
-								stepType = StepType.NewArrow;
+								validStepTypes[0] = StepType.NewArrow;
+								preferredStep = StepType.NewArrow;
 								break;
 							case PatternConfigEndFootChoice.AutomaticSameLaneToFollowing:
-								stepType = StepType.SameArrow;
+								validStepTypes[0] = StepType.SameArrow;
+								preferredStep = StepType.SameArrow;
 								break;
 							case PatternConfigEndFootChoice.AutomaticIgnoreFollowingSteps:
 							case PatternConfigEndFootChoice.AutomaticSameOrNewLaneAsFollowing:
-								stepType = random.NextDouble() > patternConfig.NewArrowStepWeightNormalized
+								validStepTypes = new[] { StepType.NewArrow, StepType.SameArrow };
+								preferredStep = random.NextDouble() > patternConfig.NewArrowStepWeightNormalized
 									? StepType.SameArrow
 									: StepType.NewArrow;
 								break;
@@ -894,19 +893,10 @@ public partial class PerformedChart
 				}
 				else
 				{
-					stepType = random.NextDouble() > patternConfig.NewArrowStepWeightNormalized
+					validStepTypes = new[] { StepType.NewArrow, StepType.SameArrow };
+					preferredStep = random.NextDouble() > patternConfig.NewArrowStepWeightNormalized
 						? StepType.SameArrow
 						: StepType.NewArrow;
-
-					if (stepType == StepType.SameArrow)
-					{
-						numSameArrowSteps[foot]++;
-						if (numSameArrowSteps[foot] >= patternConfig.MaxSameArrowsInARowPerFoot)
-						{
-							stepType = StepType.NewArrow;
-							numSameArrowSteps[foot] = 0;
-						}
-					}
 				}
 			}
 
@@ -923,6 +913,11 @@ public partial class PerformedChart
 					if (!searchNode.GraphNode.Links.ContainsKey(graphLink.GraphLink))
 						continue;
 
+					var stepTypePenalty = 1;
+					if (graphLink.GraphLink.IsSingleStep(out var nodeStepType, out var _) &&
+					    nodeStepType == previousPreferredStep)
+						stepTypePenalty = 0;
+
 					// Check every GraphNode linked to by this GraphLink.
 					var nextNodes = searchNode.GraphNode.Links[graphLink.GraphLink];
 					for (var n = 0; n < nextNodes.Count; n++)
@@ -933,16 +928,19 @@ public partial class PerformedChart
 						var actions = GetActionsForNode(nextGraphNode, graphLink.GraphLink,
 							stepGraph.NumArrows);
 
-						// Set up links to the next node.
+						// Set up the graph links leading out of this node to its next nodes.
 						possibleGraphLinksToNextNode = new List<GraphLinkInstance>();
-						var link = new GraphLink
+						foreach (var stepType in validStepTypes)
 						{
-							Links =
+							var link = new GraphLink
 							{
-								[foot, DefaultFootPortion] = new GraphLink.FootArrowState(stepType, FootAction.Tap),
-							},
-						};
-						possibleGraphLinksToNextNode.Add(new GraphLinkInstance(link));
+								Links =
+								{
+									[foot, DefaultFootPortion] = new GraphLink.FootArrowState(stepType, FootAction.Tap),
+								},
+							};
+							possibleGraphLinksToNextNode.Add(new GraphLinkInstance(link));
+						}
 
 						// Set up a new SearchNode.
 						var nextSearchNode = new SearchNode(
@@ -962,7 +960,8 @@ public partial class PerformedChart
 							null,
 							null,
 							null,
-							null
+							null,
+							stepTypePenalty
 						);
 
 						// Update the previous SearchNode's NextNodes to include the new SearchNode.
@@ -988,17 +987,38 @@ public partial class PerformedChart
 
 		// Finished
 		{
-			// Filter the set of current nodes to ones which end at acceptable positions.
-			RemoveNodesEndingInUnwantedLocations(stepGraph, ref currentSearchNodes, patternConfig, followingFooting);
+			// If there are no nodes then we could not find any path.
 			if (currentSearchNodes.Count == 0)
 			{
 				performedChart.LogError("Failed to find path ending at desired location.");
 				return null;
 			}
 
-			// Choose path with lowest cost.
+			// Filter the current nodes down to nodes which have all feet ending at desired locations.
+			var remainingNodes = GetNodesEndingWithAllFeetInDesiredLocations(stepGraph, currentSearchNodes,
+				patternConfig, followingFooting);
+
+			// If trying to end at the desired location with both feet results in no valid paths,
+			// relax the requirement to just the first foot ending at the desired location.
+			if (remainingNodes.Count == 0)
+			{
+				// The first foot following the pattern is equal to the current value in the foot variable.
+				remainingNodes = GetNodesEndingWithSingleFootInDesiredLocations(stepGraph, currentSearchNodes, patternConfig,
+					followingFooting, foot);
+			}
+
+			// If filtering even just to one foot still results in no valid paths, then disregard
+			// trying to end at the specified location.
+			if (remainingNodes.Count == 0)
+			{
+				// Warn in this case as it may produce unpleasant results.
+				performedChart.LogWarn("Failed to find path ending at desired location.");
+				remainingNodes = currentSearchNodes;
+			}
+
+			// Choose path with lowest cost from the remaining nodes.
 			SearchNode bestNode = null;
-			foreach (var node in currentSearchNodes)
+			foreach (var node in remainingNodes)
 				if (bestNode == null || node.CompareTo(bestNode) < 0)
 					bestNode = node;
 
@@ -1021,14 +1041,9 @@ public partial class PerformedChart
 				bestNode = bestNode.PreviousNode;
 				nodesToRemove--;
 			}
-
-			//previousSectionEnd = endPosition;
-			//previousSectionLastL = bestNode.GraphNode.State[L, DefaultFootPortion].Arrow;
-			//previousSectionLastR = bestNode.GraphNode.State[R, DefaultFootPortion].Arrow;
-			//previousSectionLastFoot = OtherFoot(foot);
 		}
 
-		// Add the StepPerformanceNodes to the PerformedChart
+		// Add the StepPerformanceNodes to the PerformedChart.
 		var currentPerformanceNode = root;
 		var currentSearchNode = rootSearchNode;
 		currentSearchNode = currentSearchNode?.GetNextNode();
@@ -1060,16 +1075,16 @@ public partial class PerformedChart
 	}
 
 	/// <summary>
-	/// Given a set of possible final nodes for pattern generation, remove nodes which end
-	/// in unwanted ending locations based on the rules in the given PatternConfig.
+	/// Given a set of possible final nodes for pattern generation, returns the filtered set of nodes
+	/// which have all feet ending in desired locations.
 	/// </summary>
 	/// <param name="stepGraph">StepGraph to use.</param>
 	/// <param name="currentSearchNodes">Set of possible ending SearchNodes to remove nodes from.</param>
 	/// <param name="patternConfig">PatternConfig with rules for how the pattern should end.</param>
 	/// <param name="followingFooting">Array of lanes per foot representing the footing of steps following this pattern.</param>
-	private static void RemoveNodesEndingInUnwantedLocations(
+	private static HashSet<SearchNode> GetNodesEndingWithAllFeetInDesiredLocations(
 		StepGraph stepGraph,
-		ref HashSet<SearchNode> currentSearchNodes,
+		HashSet<SearchNode> currentSearchNodes,
 		PatternConfig patternConfig,
 		int[] followingFooting)
 	{
@@ -1092,14 +1107,48 @@ public partial class PerformedChart
 				if (node.GraphNode.State[f, DefaultFootPortion].Arrow == lane)
 				{
 					specifiedRemainingNodes.Add(node);
-					continue;
 				}
-
-				Prune(node);
 			}
-
 			currentSearchNodes = specifiedRemainingNodes;
 		}
+
+		return currentSearchNodes;
+	}
+
+	/// <summary>
+	/// Given a set of possible final nodes for pattern generation, returns the filtered set of nodes
+	/// which have only the specified foot ending in desired locations.
+	/// </summary>
+	/// <param name="stepGraph">StepGraph to use.</param>
+	/// <param name="currentSearchNodes">Set of possible ending SearchNodes to remove nodes from.</param>
+	/// <param name="patternConfig">PatternConfig with rules for how the pattern should end.</param>
+	/// <param name="followingFooting">Array of lanes per foot representing the footing of steps following this pattern.</param>
+	/// <param name="foot">The foot to use for checking.</param>
+	private static HashSet<SearchNode> GetNodesEndingWithSingleFootInDesiredLocations(
+		StepGraph stepGraph,
+		HashSet<SearchNode> currentSearchNodes,
+		PatternConfig patternConfig,
+		int[] followingFooting,
+		int foot)
+	{
+		var finalStep = followingFooting[foot];
+		if (foot == L && patternConfig.LeftFootEndChoice == PatternConfigEndFootChoice.SpecifiedLane)
+			finalStep = patternConfig.LeftFootEndLaneSpecified;
+		if (foot == R && patternConfig.RightFootEndChoice == PatternConfigEndFootChoice.SpecifiedLane)
+			finalStep = patternConfig.RightFootEndLaneSpecified;
+
+		// Filter the currentSearchNodes if the end choice is set to end on a specified lane.
+		if (finalStep < 0 || finalStep >= stepGraph.NumArrows)
+			return currentSearchNodes;
+		var specifiedRemainingNodes = new HashSet<SearchNode>();
+		foreach (var node in currentSearchNodes)
+		{
+			if (node.GraphNode.State[foot, DefaultFootPortion].Arrow == finalStep)
+			{
+				specifiedRemainingNodes.Add(node);
+			}
+		}
+		return specifiedRemainingNodes;
 	}
 
 	/// <summary>

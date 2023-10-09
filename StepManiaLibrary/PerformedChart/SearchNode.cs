@@ -165,14 +165,14 @@ public partial class PerformedChart
 		private readonly int TotalNumOutwardSteps;
 
 		/// <summary>
-		/// Total number of NewArrow steps up to and including this SearchNode.
+		/// Cost when generating patterns of deviating from desired step type weights.
 		/// </summary>
-		private readonly int TotalNumNewArrowSteps;
+		private readonly int PatternGenerationStepTypeCost;
 
 		/// <summary>
-		/// Total number of SameArrow steps up to and including this SearchNode.
+		/// Total number of SameArrow steps in a row beyond the maximum specified for generating patters.
 		/// </summary>
-		private readonly int TotalNumSameArrowSteps;
+		private readonly int TotalNumSameArrowStepsInARowPerFootOverMax;
 
 		/// <summary>
 		/// This SearchNode's random weight for when all costs are equal.
@@ -328,11 +328,33 @@ public partial class PerformedChart
 		/// Random weight to use as a fallback for comparing SearchNodes with equal costs.
 		/// </param>
 		/// <param name="config">Config to use.</param>
-		/// <param name="patternConfig">Optional PatternConfig to use.</param>
+		/// <param name="patternConfig">
+		/// Optional PatternConfig to use.
+		/// This is only intended to be used for generating patterns in existing Charts.
+		/// </param>
 		/// <param name="specifiedStepCounts">
 		/// Optional counts to use current steps per lane.
 		/// If omitted, the previous SearchNode's counts will be used.
 		/// This is intended to be used for generating patterns in existing Charts.
+		/// </param>
+		/// <param name="specifiedStepTimes">
+		/// Optional times to use per foot of the last time this foot both stepped and released.
+		/// If omitted, the previous SearchNode's values will be used.
+		/// This is intended to be used for generating patterns in existing Charts.
+		/// </param>
+		/// <param name="specifiedTotalSteps">
+		/// Optional value to use for the total number of steps up to this node.
+		/// If omitted, the previous SearchNode's values will be used.
+		/// This is intended to be used for generating patterns in existing Charts.
+		/// </param>
+		/// <param name="specifiedLastTransitionNode">
+		/// Optional SearchNode to use as the previous SearchNode which resulted in a transition.
+		/// If omitted, the previous SearchNode's values will be used.
+		/// This is intended to be used for generating patterns in existing Charts.
+		/// </param>
+		/// <param name="patternStepTypeCost">
+		/// Cost to use for this SearchNode's StepType for deviating from a desired StepType
+		/// when used for pattern generation.
 		/// </param>
 		public SearchNode(
 			GraphNode graphNode,
@@ -347,11 +369,12 @@ public partial class PerformedChart
 			double nps,
 			double randomWeight,
 			Config config,
-			PatternConfig patternConfig,
-			int[] specifiedStepCounts,
-			double[] specifiedStepTimes,
-			int? specifiedTotalSteps,
-			SearchNode specifiedLastTransitionNode)
+			PatternConfig patternConfig = null,
+			int[] specifiedStepCounts = null,
+			double[] specifiedStepTimes = null,
+			int? specifiedTotalSteps = null,
+			SearchNode specifiedLastTransitionNode = null,
+			int patternStepTypeCost = 0)
 		{
 			Id = Interlocked.Increment(ref IdCounter);
 			GraphNode = graphNode;
@@ -363,14 +386,14 @@ public partial class PerformedChart
 			RandomWeight = randomWeight;
 			Actions = actions;
 
-			if (specifiedLastTransitionNode != null)
-				LastTransitionStepNode = specifiedLastTransitionNode;
-			else
-				LastTransitionStepNode = PreviousNode?.LastTransitionStepNode;
+			// Store the SearchNode for the last transition.
+			// This normally comes from the PreviousNode's value, but when generating patterns
+			// it may be specified explicitly.
+			LastTransitionStepNode = specifiedLastTransitionNode ?? PreviousNode?.LastTransitionStepNode;
 
 			var isRelease = graphLinkFromPreviousNode?.GraphLink?.IsRelease() ?? false;
 			if (specifiedTotalSteps != null)
-				TotalSteps = specifiedTotalSteps.Value;
+				TotalSteps = specifiedTotalSteps.Value + (isRelease ? 0 : 1);
 			else
 				TotalSteps = (PreviousNode?.TotalSteps ?? 0) + (isRelease ? 0 : 1);
 			TotalStepsInPattern = (PreviousNode?.TotalStepsInPattern ?? 0) + (isRelease ? 0 : 1);
@@ -434,9 +457,14 @@ public partial class PerformedChart
 				}
 			}
 
+			// Update this node's cost for deviating from desired StepTypes when generating patterns.
+			PatternGenerationStepTypeCost = patternStepTypeCost + (PreviousNode?.PatternGenerationStepTypeCost ?? 0);
+
+			// Update this node's facing costs.
 			UpdateFacingCost(stepGraph, config, isRelease, out TotalNumInwardSteps, out TotalNumOutwardSteps,
 				out TotalFacingCost);
 
+			// Update this node's transition costs.
 			TotalEarlyTransitionCost = PreviousNode?.TotalEarlyTransitionCost ?? 0;
 			TotalLateTransitionCost = PreviousNode?.TotalLateTransitionCost ?? 0;
 			UpdateTransitionCost(
@@ -449,25 +477,30 @@ public partial class PerformedChart
 			TotalEarlyTransitionCost += earlyTransitionCost;
 			TotalLateTransitionCost += lateTransitionCost;
 
+			// Update this node's individual step travel costs.
 			var (travelSpeedCost, travelDistanceCost) =
 				GetStepTravelCostsAndUpdateStepTracking(stepGraph, config.StepTightening, out var isStep);
 			TotalIndividualStepTravelSpeedCost = (PreviousNode?.TotalIndividualStepTravelSpeedCost ?? 0.0) + travelSpeedCost;
 			TotalIndividualStepTravelDistanceCost =
 				(PreviousNode?.TotalIndividualStepTravelDistanceCost ?? 0.0) + travelDistanceCost;
+
+			// Update this node's lane distribution cost.
 			TotalDistributionCost = GetDistributionCost(stepGraph, config);
+
+			// Update this node's stretch cost.
 			TotalStretchCost = (PreviousNode?.TotalStretchCost ?? 0.0) + GetStretchCost(stepGraph, config.StepTightening);
 
+			// Update this node's lateral movement cost.
 			LateralBodyPosition = GetLateralBodyPosition(stepGraph);
 			UpdateLateralTracking(isStep, ref LateralMovementNumSteps, ref LastLateralMovementStartTime,
 				ref LastLateralMovementStartPosition, ref MovementDir);
 			TotalLateralMovementSpeedCost =
 				(PreviousNode?.TotalLateralMovementSpeedCost ?? 0.0) + GetLateralMovementCost(config.LateralTightening, nps);
 
-			UpdateStepCounts(
-				patternConfig,
-				out TotalNumSameArrowSteps,
-				out TotalNumNewArrowSteps);
+			// Update this node's cost for repeated SameArrow steps when generating patterns.
+			TotalNumSameArrowStepsInARowPerFootOverMax = GetTotalNumSameArrowStepsInARowPerFootOverMax(patternConfig);
 
+			// Update this nodes ambiguous and misleading step costs.
 			var (ambiguous, misleading) = DetermineAmbiguity(stepGraph);
 			if (ambiguous)
 				AmbiguousStepCount++;
@@ -506,69 +539,59 @@ public partial class PerformedChart
 		}
 
 		/// <summary>
-		/// Updates variables for tracking the total number of relevant StepTypes for pattern generation.
+		/// Gets the total number of SameArrows steps in a row per foot over the desired max for this SearchNode.
 		/// </summary>
 		/// <param name="patternConfig">PatternConfig to use.</param>
-		/// <param name="totalNumSameArrowSteps">Total number of SameArrow steps to set.</param>
-		/// <param name="totalNumNewArrowSteps">Total number of NewArrow steps to set.</param>
-		private void UpdateStepCounts(
-			PatternConfig patternConfig,
-			out int totalNumSameArrowSteps,
-			out int totalNumNewArrowSteps)
+		private int GetTotalNumSameArrowStepsInARowPerFootOverMax(PatternConfig patternConfig)
 		{
-			totalNumSameArrowSteps = PreviousNode?.TotalNumSameArrowSteps ?? 0;
-			totalNumNewArrowSteps = PreviousNode?.TotalNumNewArrowSteps ?? 0;
+			var totalNumSameArrowStepsInARowPerFootOverMax = PreviousNode?.TotalNumSameArrowStepsInARowPerFootOverMax ?? 0;
 
 			if (GraphLinkFromPreviousNode == null)
-				return;
+				return totalNumSameArrowStepsInARowPerFootOverMax;
+
+			if (patternConfig == null || !patternConfig.LimitSameArrowsInARowPerFoot || patternConfig.MaxSameArrowsInARowPerFoot <= 0)
+				return totalNumSameArrowStepsInARowPerFootOverMax;
 
 			if (GraphLinkFromPreviousNode.GraphLink.IsSingleStep(out var stepType, out var footPerformingStep))
 			{
-				switch (stepType)
+				if (stepType == StepType.SameArrow)
 				{
-					case StepType.NewArrow:
+					// Two because the previous step was the same arrow.
+					// One SameArrow step looks like steps in a row with the same foot.
+					var numStepsInARow = 2;
+					var previousNodeToCheck = PreviousNode;
+					while (previousNodeToCheck?.GraphLinkFromPreviousNode != null)
 					{
-						totalNumNewArrowSteps++;
-						break;
-					}
-					case StepType.SameArrow:
-					{
-						totalNumSameArrowSteps++;
-						if (patternConfig?.LimitSameArrowsInARowPerFoot == true && patternConfig.MaxSameArrowsInARowPerFoot > 0)
+						if (previousNodeToCheck.GraphLinkFromPreviousNode.GraphLink.IsSingleStep(
+							    out var previousStepType, out var previousFoot)
+						    && previousFoot == footPerformingStep)
 						{
-							// Two because the previous step was the same arrow.
-							// One SameArrow step looks like steps in a row with the same foot.
-							var numStepsInARow = 2;
-							var previousNodeToCheck = PreviousNode;
-							while (previousNodeToCheck?.GraphLinkFromPreviousNode != null)
+							if (previousStepType == StepType.SameArrow)
 							{
-								if (previousNodeToCheck.GraphLinkFromPreviousNode.GraphLink.IsSingleStep(
-									    out var previousStepType, out var previousFoot)
-								    && previousFoot == footPerformingStep)
-								{
-									if (previousStepType == StepType.SameArrow)
-									{
-										numStepsInARow++;
-									}
-									else
-									{
-										break;
-									}
-								}
-
-								if (numStepsInARow > patternConfig.MaxSameArrowsInARowPerFoot)
-								{
-									break;
-								}
-
-								previousNodeToCheck = previousNodeToCheck.PreviousNode;
+								numStepsInARow++;
+							}
+							else
+							{
+								break;
 							}
 						}
 
-						break;
+						if (numStepsInARow > patternConfig.MaxSameArrowsInARowPerFoot)
+						{
+							break;
+						}
+
+						previousNodeToCheck = previousNodeToCheck.PreviousNode;
+					}
+
+					if (numStepsInARow > patternConfig.MaxSameArrowsInARowPerFoot)
+					{
+						totalNumSameArrowStepsInARowPerFootOverMax++;
 					}
 				}
 			}
+
+			return totalNumSameArrowStepsInARowPerFootOverMax;
 		}
 
 		/// <summary>
@@ -1324,6 +1347,11 @@ public partial class PerformedChart
 			if (AmbiguousStepCount != other.AmbiguousStepCount)
 				return AmbiguousStepCount < other.AmbiguousStepCount ? -1 : 1;
 
+			// Pattern generation logic.
+			// Prefer patterns which don't exceed the maximum specified number of same arrow steps in a row.
+			if (TotalNumSameArrowStepsInARowPerFootOverMax != other.TotalNumSameArrowStepsInARowPerFootOverMax)
+				return TotalNumSameArrowStepsInARowPerFootOverMax < other.TotalNumSameArrowStepsInARowPerFootOverMax ? -1 : 1;
+
 			// Next consider total stretch cost. These are steps which stretch beyond desired amounts.
 			if (Math.Abs(TotalStretchCost - other.TotalStretchCost) > 0.00001)
 				return TotalStretchCost < other.TotalStretchCost ? -1 : 1;
@@ -1332,6 +1360,11 @@ public partial class PerformedChart
 			// which are not desired.
 			if (Math.Abs(TotalFacingCost - other.TotalFacingCost) > 0.00001)
 				return TotalFacingCost < other.TotalFacingCost ? -1 : 1;
+
+			// Pattern generation logic.
+			// Next consider the cost associated with generated patterns.
+			if (Math.Abs(PatternGenerationStepTypeCost - other.PatternGenerationStepTypeCost) > 0.00001)
+				return PatternGenerationStepTypeCost < other.PatternGenerationStepTypeCost ? -1 : 1;
 
 			// Next consider individual step travel distance cost. This is a measure of how much distance
 			// individual quick steps move.
