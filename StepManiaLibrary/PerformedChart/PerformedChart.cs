@@ -813,13 +813,11 @@ public partial class PerformedChart
 			currentLaneCounts,
 			previousStepTimes,
 			totalSteps,
-			lastTransitionNode,
-			0);
+			lastTransitionNode);
 
 		var currentSearchNodes = new HashSet<SearchNode> { rootSearchNode };
 
 		var preferredStep = firstStepType;
-		var previousPreferredStep = preferredStep;
 		foreach (var timingInfo in timingData)
 		{
 			var timeSeconds = timingInfo.Item1;
@@ -838,7 +836,7 @@ public partial class PerformedChart
 			var nextSearchNodes = new HashSet<SearchNode>();
 
 			// Determine the StepType to use.
-			previousPreferredStep = preferredStep;
+			var previousPreferredStep = preferredStep;
 			var validStepTypes = new[] { secondStepType };
 			preferredStep = secondStepType;
 			if (depth > 1)
