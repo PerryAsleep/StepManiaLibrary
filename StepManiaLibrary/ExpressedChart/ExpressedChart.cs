@@ -365,7 +365,7 @@ public class ExpressedChart
 			{
 				var linkString = PreviousLink.ToString();
 				sb.Append(linkString);
-				linkStringLen = linkString.Length;
+				linkStringLen = linkString?.Length ?? 0;
 			}
 
 			for (var i = linkStringLen; i < linkLen; i++)
@@ -378,7 +378,7 @@ public class ExpressedChart
 			// Node.
 			var graphNodeString = GraphNode.ToString();
 			sb.Append(graphNodeString);
-			for (var i = graphNodeString.Length; i < nodeLen; i++)
+			for (var i = graphNodeString?.Length ?? 0; i < nodeLen; i++)
 			{
 				sb.Append(" ");
 			}
