@@ -48,12 +48,17 @@ public class GraphNode : IEquatable<GraphNode>
 
 		#region IEquatable Implementation
 
+		public bool Equals(FootArrowState other)
+		{
+			return Arrow == other.Arrow && State == other.State;
+		}
+
 		public override bool Equals(object obj)
 		{
 			if (obj == null)
 				return false;
 			if (obj is FootArrowState f)
-				return Arrow == f.Arrow && State == f.State;
+				return Equals(f);
 			return false;
 		}
 
