@@ -168,6 +168,11 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 	[JsonInclude] public int NewArrowStepWeight;
 
 	/// <summary>
+	/// How frequently to update the cost associated with deviating from the desired StepTypes.
+	/// </summary>
+	[JsonInclude] public int StepTypeCheckPeriod;
+
+	/// <summary>
 	/// Whether or not to limit the number of same arrow steps per foot in a row.
 	/// </summary>
 	[JsonInclude] public bool LimitSameArrowsInARowPerFoot;
@@ -346,6 +351,7 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 			&& RightFootEndLaneSpecified == other.RightFootEndLaneSpecified
 			&& SameArrowStepWeight == other.SameArrowStepWeight
 			&& NewArrowStepWeight == other.NewArrowStepWeight
+			&& StepTypeCheckPeriod == other.StepTypeCheckPeriod
 			&& LimitSameArrowsInARowPerFoot == other.LimitSameArrowsInARowPerFoot
 			&& MaxSameArrowsInARowPerFoot == other.MaxSameArrowsInARowPerFoot
 			&& SameArrowStepWeightNormalized.DoubleEquals(other.SameArrowStepWeightNormalized)
@@ -385,7 +391,8 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 				HashCode.Combine(
 					MaxSameArrowsInARowPerFoot,
 					SameArrowStepWeightNormalized,
-					NewArrowStepWeightNormalized)));
+					NewArrowStepWeightNormalized,
+					StepTypeCheckPeriod)));
 		// ReSharper restore NonReadonlyMemberInGetHashCode
 	}
 

@@ -729,6 +729,7 @@ public partial class PerformedChart
 				firstStepTypeLeft = StepType.NewArrow;
 				break;
 		}
+
 		switch (patternConfig.RightFootStartChoice)
 		{
 			case PatternConfigStartFootChoice.SpecifiedLane:
@@ -817,7 +818,10 @@ public partial class PerformedChart
 
 		var currentSearchNodes = new HashSet<SearchNode> { rootSearchNode };
 
-		var preferredStep = firstStepType;
+		var allStepTypes = new[] { StepType.NewArrow, StepType.SameArrow };
+		var newArrowStepTypes = new[] { StepType.NewArrow };
+		var sameArrowStepTypes = new[] { StepType.SameArrow };
+
 		foreach (var timingInfo in timingData)
 		{
 			var timeSeconds = timingInfo.Item1;
@@ -835,66 +839,42 @@ public partial class PerformedChart
 			foot = OtherFoot(foot);
 			var nextSearchNodes = new HashSet<SearchNode>();
 
-			// Determine the StepType to use.
-			var previousPreferredStep = preferredStep;
-			var validStepTypes = new[] { secondStepType };
-			preferredStep = secondStepType;
-			if (depth > 1)
+			// Determine if this step must be a specific StepType.
+			var validStepTypes = allStepTypes;
+			if (depth == 0)
 			{
-				// Check to see if this step is one of the final steps which intentionally
-				// goes beyond the last step in the pattern to aid with ensuring the steps
-				// end in a way which can step to the following footing.
-				if (depth == timingData.Length - 3 || depth == timingData.Length - 2)
+				validStepTypes = secondStepType == StepType.NewArrow ? newArrowStepTypes : sameArrowStepTypes;
+			}
+			// Check to see if this step is one of the final steps which intentionally
+			// goes beyond the last step in the pattern to aid with ensuring the steps
+			// end in a way which can step to the following footing.
+			else if (depth == timingData.Length - 3 || depth == timingData.Length - 2)
+			{
+				if (foot == L)
 				{
-					if (foot == L)
+					switch (patternConfig.LeftFootEndChoice)
 					{
-						switch (patternConfig.LeftFootEndChoice)
-						{
-							case PatternConfigEndFootChoice.AutomaticNewLaneToFollowing:
-								validStepTypes[0] = StepType.NewArrow;
-								preferredStep = StepType.NewArrow;
-								break;
-							case PatternConfigEndFootChoice.AutomaticSameLaneToFollowing:
-								validStepTypes[0] = StepType.SameArrow;
-								preferredStep= StepType.SameArrow;
-								break;
-							case PatternConfigEndFootChoice.AutomaticIgnoreFollowingSteps:
-							case PatternConfigEndFootChoice.AutomaticSameOrNewLaneAsFollowing:
-								validStepTypes = new[] { StepType.NewArrow, StepType.SameArrow };
-								preferredStep = random.NextDouble() > patternConfig.NewArrowStepWeightNormalized
-									? StepType.SameArrow
-									: StepType.NewArrow;
-								break;
-						}
-					}
-					else
-					{
-						switch (patternConfig.RightFootEndChoice)
-						{
-							case PatternConfigEndFootChoice.AutomaticNewLaneToFollowing:
-								validStepTypes[0] = StepType.NewArrow;
-								preferredStep = StepType.NewArrow;
-								break;
-							case PatternConfigEndFootChoice.AutomaticSameLaneToFollowing:
-								validStepTypes[0] = StepType.SameArrow;
-								preferredStep = StepType.SameArrow;
-								break;
-							case PatternConfigEndFootChoice.AutomaticIgnoreFollowingSteps:
-							case PatternConfigEndFootChoice.AutomaticSameOrNewLaneAsFollowing:
-								validStepTypes = new[] { StepType.NewArrow, StepType.SameArrow };
-								preferredStep = random.NextDouble() > patternConfig.NewArrowStepWeightNormalized
-									? StepType.SameArrow
-									: StepType.NewArrow;
-								break;
-						}
+						case PatternConfigEndFootChoice.AutomaticNewLaneToFollowing:
+							validStepTypes = newArrowStepTypes;
+							break;
+						case PatternConfigEndFootChoice.SpecifiedLane:
+						case PatternConfigEndFootChoice.AutomaticSameLaneToFollowing:
+							validStepTypes = sameArrowStepTypes;
+							break;
 					}
 				}
 				else
 				{
-					validStepTypes = new[] { StepType.NewArrow, StepType.SameArrow };
-					preferredStep = random.NextDouble() > patternConfig.NewArrowStepWeightNormalized
-						? StepType.SameArrow
-						: StepType.NewArrow;
+					switch (patternConfig.RightFootEndChoice)
+					{
+						case PatternConfigEndFootChoice.AutomaticNewLaneToFollowing:
+							validStepTypes = newArrowStepTypes;
+							break;
+						case PatternConfigEndFootChoice.SpecifiedLane:
+						case PatternConfigEndFootChoice.AutomaticSameLaneToFollowing:
+							validStepTypes = sameArrowStepTypes;
+							break;
+					}
 				}
 			}
 
@@ -910,11 +890,6 @@ public partial class PerformedChart
 					// the StepTypeReplacements.
 					if (!searchNode.GraphNode.Links.ContainsKey(graphLink.GraphLink))
 						continue;
-
-					var stepTypePenalty = 1;
-					if (graphLink.GraphLink.IsSingleStep(out var nodeStepType, out var _) &&
-					    nodeStepType == previousPreferredStep)
-						stepTypePenalty = 0;
 
 					// Check every GraphNode linked to by this GraphLink.
 					var nextNodes = searchNode.GraphNode.Links[graphLink.GraphLink];
@@ -954,13 +929,7 @@ public partial class PerformedChart
 							nps,
 							random.NextDouble(),
 							config,
-							patternConfig,
-							null,
-							null,
-							null,
-							null,
-							stepTypePenalty
-						);
+							patternConfig);
 
 						// Update the previous SearchNode's NextNodes to include the new SearchNode.
 						if (!searchNode.NextNodes.ContainsKey(graphLink))
@@ -1013,6 +982,10 @@ public partial class PerformedChart
 				performedChart.LogWarn("Failed to find path ending at desired location.");
 				remainingNodes = currentSearchNodes;
 			}
+
+			// Let the final nodes perform any final cost adjustments needed before doing the final comparison for the best path.
+			foreach (var node in remainingNodes)
+				node.SetIsFinalNodeInPattern(patternConfig);
 
 			// Choose path with lowest cost from the remaining nodes.
 			SearchNode bestNode = null;
@@ -1107,6 +1080,7 @@ public partial class PerformedChart
 					specifiedRemainingNodes.Add(node);
 				}
 			}
+
 			currentSearchNodes = specifiedRemainingNodes;
 		}
 
@@ -1146,6 +1120,7 @@ public partial class PerformedChart
 				specifiedRemainingNodes.Add(node);
 			}
 		}
+
 		return specifiedRemainingNodes;
 	}
 
