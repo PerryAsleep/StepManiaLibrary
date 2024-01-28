@@ -628,7 +628,10 @@ public partial class PerformedChart
 		private void DeterminePatternGenerationStepCost(PatternConfig patternConfig)
 		{
 			if (patternConfig == null)
+			{
 				PatternGenerationStepTypeCost = 0.0f;
+				return;
+			}
 
 			// We only want to update the cost periodically. Updating it every step results in patterns which are too
 			// repetitive. If we aren't at a depth where we should be updating the cost, return the previous cost.
