@@ -661,7 +661,6 @@ public partial class PerformedChart
 		Config config,
 		int startPosition,
 		int endPosition,
-		bool endPositionInclusive,
 		int randomSeed,
 		int previousStepFoot,
 		double[] previousStepTimes,
@@ -684,13 +683,11 @@ public partial class PerformedChart
 		// This allows us to easily ensure that the pattern ends at a position that can step
 		// to the specified following footing using normal tightening rules.
 		var extendedEndPosition = endPosition + SMCommon.MaxValidDenominator / patternConfig.BeatSubDivision * NumFeet;
-		var timingData = DeterminePatternTiming(patternConfig, currentEvents, startPosition, extendedEndPosition,
-			endPositionInclusive);
+		var timingData = DeterminePatternTiming(patternConfig, currentEvents, startPosition, extendedEndPosition);
 		if (timingData == null || timingData.Length <= NumFeet)
 		{
-			var endInclusiveExclusiveString = endPositionInclusive ? "inclusive" : "exclusive";
 			LogError(
-				$"Range from {startPosition} to {endPosition} ({endInclusiveExclusiveString}) is not large enough to generate steps.",
+				$"Range from {startPosition} (inclusive) to {endPosition} (inclusive) is not large enough to generate steps.",
 				logIdentifier);
 			return null;
 		}
@@ -1129,30 +1126,29 @@ public partial class PerformedChart
 	/// </summary>
 	/// <param name="patternConfig">PatternConfig for generating steps.</param>
 	/// <param name="chartEvents">All Events currently in the Chart.</param>
-	/// <param name="startPosition">Starting IntegerPosition of pattern to generate.</param>
-	/// <param name="endPosition">Ending IntegerPosition of pattern to generate.</param>
-	/// <param name="endPositionInclusive">Whether or not the endPosition is inclusive.</param>
+	/// <param name="startPosition">Inclusive starting IntegerPosition of pattern to generate.</param>
+	/// <param name="endPosition">Inclusive ending IntegerPosition of pattern to generate.</param>
 	/// <returns>Array of Tuples of times in seconds and integer positions of all steps to generate.</returns>
 	private static Tuple<double, int>[] DeterminePatternTiming(
 		PatternConfig patternConfig,
 		IReadOnlyList<Event> chartEvents,
 		int startPosition,
-		int endPosition,
-		bool endPositionInclusive)
+		int endPosition)
 	{
+		var noteSpacing = SMCommon.MaxValidDenominator / patternConfig.BeatSubDivision;
 		var patternEvents = new List<Event>();
 
 		// Add PatternEvents for the steps to be added with correct IntegerPositions.
 		var numEvents = 0;
 		var pos = startPosition;
-		while (endPositionInclusive ? pos <= endPosition : pos < endPosition)
+		while (pos <= endPosition)
 		{
 			numEvents++;
 			patternEvents.Add(new Pattern
 			{
 				IntegerPosition = pos,
 			});
-			pos += SMCommon.MaxValidDenominator / patternConfig.BeatSubDivision;
+			pos += noteSpacing;
 		}
 
 		if (numEvents == 0)
