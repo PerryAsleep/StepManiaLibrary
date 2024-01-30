@@ -858,6 +858,10 @@ public partial class PerformedChart
 						case PatternConfigEndFootChoice.AutomaticSameLaneToFollowing:
 							validStepTypes = sameArrowStepTypes;
 							break;
+						case PatternConfigEndFootChoice.AutomaticIgnoreFollowingSteps:
+						default:
+							validStepTypes = allStepTypes;
+							break;
 					}
 				}
 				else
@@ -870,6 +874,10 @@ public partial class PerformedChart
 						case PatternConfigEndFootChoice.SpecifiedLane:
 						case PatternConfigEndFootChoice.AutomaticSameLaneToFollowing:
 							validStepTypes = sameArrowStepTypes;
+							break;
+						case PatternConfigEndFootChoice.AutomaticIgnoreFollowingSteps:
+						default:
+							validStepTypes = allStepTypes;
 							break;
 					}
 				}
@@ -1056,18 +1064,22 @@ public partial class PerformedChart
 		PatternConfig patternConfig,
 		int[] followingFooting)
 	{
-		var leftFinalStep = followingFooting[L];
-		if (patternConfig.LeftFootEndChoice == PatternConfigEndFootChoice.SpecifiedLane)
+		int? leftFinalStep = followingFooting[L];
+		if (patternConfig.LeftFootEndChoice == PatternConfigEndFootChoice.AutomaticIgnoreFollowingSteps)
+			leftFinalStep = null;
+		else if (patternConfig.LeftFootEndChoice == PatternConfigEndFootChoice.SpecifiedLane)
 			leftFinalStep = patternConfig.LeftFootEndLaneSpecified;
-		var rightFinalStep = followingFooting[R];
-		if (patternConfig.RightFootEndChoice == PatternConfigEndFootChoice.SpecifiedLane)
+		int? rightFinalStep = followingFooting[R];
+		if (patternConfig.RightFootEndChoice == PatternConfigEndFootChoice.AutomaticIgnoreFollowingSteps)
+			rightFinalStep = null;
+		else if (patternConfig.RightFootEndChoice == PatternConfigEndFootChoice.SpecifiedLane)
 			rightFinalStep = patternConfig.RightFootEndLaneSpecified;
 
 		// Filter the currentSearchNodes if the end choice is set to end on a specified lane.
 		for (var f = 0; f < NumFeet; f++)
 		{
 			var lane = f == L ? leftFinalStep : rightFinalStep;
-			if (lane < 0 || lane >= stepGraph.NumArrows)
+			if (lane == null || lane < 0 || lane >= stepGraph.NumArrows)
 				continue;
 			var specifiedRemainingNodes = new HashSet<SearchNode>();
 			foreach (var node in currentSearchNodes)
