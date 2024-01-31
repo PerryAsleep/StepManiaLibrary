@@ -667,10 +667,11 @@ public partial class PerformedChart
 		int[] previousFooting,
 		int[] followingFooting,
 		int[] currentLaneCounts,
-		IReadOnlyList<Event> currentEvents,
+		IReadOnlyList<Event> timingEvents,
 		int totalSteps,
 		int numStepsAtLastTransition,
 		bool? lastTransitionLeft,
+		double nps,
 		string logIdentifier)
 	{
 		var random = new Random(randomSeed);
@@ -683,7 +684,7 @@ public partial class PerformedChart
 		// This allows us to easily ensure that the pattern ends at a position that can step
 		// to the specified following footing using normal tightening rules.
 		var extendedEndPosition = endPosition + SMCommon.MaxValidDenominator / patternConfig.BeatSubDivision * NumFeet;
-		var timingData = DeterminePatternTiming(patternConfig, currentEvents, startPosition, extendedEndPosition);
+		var timingData = DeterminePatternTiming(patternConfig, timingEvents, startPosition, extendedEndPosition);
 		if (timingData == null || timingData.Length <= NumFeet)
 		{
 			LogError(
@@ -698,9 +699,6 @@ public partial class PerformedChart
 		// information here and use it on the root search node. This allows patterns to transition
 		// with the desired frequency even when patterns are short.
 		var lastTransitionNode = SearchNode.MakeTransitionNode(lastTransitionLeft, numStepsAtLastTransition);
-
-		// Determine the NPS now that we know the timing data.
-		var nps = FindNPS(currentEvents, timingData);
 
 		// Get the starting position.
 		var rootLeft = patternConfig.LeftFootStartLaneSpecified;
@@ -1137,13 +1135,13 @@ public partial class PerformedChart
 	/// Determines the time in seconds and integer position of all events to generate for a PatternConfig.
 	/// </summary>
 	/// <param name="patternConfig">PatternConfig for generating steps.</param>
-	/// <param name="chartEvents">All Events currently in the Chart.</param>
+	/// <param name="timingEvents">All Events which affect timing in the Chart.</param>
 	/// <param name="startPosition">Inclusive starting IntegerPosition of pattern to generate.</param>
 	/// <param name="endPosition">Inclusive ending IntegerPosition of pattern to generate.</param>
 	/// <returns>Array of Tuples of times in seconds and integer positions of all steps to generate.</returns>
 	private static Tuple<double, int>[] DeterminePatternTiming(
 		PatternConfig patternConfig,
-		IReadOnlyList<Event> chartEvents,
+		IReadOnlyList<Event> timingEvents,
 		int startPosition,
 		int endPosition)
 	{
@@ -1166,17 +1164,14 @@ public partial class PerformedChart
 		if (numEvents == 0)
 			return null;
 
-		// Clone all events which affect timing.
-		foreach (var existingEvent in chartEvents)
-		{
-			if (SMCommon.DoesEventAffectTiming(existingEvent))
-				patternEvents.Add(existingEvent.Clone());
-		}
-
-		// Sort all events.
+		// Add the timing events so they can be sorted with the new pattern events.
+		// Putting these in one list allows us to leverage SetEventTimeAndMetricPositionsFromRows
+		// in order to set the times of all the pattern events.
+		// Note this will technically mutate the given timing events by updating their times as well.
+		// We could clone the events to avoid that, but if the times were to actually change then that
+		// means they were wrong before, and we shouldn't be receiving events with incorrect times.
+		patternEvents.AddRange(timingEvents);
 		patternEvents.Sort(new SMCommon.SMEventComparer(EventOrder.Order));
-
-		// Set the time on the pattern events.
 		SMCommon.SetEventTimeAndMetricPositionsFromRows(patternEvents);
 
 		// Now that the times are set, copy them to the data to return.
@@ -1191,54 +1186,6 @@ public partial class PerformedChart
 		}
 
 		return timingData;
-	}
-
-	/// <summary>
-	/// Finds the notes per second of the entire Chart represented by the given List of Events and the
-	/// timing data to be used to generate a pattern.
-	/// </summary>
-	/// <param name="currentEvents">Current Events.</param>
-	/// <param name="timingData">Timing data for new events to generate.</param>
-	/// <returns>Notes per second of the steps represented by the given parameters.</returns>
-	private static double FindNPS(IReadOnlyList<Event> currentEvents, Tuple<double, int>[] timingData)
-	{
-		var nps = 0.0;
-		var startTime = double.MaxValue;
-		var endTime = 0.0;
-		var numSteps = 0;
-
-		// Consider steps from the current Events.
-		foreach (var chartEvent in currentEvents)
-		{
-			switch (chartEvent)
-			{
-				case LaneTapNote when chartEvent.SourceType == SMCommon.NoteChars[(int)SMCommon.NoteType.Mine].ToString():
-					continue;
-				case LaneTapNote:
-				case LaneHoldStartNote:
-					break;
-				default:
-					continue;
-			}
-
-			startTime = Math.Min(startTime, chartEvent.TimeSeconds);
-			endTime = Math.Max(endTime, chartEvent.TimeSeconds);
-			numSteps++;
-		}
-
-		// Consider steps from the timing data.
-		if (timingData.Length > 0)
-		{
-			numSteps += timingData.Length;
-			endTime = Math.Max(endTime, timingData[^1].Item1);
-		}
-
-		if (endTime > startTime)
-		{
-			nps = numSteps / (endTime - startTime);
-		}
-
-		return nps;
 	}
 
 	#endregion Creation From PatternConfig
