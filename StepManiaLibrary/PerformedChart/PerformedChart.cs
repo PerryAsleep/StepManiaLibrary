@@ -688,6 +688,10 @@ public partial class PerformedChart
 			return null;
 		}
 
+		var allStepTypes = new[] { StepType.NewArrow, StepType.SameArrow };
+		var newArrowStepTypes = new[] { StepType.NewArrow };
+		var sameArrowStepTypes = new[] { StepType.SameArrow };
+
 		// Transition logic looks back at the node from the previous transition. When generating
 		// a pattern within a larger chart, this transition will likely have occurred outside of
 		// this pattern search. We create a SearchNode specifically to hold the needed transition
@@ -698,8 +702,8 @@ public partial class PerformedChart
 		// Get the starting position.
 		var rootLeft = patternConfig.LeftFootStartLaneSpecified;
 		var rootRight = patternConfig.RightFootStartLaneSpecified;
-		var firstStepTypeLeft = StepType.SameArrow;
-		var firstStepTypeRight = StepType.SameArrow;
+		var firstStepTypesLeft = sameArrowStepTypes;
+		var firstStepTypesRight = sameArrowStepTypes;
 		switch (patternConfig.LeftFootStartChoice)
 		{
 			case PatternConfigStartFootChoice.SpecifiedLane:
@@ -716,7 +720,11 @@ public partial class PerformedChart
 				break;
 			case PatternConfigStartFootChoice.AutomaticNewLane:
 				rootLeft = previousFooting[L];
-				firstStepTypeLeft = StepType.NewArrow;
+				firstStepTypesLeft = newArrowStepTypes;
+				break;
+			case PatternConfigStartFootChoice.AutomaticSameOrNewLane:
+				rootLeft = previousFooting[L];
+				firstStepTypesLeft = allStepTypes;
 				break;
 		}
 
@@ -736,7 +744,11 @@ public partial class PerformedChart
 				break;
 			case PatternConfigStartFootChoice.AutomaticNewLane:
 				rootRight = previousFooting[R];
-				firstStepTypeRight = StepType.NewArrow;
+				firstStepTypesRight = newArrowStepTypes;
+				break;
+			case PatternConfigStartFootChoice.AutomaticSameOrNewLane:
+				rootRight = previousFooting[R];
+				firstStepTypesRight = allStepTypes;
 				break;
 		}
 
@@ -769,21 +781,24 @@ public partial class PerformedChart
 			}
 		}
 
-		var firstStepType = foot == L ? firstStepTypeLeft : firstStepTypeRight;
-		var secondStepType = foot == L ? firstStepTypeRight : firstStepTypeLeft;
+		var firstStepTypes = foot == L ? firstStepTypesLeft : firstStepTypesRight;
+		var secondStepTypes = foot == L ? firstStepTypesRight : firstStepTypesLeft;
 
 		var depth = 0;
 
 		// Set up a root search node at the root GraphNode.
 		var possibleGraphLinksToNextNode = new List<GraphLinkInstance>();
-		var rootGraphLink = new GraphLink
+		foreach (var stepType in firstStepTypes)
 		{
-			Links =
+			var link = new GraphLink
 			{
-				[foot, DefaultFootPortion] = new GraphLink.FootArrowState(firstStepType, FootAction.Tap),
-			},
-		};
-		possibleGraphLinksToNextNode.Add(new GraphLinkInstance(rootGraphLink));
+				Links =
+				{
+					[foot, DefaultFootPortion] = new GraphLink.FootArrowState(stepType, FootAction.Tap),
+				},
+			};
+			possibleGraphLinksToNextNode.Add(new GraphLinkInstance(link));
+		}
 
 		var previousStepTime = previousStepTimes[foot];
 		var rootSearchNode = new SearchNode(
@@ -807,10 +822,6 @@ public partial class PerformedChart
 
 		var currentSearchNodes = new HashSet<SearchNode> { rootSearchNode };
 
-		var allStepTypes = new[] { StepType.NewArrow, StepType.SameArrow };
-		var newArrowStepTypes = new[] { StepType.NewArrow };
-		var sameArrowStepTypes = new[] { StepType.SameArrow };
-
 		foreach (var timingInfo in timingData)
 		{
 			var timeSeconds = timingInfo.Item1;
@@ -832,7 +843,7 @@ public partial class PerformedChart
 			var validStepTypes = allStepTypes;
 			if (depth == 0)
 			{
-				validStepTypes = secondStepType == StepType.NewArrow ? newArrowStepTypes : sameArrowStepTypes;
+				validStepTypes = secondStepTypes;
 			}
 			// Check to see if this step is one of the final steps which intentionally
 			// goes beyond the last step in the pattern to aid with ensuring the steps

@@ -25,6 +25,12 @@ public enum PatternConfigStartFootChoice
 	AutomaticNewLane,
 
 	/// <summary>
+	/// Choose a starting lane automatically by having the foot step on either
+	/// the same lane it is already on, or a new lane.
+	/// </summary>
+	AutomaticSameOrNewLane,
+
+	/// <summary>
 	/// Use a specified starting lane.
 	/// </summary>
 	SpecifiedLane,
