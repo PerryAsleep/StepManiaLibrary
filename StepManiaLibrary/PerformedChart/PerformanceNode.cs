@@ -7,9 +7,25 @@
 public abstract class PerformanceNode
 {
 	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <param name="position">Position of this node.</param>
+	/// <param name="time">Time in seconds of this node.</param>
+	protected PerformanceNode(int position, double time)
+	{
+		Position = position;
+		Time = time;
+	}
+
+	/// <summary>
 	/// IntegerPosition of this node in the Chart.
 	/// </summary>
-	public int Position;
+	public readonly int Position;
+
+	/// <summary>
+	/// Time in seconds of this node in the Chart.
+	/// </summary>
+	public readonly double Time;
 
 	/// <summary>
 	/// Next PerformanceNode in the series.
@@ -27,6 +43,16 @@ public abstract class PerformanceNode
 /// </summary>
 public class StepPerformanceNode : PerformanceNode, MineUtils.IChartNode
 {
+	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <param name="position">Position of this node.</param>
+	/// <param name="time">Time in seconds of this node.</param>
+	public StepPerformanceNode(int position, double time)
+		: base(position, time)
+	{
+	}
+
 	/// <summary>
 	/// GraphNodeInstance representing the state at this PerformanceNode.
 	/// </summary>
@@ -63,7 +89,19 @@ public class StepPerformanceNode : PerformanceNode, MineUtils.IChartNode
 public class MinePerformanceNode : PerformanceNode
 {
 	/// <summary>
+	/// Constructor.
+	/// </summary>
+	/// <param name="position">Position of this node.</param>
+	/// <param name="time">Time in seconds of this node.</param>
+	/// <param name="arrow">Lane or arrow this Mine occurs on.</param>
+	public MinePerformanceNode(int position, double time, int arrow)
+		: base(position, time)
+	{
+		Arrow = arrow;
+	}
+
+	/// <summary>
 	/// The lane or arrow this Mine occurs on.
 	/// </summary>
-	public int Arrow;
+	public readonly int Arrow;
 }

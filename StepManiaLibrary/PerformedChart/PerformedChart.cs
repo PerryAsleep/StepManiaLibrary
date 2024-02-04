@@ -338,9 +338,8 @@ public partial class PerformedChart
 		// Set up a new PerformedChart
 		var performedChart = new PerformedChart(
 			stepGraph.NumArrows,
-			new StepPerformanceNode
+			new StepPerformanceNode(0, 0.0)
 			{
-				Position = 0,
 				GraphNodeInstance = new GraphNodeInstance { Node = rootGraphNodeToUse ?? rootNodes[0][0] },
 			},
 			logIdentifier);
@@ -366,9 +365,9 @@ public partial class PerformedChart
 					graphNodeInstance.InstanceTypes[f, p] = graphLinkInstance.InstanceTypes[f, p];
 
 			// Add new StepPerformanceNode and advance.
-			var newNode = new StepPerformanceNode
+			var newNode = new StepPerformanceNode(expressedChart.StepEvents[stepEventIndex].Position,
+				expressedChart.StepEvents[stepEventIndex].Time)
 			{
-				Position = expressedChart.StepEvents[stepEventIndex].Position,
 				GraphLinkInstance = graphLinkInstance,
 				GraphNodeInstance = graphNodeInstance,
 				Prev = currentPerformanceNode,
@@ -613,10 +612,8 @@ public partial class PerformedChart
 					if (bestArrow != InvalidArrowIndex)
 					{
 						// Add mine event
-						var newNode = new MinePerformanceNode
+						var newNode = new MinePerformanceNode(mineEvent.Position, mineEvent.Time, bestArrow)
 						{
-							Position = mineEvent.Position,
-							Arrow = bestArrow,
 							Prev = lastPerformanceNode,
 						};
 						lastPerformanceNode.Next = newNode;
@@ -633,10 +630,8 @@ public partial class PerformedChart
 					// If it doesn't then just skip the mine.
 					if (firstLaneWithNoArrow >= 0)
 					{
-						var newNode = new MinePerformanceNode
+						var newNode = new MinePerformanceNode(mineEvent.Position, mineEvent.Time, firstLaneWithNoArrow)
 						{
-							Position = mineEvent.Position,
-							Arrow = firstLaneWithNoArrow,
 							Prev = lastPerformanceNode,
 						};
 						lastPerformanceNode.Next = newNode;
@@ -752,9 +747,8 @@ public partial class PerformedChart
 			return null;
 		}
 
-		var root = new StepPerformanceNode
+		var root = new StepPerformanceNode(0, 0.0)
 		{
-			Position = 0,
 			GraphNodeInstance = new GraphNodeInstance { Node = rootGraphNode },
 		};
 		var performedChart = new PerformedChart(stepGraph.NumArrows, root, logIdentifier);
@@ -1032,9 +1026,8 @@ public partial class PerformedChart
 					graphNodeInstance.InstanceTypes[f, p] = graphLinkInstance.InstanceTypes[f, p];
 
 			// Add new StepPerformanceNode and advance.
-			var newNode = new StepPerformanceNode
+			var newNode = new StepPerformanceNode(timingData[index].Item2, timingData[index].Item1)
 			{
-				Position = timingData[index].Item2,
 				GraphLinkInstance = graphLinkInstance,
 				GraphNodeInstance = graphNodeInstance,
 				Prev = currentPerformanceNode,
@@ -1443,6 +1436,7 @@ public partial class PerformedChart
 							events.Add(new LaneHoldEndNote
 							{
 								IntegerPosition = stepNode.Position,
+								TimeSeconds = stepNode.Time,
 								Lane = arrow,
 								Player = 0,
 								SourceType = SMCommon.NoteChars[(int)SMCommon.NoteType.HoldEnd].ToString(),
@@ -1461,6 +1455,7 @@ public partial class PerformedChart
 							events.Add(new LaneTapNote
 							{
 								IntegerPosition = stepNode.Position,
+								TimeSeconds = stepNode.Time,
 								Lane = arrow,
 								Player = 0,
 								SourceType = SMCommon.NoteChars[(int)instanceAction].ToString(),
@@ -1477,6 +1472,7 @@ public partial class PerformedChart
 							events.Add(new LaneHoldStartNote
 							{
 								IntegerPosition = stepNode.Position,
+								TimeSeconds = stepNode.Time,
 								Lane = arrow,
 								Player = 0,
 								SourceType = SMCommon.NoteChars[(int)holdRollType].ToString(),
@@ -1493,6 +1489,7 @@ public partial class PerformedChart
 				events.Add(new LaneNote
 				{
 					IntegerPosition = mineNode.Position,
+					TimeSeconds = mineNode.Time,
 					Lane = mineNode.Arrow,
 					Player = 0,
 					SourceType = SMCommon.NoteChars[(int)SMCommon.NoteType.Mine].ToString(),
