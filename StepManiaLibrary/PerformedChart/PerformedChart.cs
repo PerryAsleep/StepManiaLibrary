@@ -1450,7 +1450,7 @@ public partial class PerformedChart
 								TimeSeconds = stepNode.Time,
 								Lane = arrow,
 								Player = 0,
-								SourceType = SMCommon.NoteChars[(int)SMCommon.NoteType.HoldEnd].ToString(),
+								SourceType = SMCommon.NoteStrings[(int)SMCommon.NoteType.HoldEnd],
 							});
 							break;
 						}
@@ -1469,7 +1469,7 @@ public partial class PerformedChart
 								TimeSeconds = stepNode.Time,
 								Lane = arrow,
 								Player = 0,
-								SourceType = SMCommon.NoteChars[(int)instanceAction].ToString(),
+								SourceType = SMCommon.NoteStrings[(int)instanceAction],
 							});
 							break;
 						}
@@ -1486,7 +1486,7 @@ public partial class PerformedChart
 								TimeSeconds = stepNode.Time,
 								Lane = arrow,
 								Player = 0,
-								SourceType = SMCommon.NoteChars[(int)holdRollType].ToString(),
+								SourceType = SMCommon.NoteStrings[(int)holdRollType],
 							});
 							break;
 						}
@@ -1503,7 +1503,7 @@ public partial class PerformedChart
 					TimeSeconds = mineNode.Time,
 					Lane = mineNode.Arrow,
 					Player = 0,
-					SourceType = SMCommon.NoteChars[(int)SMCommon.NoteType.Mine].ToString(),
+					SourceType = SMCommon.NoteStrings[(int)SMCommon.NoteType.Mine],
 				});
 			}
 

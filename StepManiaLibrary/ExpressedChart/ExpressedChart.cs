@@ -838,18 +838,18 @@ public class ExpressedChart
 					switch (stepEvent)
 					{
 						case LaneTapNote when stepEvent.SourceType ==
-						                      SMCommon.NoteChars[(int)SMCommon.NoteType.Fake].ToString():
+						                      SMCommon.NoteStrings[(int)SMCommon.NoteType.Fake]:
 							currentState[stepEvent.Lane] = SearchState.Fake;
 							break;
 						case LaneTapNote when stepEvent.SourceType ==
-						                      SMCommon.NoteChars[(int)SMCommon.NoteType.Lift].ToString():
+						                      SMCommon.NoteStrings[(int)SMCommon.NoteType.Lift]:
 							currentState[stepEvent.Lane] = SearchState.Lift;
 							break;
 						case LaneTapNote:
 							currentState[stepEvent.Lane] = SearchState.Tap;
 							break;
 						case LaneHoldStartNote lhsn
-							when lhsn.SourceType == SMCommon.NoteChars[(int)SMCommon.NoteType.RollStart].ToString():
+							when lhsn.SourceType == SMCommon.NoteStrings[(int)SMCommon.NoteType.RollStart]:
 							currentState[stepEvent.Lane] = SearchState.Roll;
 							break;
 						case LaneHoldStartNote:
@@ -899,9 +899,9 @@ public class ExpressedChart
 			var smEvent = Events[i];
 			if (smEvent is LaneTapNote ltn)
 			{
-				if (ltn.SourceType == SMCommon.NoteChars[(int)SMCommon.NoteType.Lift].ToString())
+				if (ltn.SourceType == SMCommon.NoteStrings[(int)SMCommon.NoteType.Lift])
 					hasLifts = true;
-				else if (ltn.SourceType == SMCommon.NoteChars[(int)SMCommon.NoteType.Fake].ToString())
+				else if (ltn.SourceType == SMCommon.NoteStrings[(int)SMCommon.NoteType.Fake])
 					hasFakes = true;
 			}
 		}
@@ -1018,7 +1018,7 @@ public class ExpressedChart
 			if (Events[eventIndex] is LaneHoldEndNote lhen)
 				releases.Add(lhen);
 			else if (Events[eventIndex] is LaneNote ln
-			         && ln.SourceType == SMCommon.NoteChars[(int)SMCommon.NoteType.Mine].ToString())
+			         && ln.SourceType == SMCommon.NoteStrings[(int)SMCommon.NoteType.Mine])
 				mines.Add(ln);
 			else if (Events[eventIndex] is LaneHoldStartNote lhsn)
 				steps.Add(lhsn);
