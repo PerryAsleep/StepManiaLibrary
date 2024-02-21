@@ -697,7 +697,9 @@ public partial class PerformedChart
 		// this pattern search. We create a SearchNode specifically to hold the needed transition
 		// information here and use it on the root search node. This allows patterns to transition
 		// with the desired frequency even when patterns are short.
-		var lastTransitionNode = SearchNode.MakeTransitionNode(lastTransitionLeft, numStepsAtLastTransition);
+		var lastTransitionNode = numStepsAtLastTransition == 0
+			? null
+			: SearchNode.MakeTransitionNode(lastTransitionLeft, numStepsAtLastTransition);
 
 		// Get the starting position.
 		var rootLeft = patternConfig.LeftFootStartLaneSpecified;
