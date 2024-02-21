@@ -635,8 +635,11 @@ public partial class PerformedChart
 
 			// We only want to update the cost periodically. Updating it every step results in patterns which are too
 			// repetitive. If we aren't at a depth where we should be updating the cost, return the previous cost.
-			if (patternConfig.StepTypeCheckPeriod > 1 && Depth > 0 && patternConfig.StepTypeCheckPeriod % Depth != 0)
+			if (patternConfig.StepTypeCheckPeriod > 1 && Depth > 0 && Depth % patternConfig.StepTypeCheckPeriod != 0)
+			{
 				PatternGenerationStepTypeCost = PreviousNode.PatternGenerationStepTypeCost;
+				return;
+			}
 
 			// We are at a depth where we should calculate a new cost for deviating from the desired distribution.
 			UpdatePatternGenerationStepTypeCostFromStepTypeWeights(patternConfig);
