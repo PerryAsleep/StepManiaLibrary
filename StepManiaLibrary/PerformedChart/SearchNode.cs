@@ -690,7 +690,7 @@ public partial class PerformedChart
 		/// Value 1: Travel speed cost
 		/// Value 2: Travel distance cost
 		/// </returns>
-		private (double, double) GetStepTravelCostsAndUpdateStepTracking(StepGraph stepGraph, Config.StepTighteningConfig config,
+		private (double, double) GetStepTravelCostsAndUpdateStepTracking(StepGraph stepGraph, StepTighteningConfig config,
 			out bool isStep)
 		{
 			var speedCost = 0.0;
@@ -802,7 +802,7 @@ public partial class PerformedChart
 		/// the Config.
 		/// </summary>
 		/// <returns>Stretch cost.</returns>
-		private double GetStretchCost(StepGraph stepGraph, Config.StepTighteningConfig config)
+		private double GetStretchCost(StepGraph stepGraph, StepTighteningConfig config)
 		{
 			if (!config.IsStretchTighteningEnabled())
 				return 0.0;
@@ -840,7 +840,7 @@ public partial class PerformedChart
 			StepGraph stepGraph,
 			GraphNode node,
 			int foot,
-			Config.StepTighteningConfig config)
+			StepTighteningConfig config)
 		{
 			var previousWasBracket = stepGraph.GetFootPositionAndIsBracket(
 				LastArrowsSteppedOnByFoot[foot], out var previousX, out var previousY);
@@ -868,7 +868,7 @@ public partial class PerformedChart
 		/// <param name="bY">Position B Y value.</param>
 		/// <returns>Minimum distance between points A and B.</returns>
 		private double GetCompensatedDistance(
-			Config.StepTighteningConfig config,
+			StepTighteningConfig config,
 			bool aIsBracket, double aX, double aY,
 			bool bIsBracket, double bX, double bY)
 		{
@@ -959,7 +959,7 @@ public partial class PerformedChart
 		/// </summary>
 		private void UpdateTransitionCost(
 			StepGraph stepGraph,
-			Config.TransitionConfig config,
+			TransitionConfig config,
 			out int earlyTransitionCost,
 			out int lateTransitionCost,
 			out bool? transitionedLeft,
@@ -1128,7 +1128,7 @@ public partial class PerformedChart
 		/// <summary>
 		/// Gets the lateral movement cost of this SearchNode.
 		/// </summary>
-		private double GetLateralMovementCost(Config.LateralTighteningConfig config, double averageNps)
+		private double GetLateralMovementCost(LateralTighteningConfig config, double averageNps)
 		{
 			if (!config.IsEnabled())
 				return 0.0;

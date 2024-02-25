@@ -70,7 +70,7 @@ public enum CopyBehavior
 /// <summary>
 /// Configuration data for ExpressedChart behavior.
 /// </summary>
-public class Config : IConfig<Config>, IEquatable<Config>
+public class Config : StepManiaLibrary.Config, IEquatable<Config>
 {
 	/// <summary>
 	/// Tag for logging messages.
@@ -80,55 +80,128 @@ public class Config : IConfig<Config>, IEquatable<Config>
 	/// <summary>
 	/// The default method to use for parsing brackets.
 	/// </summary>
-	[JsonInclude] public BracketParsingMethod DefaultBracketParsingMethod = BracketParsingMethod.Balanced;
+	[JsonInclude]
+	public BracketParsingMethod DefaultBracketParsingMethod
+	{
+		get => DefaultBracketParsingMethodInternal;
+		set
+		{
+			DefaultBracketParsingMethodInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private BracketParsingMethod DefaultBracketParsingMethodInternal = BracketParsingMethod.Balanced;
 
 	/// <summary>
 	/// How to make the determination of which BracketParsingMethod to use.
 	/// </summary>
 	[JsonInclude]
-	public BracketParsingDetermination BracketParsingDetermination = BracketParsingDetermination.ChooseMethodDynamically;
+	public BracketParsingDetermination BracketParsingDetermination
+	{
+		get => BracketParsingDeterminationInternal;
+		set
+		{
+			BracketParsingDeterminationInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private BracketParsingDetermination BracketParsingDeterminationInternal = BracketParsingDetermination.ChooseMethodDynamically;
 
 	/// <summary>
 	/// When using the ChooseMethodDynamically BracketParsingDetermination, a level under which BracketParsingMethod NoBrackets
 	/// will be chosen.
 	/// </summary>
-	[JsonInclude] public int MinLevelForBrackets;
+	[JsonInclude]
+	public int MinLevelForBrackets
+	{
+		get => MinLevelForBracketsInternal;
+		set
+		{
+			MinLevelForBracketsInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private int MinLevelForBracketsInternal;
 
 	/// <summary>
 	/// When using the ChooseMethodDynamically BracketParsingDetermination, whether or not encountering more simultaneous
 	/// arrows than can be covered without brackets should result in using BracketParsingMethod Aggressive.
 	/// </summary>
-	[JsonInclude] public bool UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets;
+	[JsonInclude]
+	public bool UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets
+	{
+		get => UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBracketsInternal;
+		set
+		{
+			UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBracketsInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private bool UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBracketsInternal;
 
 	/// <summary>
 	/// When using the ChooseMethodDynamically BracketParsingDetermination, a Balanced bracket per minute count over which
 	/// should result in BracketParsingMethod Aggressive being used.
 	/// </summary>
-	[JsonInclude] public double BalancedBracketsPerMinuteForAggressiveBrackets;
+	[JsonInclude]
+	public double BalancedBracketsPerMinuteForAggressiveBrackets
+	{
+		get => BalancedBracketsPerMinuteForAggressiveBracketsInternal;
+		set
+		{
+			BalancedBracketsPerMinuteForAggressiveBracketsInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private double BalancedBracketsPerMinuteForAggressiveBracketsInternal;
 
 	/// <summary>
 	/// When using the ChooseMethodDynamically BracketParsingDetermination, a Balanced bracket per minute count under which
 	/// should result in BracketParsingMethod NoBrackets being used.
 	/// </summary>
-	[JsonInclude] public double BalancedBracketsPerMinuteForNoBrackets;
+	[JsonInclude]
+	public double BalancedBracketsPerMinuteForNoBrackets
+	{
+		get => BalancedBracketsPerMinuteForNoBracketsInternal;
+		set
+		{
+			BalancedBracketsPerMinuteForNoBracketsInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
 
-	#region IConfig
+	private double BalancedBracketsPerMinuteForNoBracketsInternal;
+
+	#region Config
 
 	/// <summary>
 	/// Returns a new Config that is a clone of this Config.
 	/// </summary>
-	public Config Clone()
+	public override Config Clone()
 	{
-		// All members are value types.
-		return (Config)MemberwiseClone();
+		return new Config
+		{
+			DefaultBracketParsingMethod = DefaultBracketParsingMethod,
+			BracketParsingDetermination = BracketParsingDetermination,
+			MinLevelForBrackets = MinLevelForBrackets,
+			UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets =
+				UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets,
+			BalancedBracketsPerMinuteForAggressiveBrackets = BalancedBracketsPerMinuteForAggressiveBrackets,
+			BalancedBracketsPerMinuteForNoBrackets = BalancedBracketsPerMinuteForNoBrackets,
+		};
 	}
 
-	public void Init()
+	public override void Init()
 	{
 		// No initialization required.
 	}
 
-	public bool Validate(string logId = null)
+	public override bool Validate(string logId = null)
 	{
 		var errors = false;
 		if (BalancedBracketsPerMinuteForAggressiveBrackets < 0.0)
@@ -163,7 +236,7 @@ public class Config : IConfig<Config>, IEquatable<Config>
 		return !errors;
 	}
 
-	#endregion IConfig
+	#endregion Config
 
 	#region IEquatable
 

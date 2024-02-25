@@ -100,7 +100,7 @@ public enum PatternConfigStartingFootChoice
 ///  Call Init to perform needed initialization after loading.
 ///  Call Validate after Init to perform validation.
 /// </summary>
-public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
+public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 {
 	/// <summary>
 	/// Tag for logging messages.
@@ -111,112 +111,321 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 	/// How many notes per beat should be generated.
 	/// These correspond to SMCommon.ValidDenominators.
 	/// </summary>
-	[JsonInclude] public int BeatSubDivision = 4;
+	[JsonInclude]
+	public int BeatSubDivision
+	{
+		get => BeatSubDivisionInternal;
+		set
+		{
+			BeatSubDivisionInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private int BeatSubDivisionInternal = 4;
 
 	/// <summary>
 	/// How to choose the starting foot.
 	/// </summary>
-	[JsonInclude] public PatternConfigStartingFootChoice StartingFootChoice;
+	[JsonInclude]
+	public PatternConfigStartingFootChoice StartingFootChoice
+	{
+		get => StartingFootChoiceInternal;
+		set
+		{
+			StartingFootChoiceInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private PatternConfigStartingFootChoice StartingFootChoiceInternal;
 
 	/// <summary>
 	/// Specified starting foot to use when StartingFootChoice is Specified.
 	/// </summary>
-	[JsonInclude] public int StartingFootSpecified;
+	[JsonInclude]
+	public int StartingFootSpecified
+	{
+		get => StartingFootSpecifiedInternal;
+		set
+		{
+			StartingFootSpecifiedInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private int StartingFootSpecifiedInternal;
 
 	/// <summary>
 	/// How to choose the starting lane for the left foot.
 	/// </summary>
-	[JsonInclude] public PatternConfigStartFootChoice LeftFootStartChoice;
+	[JsonInclude]
+	public PatternConfigStartFootChoice LeftFootStartChoice
+	{
+		get => LeftFootStartChoiceInternal;
+		set
+		{
+			LeftFootStartChoiceInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private PatternConfigStartFootChoice LeftFootStartChoiceInternal;
 
 	/// <summary>
 	/// Specified starting lane for the left foot to use when LeftFootStartChoice is SpecifiedLane.
 	/// </summary>
-	[JsonInclude] public int LeftFootStartLaneSpecified;
+	[JsonInclude]
+	public int LeftFootStartLaneSpecified
+	{
+		get => LeftFootStartLaneSpecifiedInternal;
+		set
+		{
+			LeftFootStartLaneSpecifiedInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private int LeftFootStartLaneSpecifiedInternal;
 
 	/// <summary>
 	/// How to choose the ending lane for the left foot.
 	/// </summary>
-	[JsonInclude] public PatternConfigEndFootChoice LeftFootEndChoice;
+	[JsonInclude]
+	public PatternConfigEndFootChoice LeftFootEndChoice
+	{
+		get => LeftFootEndChoiceInternal;
+		set
+		{
+			LeftFootEndChoiceInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private PatternConfigEndFootChoice LeftFootEndChoiceInternal;
 
 	/// <summary>
 	/// Specified ending lane for the left foot to use when LeftFootEndChoice is SpecifiedLane.
 	/// </summary>
-	[JsonInclude] public int LeftFootEndLaneSpecified;
+	[JsonInclude]
+	public int LeftFootEndLaneSpecified
+	{
+		get => LeftFootEndLaneSpecifiedInternal;
+		set
+		{
+			LeftFootEndLaneSpecifiedInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private int LeftFootEndLaneSpecifiedInternal;
 
 	/// <summary>
 	/// How to choose the starting lane for the right foot.
 	/// </summary>
-	[JsonInclude] public PatternConfigStartFootChoice RightFootStartChoice;
+	[JsonInclude]
+	public PatternConfigStartFootChoice RightFootStartChoice
+	{
+		get => RightFootStartChoiceInternal;
+		set
+		{
+			RightFootStartChoiceInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private PatternConfigStartFootChoice RightFootStartChoiceInternal;
 
 	/// <summary>
 	/// Specified starting lane for the right foot to use when RightFootStartChoice is SpecifiedLane.
 	/// </summary>
-	[JsonInclude] public int RightFootStartLaneSpecified;
+	[JsonInclude]
+	public int RightFootStartLaneSpecified
+	{
+		get => RightFootStartLaneSpecifiedInternal;
+		set
+		{
+			RightFootStartLaneSpecifiedInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private int RightFootStartLaneSpecifiedInternal;
 
 	/// <summary>
 	/// How to choose the ending lane for the right foot.
 	/// </summary>
-	[JsonInclude] public PatternConfigEndFootChoice RightFootEndChoice;
+	[JsonInclude]
+	public PatternConfigEndFootChoice RightFootEndChoice
+	{
+		get => RightFootEndChoiceInternal;
+		set
+		{
+			RightFootEndChoiceInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private PatternConfigEndFootChoice RightFootEndChoiceInternal;
 
 	/// <summary>
 	/// Specified ending lane for the right foot to use when RightFootEndChoice is SpecifiedLane.
 	/// </summary>
-	[JsonInclude] public int RightFootEndLaneSpecified;
+	[JsonInclude]
+	public int RightFootEndLaneSpecified
+	{
+		get => RightFootEndLaneSpecifiedInternal;
+		set
+		{
+			RightFootEndLaneSpecifiedInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private int RightFootEndLaneSpecifiedInternal;
 
 	/// <summary>
 	/// Weight of SameArrow steps in the pattern.
 	/// </summary>
-	[JsonInclude] public int SameArrowStepWeight;
+	[JsonInclude]
+	public int SameArrowStepWeight
+	{
+		get => SameArrowStepWeightInternal;
+		set
+		{
+			SameArrowStepWeightInternal = value;
+			RefreshStepWeightsNormalized();
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private int SameArrowStepWeightInternal;
 
 	/// <summary>
 	/// Weight of NewArrow steps in the pattern.
 	/// </summary>
-	[JsonInclude] public int NewArrowStepWeight;
+	[JsonInclude]
+	public int NewArrowStepWeight
+	{
+		get => NewArrowStepWeightInternal;
+		set
+		{
+			NewArrowStepWeightInternal = value;
+			RefreshStepWeightsNormalized();
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private int NewArrowStepWeightInternal;
 
 	/// <summary>
 	/// How frequently to update the cost associated with deviating from the desired StepTypes.
 	/// </summary>
-	[JsonInclude] public int StepTypeCheckPeriod;
+	[JsonInclude]
+	public int StepTypeCheckPeriod
+	{
+		get => StepTypeCheckPeriodInternal;
+		set
+		{
+			StepTypeCheckPeriodInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private int StepTypeCheckPeriodInternal;
 
 	/// <summary>
 	/// Whether or not to limit the number of same arrow steps per foot in a row.
 	/// </summary>
-	[JsonInclude] public bool LimitSameArrowsInARowPerFoot;
+	[JsonInclude]
+	public bool LimitSameArrowsInARowPerFoot
+	{
+		get => LimitSameArrowsInARowPerFootInternal;
+		set
+		{
+			LimitSameArrowsInARowPerFootInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private bool LimitSameArrowsInARowPerFootInternal;
 
 	/// <summary>
 	/// Maximum number of same arrows in a row per foot to use if LimitSameArrowsInARowPerFoot
 	/// is true.
 	/// </summary>
-	[JsonInclude] public int MaxSameArrowsInARowPerFoot;
+	[JsonInclude]
+	public int MaxSameArrowsInARowPerFoot
+	{
+		get => MaxSameArrowsInARowPerFootInternal;
+		set
+		{
+			MaxSameArrowsInARowPerFootInternal = value;
+			Notify(NotificationConfigChanged, this);
+		}
+	}
+
+	private int MaxSameArrowsInARowPerFootInternal;
 
 	/// <summary>
 	/// Normalized weight of SameArrow steps.
 	/// All normalized wights sum to 1.0.
 	/// </summary>
-	[JsonIgnore] public double SameArrowStepWeightNormalized;
+	[JsonIgnore]
+	public double SameArrowStepWeightNormalized { get; private set; }
 
 	/// <summary>
 	/// Normalized weight of SameArrow steps.
 	/// All normalized wights sum to 1.0.
 	/// </summary>
-	[JsonIgnore] public double NewArrowStepWeightNormalized;
+	[JsonIgnore]
+	public double NewArrowStepWeightNormalized { get; private set; }
 
-	#region IConfig
+	/// <summary>
+	/// Refreshes the normalized arrow weights from their non-normalized values.
+	/// </summary>
+	public void RefreshStepWeightsNormalized()
+	{
+		double totalStepTypeWeight = SameArrowStepWeight + NewArrowStepWeight;
+		SameArrowStepWeightNormalized = totalStepTypeWeight > 0 ? SameArrowStepWeight / totalStepTypeWeight : 0.0;
+		NewArrowStepWeightNormalized = totalStepTypeWeight > 0 ? NewArrowStepWeight / totalStepTypeWeight : 0.0;
+	}
+
+	#region Config
 
 	/// <summary>
 	/// Returns a new PatternConfig that is a clone of this PatternConfig.
 	/// </summary>
-	public PatternConfig Clone()
+	public override PatternConfig Clone()
 	{
-		// All members are value types.
-		return (PatternConfig)MemberwiseClone();
+		return new PatternConfig
+		{
+			BeatSubDivision = BeatSubDivision,
+			StartingFootChoice = StartingFootChoice,
+			StartingFootSpecified = StartingFootSpecified,
+			LeftFootStartChoice = LeftFootStartChoice,
+			LeftFootStartLaneSpecified = LeftFootStartLaneSpecified,
+			LeftFootEndChoice = LeftFootEndChoice,
+			LeftFootEndLaneSpecified = LeftFootEndLaneSpecified,
+			RightFootStartChoice = RightFootStartChoice,
+			RightFootStartLaneSpecified = RightFootStartLaneSpecified,
+			RightFootEndChoice = RightFootEndChoice,
+			RightFootEndLaneSpecified = RightFootEndLaneSpecified,
+			SameArrowStepWeight = SameArrowStepWeight,
+			NewArrowStepWeight = NewArrowStepWeight,
+			StepTypeCheckPeriod = StepTypeCheckPeriod,
+			LimitSameArrowsInARowPerFoot = LimitSameArrowsInARowPerFoot,
+			MaxSameArrowsInARowPerFoot = MaxSameArrowsInARowPerFoot,
+			SameArrowStepWeightNormalized = SameArrowStepWeightNormalized,
+			NewArrowStepWeightNormalized = NewArrowStepWeightNormalized,
+		};
 	}
 
 	/// <summary>
 	/// Initialize data.
 	/// Called and before Validate.
 	/// </summary>
-	public void Init()
+	public override void Init()
 	{
 		RefreshStepWeightsNormalized();
 	}
@@ -226,7 +435,7 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 	/// </summary>
 	/// <param name="logId">Identifier for logging.</param>
 	/// <returns>True if no errors were found and false otherwise.</returns>
-	public bool Validate(string logId = null)
+	public override bool Validate(string logId = null)
 	{
 		var errors = false;
 
@@ -322,17 +531,7 @@ public class PatternConfig : IConfig<PatternConfig>, IEquatable<PatternConfig>
 		return !errors;
 	}
 
-	#endregion IConfig
-
-	/// <summary>
-	/// Refreshes the normalized arrow weights from their non-normalized values.
-	/// </summary>
-	public void RefreshStepWeightsNormalized()
-	{
-		double totalStepTypeWeight = SameArrowStepWeight + NewArrowStepWeight;
-		SameArrowStepWeightNormalized = SameArrowStepWeight / totalStepTypeWeight;
-		NewArrowStepWeightNormalized = NewArrowStepWeight / totalStepTypeWeight;
-	}
+	#endregion Config
 
 	#region IEquatable
 
