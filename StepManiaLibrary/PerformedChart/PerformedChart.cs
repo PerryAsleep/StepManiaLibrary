@@ -662,6 +662,7 @@ public partial class PerformedChart
 		int[] previousFooting,
 		int[] followingFooting,
 		int[] currentLaneCounts,
+		int[] currentNumSameArrowStepsInARow,
 		IReadOnlyList<Event> timingEvents,
 		int totalSteps,
 		int numStepsAtLastTransition,
@@ -838,6 +839,7 @@ public partial class PerformedChart
 			// Accumulate the next level of SearchNodes by looping over each SearchNode
 			// in the current set.
 			var nextDepth = depth + 1;
+			var footGoingIntoThisStep = foot;
 			foot = OtherFoot(foot);
 			var nextSearchNodes = new HashSet<SearchNode>();
 
@@ -939,7 +941,12 @@ public partial class PerformedChart
 							nps,
 							random.NextDouble(),
 							config,
-							patternConfig);
+							patternConfig,
+							null,
+							null,
+							null,
+							null,
+							currentNumSameArrowStepsInARow[footGoingIntoThisStep]);
 
 						// Update the previous SearchNode's NextNodes to include the new SearchNode.
 						if (!searchNode.NextNodes.ContainsKey(graphLink))

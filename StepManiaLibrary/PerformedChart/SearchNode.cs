@@ -362,6 +362,13 @@ public partial class PerformedChart
 		/// If omitted, the previous SearchNode's values will be used.
 		/// This is intended to be used for generating patterns in existing Charts.
 		/// </param>
+		/// <param name="sameArrowStepsInARowBeforeRoot">
+		/// Optional number of consecutive SameArrow steps for the foot stepping into this node
+		/// that occur before the root SearchNode. This is intended to be used for generating
+		/// patterns in existing Charts. In this case we want to limit SameArrow steps in a row
+		/// per foot, and we want to take into account the steps which immediately precede the
+		/// pattern.
+		/// </param>
 		public SearchNode(
 			GraphNode graphNode,
 			List<GraphLinkInstance> possibleGraphLinksToNextNode,
@@ -379,7 +386,8 @@ public partial class PerformedChart
 			int[] specifiedStepCounts = null,
 			double[] specifiedStepTimes = null,
 			int? specifiedTotalSteps = null,
-			SearchNode specifiedLastTransitionNode = null)
+			SearchNode specifiedLastTransitionNode = null,
+			int? sameArrowStepsInARowBeforeRoot = null)
 		{
 			Id = Interlocked.Increment(ref IdCounter);
 			GraphNode = graphNode;
@@ -502,6 +510,7 @@ public partial class PerformedChart
 			// Update this node's cost for repeated SameArrow steps when generating patterns.
 			UpdateStepCounts(
 				patternConfig,
+				sameArrowStepsInARowBeforeRoot,
 				out TotalNumSameArrowSteps,
 				out TotalNumSameArrowStepsInARowPerFootOverMax,
 				out TotalNumNewArrowSteps);
@@ -549,6 +558,7 @@ public partial class PerformedChart
 		/// Updates variables for tracking the total number of relevant StepTypes for pattern generation.
 		/// </summary>
 		/// <param name="patternConfig">PatternConfig to use.</param>
+		/// <param name="sameArrowStepsInARowBeforeRoot">The number of SameArrow steps in a row before the root.</param>
 		/// <param name="totalNumSameArrowSteps">Total number of SameArrow steps to set.</param>
 		/// <param name="totalNumSameArrowStepsInARowPerFootOverMax">
 		/// Total number of SameArrow steps in a row per foot over the specified maximum from the PatternConfig.
@@ -556,6 +566,7 @@ public partial class PerformedChart
 		/// <param name="totalNumNewArrowSteps">Total number of NewArrow steps to set.</param>
 		private void UpdateStepCounts(
 			PatternConfig patternConfig,
+			int? sameArrowStepsInARowBeforeRoot,
 			out int totalNumSameArrowSteps,
 			out int totalNumSameArrowStepsInARowPerFootOverMax,
 			out int totalNumNewArrowSteps)
@@ -607,6 +618,12 @@ public partial class PerformedChart
 								}
 
 								previousNodeToCheck = previousNodeToCheck.PreviousNode;
+							}
+
+							// If we scanned back to the root, add the count which may have preceded the root.
+							if (previousNodeToCheck?.GraphLinkFromPreviousNode == null)
+							{
+								numStepsInARow += sameArrowStepsInARowBeforeRoot ?? 0;
 							}
 
 							if (numStepsInARow > patternConfig.MaxSameArrowsInARowPerFoot)

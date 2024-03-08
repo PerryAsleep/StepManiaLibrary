@@ -198,6 +198,19 @@ public class GraphLink : IEquatable<GraphLink>
 		return true;
 	}
 
+	/// <summary>
+	/// Whether or not this link is a single, non-bracket step with only one foot.
+	/// </summary>
+	/// <param name="stepType">
+	/// The StepType of the single step, to be set if this is a single step.
+	/// </param>
+	/// <param name="foot">
+	/// The foot performing the single step, to be set if this is a single step.
+	/// </param>
+	/// <returns>
+	/// True if this link is a single, non-bracket step with only one foot and
+	/// false otherwise.
+	/// </returns>
 	public bool IsSingleStep(out StepType stepType, out int foot)
 	{
 		var foundStep = false;
@@ -219,6 +232,24 @@ public class GraphLink : IEquatable<GraphLink>
 		}
 
 		return foundStep;
+	}
+
+	/// <summary>
+	/// Whether or not this link involves a step with the given foot, regardless of the actions
+	/// of the other foot.
+	/// </summary>
+	/// <returns>True if this link involves a step with the given foot and false otherwise.</returns>
+	public bool InvolvesStepWithFoot(int foot)
+	{
+		for (var p = 0; p < NumFootPortions; p++)
+		{
+			if (Links[foot, p].Valid && Links[foot, p].Action != FootAction.Release)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/// <summary>
