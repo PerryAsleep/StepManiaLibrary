@@ -47,27 +47,6 @@ public enum BracketParsingDetermination
 }
 
 /// <summary>
-/// Enumeration of methods for copying files.
-/// </summary>
-public enum CopyBehavior
-{
-	/// <summary>
-	/// Do not copy the file.
-	/// </summary>
-	DoNotCopy,
-
-	/// <summary>
-	/// Copy the file if it is newer than the destination file.
-	/// </summary>
-	IfNewer,
-
-	/// <summary>
-	/// Always copy the file.
-	/// </summary>
-	Always,
-}
-
-/// <summary>
 /// Configuration data for ExpressedChart behavior.
 /// </summary>
 public class Config : StepManiaLibrary.Config, IEquatable<Config>
