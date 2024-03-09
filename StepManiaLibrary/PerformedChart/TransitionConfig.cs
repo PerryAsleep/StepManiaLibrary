@@ -143,6 +143,9 @@ public class TransitionConfig : StepManiaLibrary.Config, IEquatable<TransitionCo
 	/// <returns>True if no errors were found and false otherwise.</returns>
 	public override bool Validate(string logId = null)
 	{
+		if (!IsEnabled())
+			return true;
+
 		var errors = false;
 
 		if (StepsPerTransitionMin < 0)

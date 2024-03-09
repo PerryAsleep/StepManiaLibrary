@@ -294,97 +294,106 @@ public class StepTighteningConfig : StepManiaLibrary.Config, IEquatable<StepTigh
 	public override bool Validate(string logId = null)
 	{
 		var errors = false;
-		if (SpeedMinTimeSeconds < 0.0)
+		if (IsSpeedTighteningEnabled())
 		{
-			LogError(
-				$"Negative value \"{SpeedMinTimeSeconds}\" "
-				+ "specified for SpeedMinTimeSeconds. Expected non-negative value.",
-				logId);
-			errors = true;
+			if (SpeedMinTimeSeconds < 0.0)
+			{
+				LogError(
+					$"Negative value \"{SpeedMinTimeSeconds}\" "
+					+ "specified for SpeedMinTimeSeconds. Expected non-negative value.",
+					logId);
+				errors = true;
+			}
+
+			if (SpeedMaxTimeSeconds < 0.0)
+			{
+				LogError(
+					$"Negative value \"{SpeedMaxTimeSeconds}\" "
+					+ "specified for SpeedMaxTimeSeconds. Expected non-negative value.",
+					logId);
+				errors = true;
+			}
+
+			if (SpeedMinTimeSeconds > SpeedMaxTimeSeconds)
+			{
+				LogError(
+					$"SpeedMinTimeSeconds \"{SpeedMinTimeSeconds}\" "
+					+ $"is greater than SpeedMaxTimeSeconds \"{SpeedMaxTimeSeconds}\". "
+					+ "SpeedMinTimeSeconds must be less than or equal to SpeedMaxTimeSeconds.",
+					logId);
+				errors = true;
+			}
+
+			if (SpeedTighteningMinDistance < 0.0)
+			{
+				LogError(
+					$"Negative value \"{SpeedTighteningMinDistance}\" "
+					+ "specified for SpeedTighteningMinDistance. Expected non-negative value.",
+					logId);
+				errors = true;
+			}
 		}
 
-		if (SpeedMaxTimeSeconds < 0.0)
+		if (IsDistanceTighteningEnabled())
 		{
-			LogError(
-				$"Negative value \"{SpeedMaxTimeSeconds}\" "
-				+ "specified for SpeedMaxTimeSeconds. Expected non-negative value.",
-				logId);
-			errors = true;
+			if (DistanceMin < 0.0)
+			{
+				LogError(
+					$"Negative value \"{DistanceMin}\" "
+					+ "specified for DistanceMin. Expected non-negative value.",
+					logId);
+				errors = true;
+			}
+
+			if (DistanceMax < 0.0)
+			{
+				LogError(
+					$"Negative value \"{DistanceMax}\" "
+					+ "specified for DistanceMax. Expected non-negative value.",
+					logId);
+				errors = true;
+			}
+
+			if (DistanceMin > DistanceMax)
+			{
+				LogError(
+					$"DistanceMin \"{DistanceMin}\" "
+					+ $"is greater than DistanceMax \"{DistanceMax}\". "
+					+ "DistanceMin must be less than or equal to DistanceMax.",
+					logId);
+				errors = true;
+			}
 		}
 
-		if (SpeedMinTimeSeconds > SpeedMaxTimeSeconds)
+		if (IsStretchTighteningEnabled())
 		{
-			LogError(
-				$"SpeedMinTimeSeconds \"{SpeedMinTimeSeconds}\" "
-				+ $"is greater than SpeedMaxTimeSeconds \"{SpeedMaxTimeSeconds}\". "
-				+ "SpeedMinTimeSeconds must be less than or equal to SpeedMaxTimeSeconds.",
-				logId);
-			errors = true;
-		}
+			if (StretchDistanceMin < 0.0)
+			{
+				LogError(
+					$"Negative value \"{StretchDistanceMin}\" "
+					+ "specified for StretchDistanceMin. Expected non-negative value.",
+					logId);
+				errors = true;
+			}
 
-		if (SpeedTighteningMinDistance < 0.0)
-		{
-			LogError(
-				$"Negative value \"{SpeedTighteningMinDistance}\" "
-				+ "specified for SpeedTighteningMinDistance. Expected non-negative value.",
-				logId);
-			errors = true;
-		}
+			if (StretchDistanceMax < 0.0)
+			{
+				LogError(
+					$"Negative value \"{StretchDistanceMax}\" "
+					+ "specified for StretchDistanceMax. Expected non-negative value.",
+					logId);
+				errors = true;
+			}
 
-		if (DistanceMin < 0.0)
-		{
-			LogError(
-				$"Negative value \"{DistanceMin}\" "
-				+ "specified for DistanceMin. Expected non-negative value.",
-				logId);
-			errors = true;
-		}
-
-		if (DistanceMax < 0.0)
-		{
-			LogError(
-				$"Negative value \"{DistanceMax}\" "
-				+ "specified for DistanceMax. Expected non-negative value.",
-				logId);
-			errors = true;
-		}
-
-		if (DistanceMin > DistanceMax)
-		{
-			LogError(
-				$"DistanceMin \"{DistanceMin}\" "
-				+ $"is greater than DistanceMax \"{DistanceMax}\". "
-				+ "DistanceMin must be less than or equal to DistanceMax.",
-				logId);
-			errors = true;
-		}
-
-		if (StretchDistanceMin < 0.0)
-		{
-			LogError(
-				$"Negative value \"{StretchDistanceMin}\" "
-				+ "specified for StretchDistanceMin. Expected non-negative value.",
-				logId);
-			errors = true;
-		}
-
-		if (StretchDistanceMax < 0.0)
-		{
-			LogError(
-				$"Negative value \"{StretchDistanceMax}\" "
-				+ "specified for StretchDistanceMax. Expected non-negative value.",
-				logId);
-			errors = true;
-		}
-
-		if (StretchDistanceMin > StretchDistanceMax)
-		{
-			LogError(
-				$"StretchDistanceMin \"{StretchDistanceMin}\" "
-				+ $"is greater than StretchDistanceMax \"{StretchDistanceMax}\". "
-				+ "StretchDistanceMin must be less than or equal to StretchDistanceMax.",
-				logId);
-			errors = true;
+			if (StretchDistanceMin > StretchDistanceMax)
+			{
+				LogError(
+					$"StretchDistanceMin \"{StretchDistanceMin}\" "
+					+ $"is greater than StretchDistanceMax \"{StretchDistanceMax}\". "
+					+ "StretchDistanceMin must be less than or equal to StretchDistanceMax.",
+					logId);
+				errors = true;
+			}
 		}
 
 		return !errors;

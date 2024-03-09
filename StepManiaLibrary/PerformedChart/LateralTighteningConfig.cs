@@ -131,6 +131,9 @@ public class LateralTighteningConfig : StepManiaLibrary.Config, IEquatable<Later
 	/// <returns>True if no errors were found and false otherwise.</returns>
 	public override bool Validate(string logId = null)
 	{
+		if (!IsEnabled())
+			return true;
+
 		var errors = false;
 
 		if (RelativeNPS < 0.0)
