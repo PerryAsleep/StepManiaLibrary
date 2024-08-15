@@ -88,6 +88,7 @@
 		<ProjectReference Include="..\Fumen\Fumen\Fumen.csproj" />
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="MathNet.Numerics" Version="5.0.0" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
 		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
