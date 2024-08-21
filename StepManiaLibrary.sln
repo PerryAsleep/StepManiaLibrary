@@ -1,22 +1,23 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fumen", "Fumen\Fumen\Fumen.csproj", "{707C8DC8-086B-48BC-83B1-77F7DACCD833}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FumenTests", "Fumen\FumenTests\FumenTests.csproj", "{6129C91B-F26B-423F-97EC-B4D4A7ECB631}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FumenTests", "Fumen\FumenTests\FumenTests.csproj", "{6129C91B-F26B-423F-97EC-B4D4A7ECB631}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepManiaLibrary", "StepManiaLibrary\StepManiaLibrary.csproj", "{0442A9A8-0AD1-4275-9575-B30E71F2A57E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StepManiaLibrary", "StepManiaLibrary\StepManiaLibrary.csproj", "{0442A9A8-0AD1-4275-9575-B30E71F2A57E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{707C8DC8-086B-48BC-83B1-77F7DACCD833} = {707C8DC8-086B-48BC-83B1-77F7DACCD833}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepManiaLibraryTests", "StepManiaLibraryTests\StepManiaLibraryTests.csproj", "{1D6C7634-1F39-4FC0-B8F3-97FD0A9544E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StepManiaLibraryTests", "StepManiaLibraryTests\StepManiaLibraryTests.csproj", "{1D6C7634-1F39-4FC0-B8F3-97FD0A9544E1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpressedChartTestGenerator", "ExpressedChartTestGenerator\ExpressedChartTestGenerator.csproj", "{3053E3D5-E5D6-48E0-8221-E62118958577}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChartGeneratorTests", "ChartGeneratorTests\ChartGeneratorTests.csproj", "{00AA6F20-87CE-4699-B52E-4E52ECF3EB07}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TempoDetectorTester", "TempoDetectorTester\TempoDetectorTester.csproj", "{7BF81852-C5D9-4FC8-AEF6-49F0E28F1087}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +49,10 @@ Global
 		{00AA6F20-87CE-4699-B52E-4E52ECF3EB07}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00AA6F20-87CE-4699-B52E-4E52ECF3EB07}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00AA6F20-87CE-4699-B52E-4E52ECF3EB07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BF81852-C5D9-4FC8-AEF6-49F0E28F1087}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BF81852-C5D9-4FC8-AEF6-49F0E28F1087}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BF81852-C5D9-4FC8-AEF6-49F0E28F1087}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BF81852-C5D9-4FC8-AEF6-49F0E28F1087}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
