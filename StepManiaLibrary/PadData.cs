@@ -114,7 +114,7 @@ public class PadData
 
 	/// <summary>
 	/// Validates the PadData, logging errors on unexpected data.
-	/// Side-effects of setting NumArrows on PadData and Lane on each ArrowData.
+	/// Side effects of setting NumArrows on PadData and Lane on each ArrowData.
 	/// </summary>
 	/// <returns>True of no errors were found and false otherwise.</returns>
 	private bool Validate()
@@ -365,7 +365,7 @@ public class PadData
 
 	/// <summary>
 	/// Returns whether this PadData can fit within the given other PadData.
-	/// For this to fit within the other data, all of it's arrows must be able to be represented in
+	/// For this to fit within the other data, all of its arrows must be able to be represented in
 	/// the other data, and all the moves between those arrows must be able to be represented in the
 	/// other data.
 	/// For example, dance-single fits within dance-double (it is a clear subset) and smx-beginner fits

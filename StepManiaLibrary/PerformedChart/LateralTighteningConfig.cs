@@ -80,11 +80,11 @@ public class LateralTighteningConfig : StepManiaLibrary.Config, IEquatable<Later
 	private double SpeedInternal = -1.0;
 
 	/// <summary>
-	/// Sets this LateralTighteningConfig to be an override of the the given other LateralTighteningConfig.
+	/// Sets this LateralTighteningConfig to be an override of the given other LateralTighteningConfig.
 	/// Any values in this LateralTighteningConfig which are at their default, invalid values will
 	/// be replaced with the corresponding values in the given other LateralTighteningConfig.
 	/// </summary>
-	/// <param name="other">Other LateralTighteningConfig to use as as a base.</param>
+	/// <param name="other">Other LateralTighteningConfig to use as a base.</param>
 	public void SetAsOverrideOf(LateralTighteningConfig other)
 	{
 		Enabled ??= other.Enabled;

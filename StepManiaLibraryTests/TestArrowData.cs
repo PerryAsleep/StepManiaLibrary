@@ -12,8 +12,8 @@ namespace StepManiaLibraryTests;
 [TestClass]
 public class TestArrowData
 {
-	private static readonly ChartType[] PadDataTypes = new ChartType[]
-	{
+	private static readonly ChartType[] PadDataTypes =
+	[
 		ChartType.dance_single,
 		ChartType.dance_double,
 		ChartType.dance_solo,
@@ -25,7 +25,7 @@ public class TestArrowData
 		ChartType.smx_single,
 		ChartType.smx_dual,
 		ChartType.smx_full,
-	};
+	];
 
 	private static readonly Dictionary<ChartType, PadData> TestPadData;
 
@@ -60,44 +60,44 @@ public class TestArrowData
 
 		var expectedFits = new Dictionary<ChartType, HashSet<ChartType>>
 		{
-			[ChartType.dance_single] = new()
-			{
+			[ChartType.dance_single] =
+			[
 				ChartType.dance_double,
 				ChartType.dance_solo,
 				ChartType.smx_single,
 				ChartType.smx_full,
-			},
-			[ChartType.dance_double] = new()
-			{
+			],
+			[ChartType.dance_double] =
+			[
 				ChartType.smx_full,
-			},
-			[ChartType.dance_threepanel] = new()
-			{
+			],
+			[ChartType.dance_threepanel] =
+			[
 				ChartType.dance_solo,
-			},
-			[ChartType.pump_single] = new()
-			{
+			],
+			[ChartType.pump_single] =
+			[
 				ChartType.pump_double,
-			},
-			[ChartType.pump_halfdouble] = new()
-			{
+			],
+			[ChartType.pump_halfdouble] =
+			[
 				ChartType.pump_double,
-			},
-			[ChartType.smx_beginner] = new()
-			{
+			],
+			[ChartType.smx_beginner] =
+			[
 				ChartType.dance_solo,
 				ChartType.smx_single,
 				ChartType.smx_dual,
 				ChartType.smx_full,
-			},
-			[ChartType.smx_single] = new()
-			{
+			],
+			[ChartType.smx_single] =
+			[
 				ChartType.smx_full,
-			},
-			[ChartType.smx_dual] = new()
-			{
+			],
+			[ChartType.smx_dual] =
+			[
 				ChartType.smx_full,
-			},
+			],
 		};
 
 		for (var t1 = 0; t1 < PadDataTypes.Length; t1++)

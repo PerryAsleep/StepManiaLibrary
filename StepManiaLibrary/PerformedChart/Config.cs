@@ -139,12 +139,12 @@ public class Config : StepManiaLibrary.Config,
 	}
 
 	/// <summary>
-	/// Sets this Config to be an override of the the given other Config.
+	/// Sets this Config to be an override of the given other Config.
 	/// Any values in this Config which are at their default, invalid values will
 	/// be replaced with the corresponding values in the given other Config.
 	/// Called before Init and Validate.
 	/// </summary>
-	/// <param name="other">Other Config to use as as a base.</param>
+	/// <param name="other">Other Config to use as a base.</param>
 	public void SetAsOverrideOf(Config other)
 	{
 		LateralTightening.SetAsOverrideOf(other.LateralTightening);
@@ -155,7 +155,7 @@ public class Config : StepManiaLibrary.Config,
 		{
 			if (!ArrowWeights.ContainsKey(kvp.Key))
 			{
-				ArrowWeights.Add(kvp.Key, new List<int>(kvp.Value));
+				ArrowWeights.Add(kvp.Key, [..kvp.Value]);
 			}
 		}
 
@@ -370,9 +370,8 @@ public class Config : StepManiaLibrary.Config,
 			return false;
 		foreach (var (key, weights) in ArrowWeights)
 		{
-			if (!other.ArrowWeights.ContainsKey(key))
+			if (!other.ArrowWeights.TryGetValue(key, out var otherWeights))
 				return false;
-			var otherWeights = other.ArrowWeights[key];
 			if (weights.Count != otherWeights.Count)
 				return false;
 			for (var i = 0; i < weights.Count; i++)
@@ -385,9 +384,8 @@ public class Config : StepManiaLibrary.Config,
 			return false;
 		foreach (var (key, weights) in ArrowWeightsNormalized)
 		{
-			if (!other.ArrowWeightsNormalized.ContainsKey(key))
+			if (!other.ArrowWeightsNormalized.TryGetValue(key, out var otherWeights))
 				return false;
-			var otherWeights = other.ArrowWeightsNormalized[key];
 			if (weights.Count != otherWeights.Count)
 				return false;
 			for (var i = 0; i < weights.Count; i++)

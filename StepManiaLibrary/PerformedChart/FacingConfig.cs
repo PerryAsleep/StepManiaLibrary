@@ -80,11 +80,11 @@ public class FacingConfig : StepManiaLibrary.Config, IEquatable<FacingConfig>
 	private double OutwardPercentageCutoffInternal = -1.0;
 
 	/// <summary>
-	/// Sets this FacingConfig to be an override of the the given other FacingConfig.
+	/// Sets this FacingConfig to be an override of the given other FacingConfig.
 	/// Any values in this FacingConfig which are at their default, invalid values will
 	/// be replaced with the corresponding values in the given other FacingConfig.
 	/// </summary>
-	/// <param name="other">Other FacingConfig to use as as a base.</param>
+	/// <param name="other">Other FacingConfig to use as a base.</param>
 	public void SetAsOverrideOf(FacingConfig other)
 	{
 		if (MaxInwardPercentage.DoubleEquals(-1.0))

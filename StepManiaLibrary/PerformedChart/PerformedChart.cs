@@ -175,7 +175,7 @@ public partial class PerformedChart
 						// Finished
 						if (depth >= expressedChart.StepEvents.Count)
 						{
-							// Choose path with lowest cost.
+							// Choose path with the lowest cost.
 							SearchNode bestNode = null;
 							foreach (var node in currentSearchNodes)
 								if (bestNode == null || node.CompareTo(bestNode) < 0)
@@ -251,11 +251,10 @@ public partial class PerformedChart
 								{
 									// The GraphNode may not actually have this GraphLink due to
 									// the StepTypeReplacements.
-									if (!searchNode.GraphNode.Links.ContainsKey(graphLink.GraphLink))
+									if (!searchNode.GraphNode.Links.TryGetValue(graphLink.GraphLink, out var nextNodes))
 										continue;
 
 									// Check every GraphNode linked to by this GraphLink.
-									var nextNodes = searchNode.GraphNode.Links[graphLink.GraphLink];
 									for (var n = 0; n < nextNodes.Count; n++)
 									{
 										var nextGraphNode = nextNodes[n];
@@ -273,7 +272,7 @@ public partial class PerformedChart
 										}
 										else
 										{
-											graphLinksToNextNode = new List<GraphLinkInstance>();
+											graphLinksToNextNode = [];
 										}
 
 										// Set up a new SearchNode.
@@ -405,7 +404,7 @@ public partial class PerformedChart
 
 		// Update the previous SearchNode's NextNodes to include the new SearchNode.
 		if (!parentNode.NextNodes.ContainsKey(graphLink))
-			parentNode.NextNodes[graphLink] = new HashSet<SearchNode>();
+			parentNode.NextNodes[graphLink] = [];
 		parentNode.NextNodes[graphLink].Add(childNode);
 
 		// Add this node to the set of next SearchNodes to be pruned after they are all found.
@@ -900,11 +899,10 @@ public partial class PerformedChart
 					var graphLink = searchNode.GraphLinks[l];
 					// The GraphNode may not actually have this GraphLink due to
 					// the StepTypeReplacements.
-					if (!searchNode.GraphNode.Links.ContainsKey(graphLink.GraphLink))
+					if (!searchNode.GraphNode.Links.TryGetValue(graphLink.GraphLink, out var nextNodes))
 						continue;
 
 					// Check every GraphNode linked to by this GraphLink.
-					var nextNodes = searchNode.GraphNode.Links[graphLink.GraphLink];
 					for (var n = 0; n < nextNodes.Count; n++)
 					{
 						var nextGraphNode = nextNodes[n];
@@ -914,7 +912,7 @@ public partial class PerformedChart
 							stepGraph.NumArrows);
 
 						// Set up the graph links leading out of this node to its next nodes.
-						possibleGraphLinksToNextNode = new List<GraphLinkInstance>();
+						possibleGraphLinksToNextNode = [];
 						foreach (var stepType in validStepTypes)
 						{
 							var link = new GraphLink
@@ -950,7 +948,7 @@ public partial class PerformedChart
 
 						// Update the previous SearchNode's NextNodes to include the new SearchNode.
 						if (!searchNode.NextNodes.ContainsKey(graphLink))
-							searchNode.NextNodes[graphLink] = new HashSet<SearchNode>();
+							searchNode.NextNodes[graphLink] = [];
 						searchNode.NextNodes[graphLink].Add(nextSearchNode);
 
 						// Add this node to the set of next SearchNodes to be pruned after they are all found.
@@ -1004,7 +1002,7 @@ public partial class PerformedChart
 			foreach (var node in remainingNodes)
 				node.SetIsFinalNodeInPattern(patternConfig);
 
-			// Choose path with lowest cost from the remaining nodes.
+			// Choose path with the lowest cost from the remaining nodes.
 			SearchNode bestNode = null;
 			foreach (var node in remainingNodes)
 				if (bestNode == null || node.CompareTo(bestNode) < 0)
@@ -1428,7 +1426,7 @@ public partial class PerformedChart
 	/// <summary>
 	/// Creates a List of Events representing the Events of an SM Chart.
 	/// </summary>
-	/// <returns>List of Events that represent the Events of a SM Chart.</returns>
+	/// <returns>List of Events that represent the Events of an SM Chart.</returns>
 	public List<Event> CreateSMChartEvents()
 	{
 		var events = new List<Event>();

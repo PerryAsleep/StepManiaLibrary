@@ -218,12 +218,12 @@ public class StepTighteningConfig : StepManiaLibrary.Config, IEquatable<StepTigh
 	private double LongitudinalMinPanelDistanceInternal = InvalidMinPanelDistance;
 
 	/// <summary>
-	/// Sets this StepTighteningConfig to be an override of the the given other StepTighteningConfig.
+	/// Sets this StepTighteningConfig to be an override of the given other StepTighteningConfig.
 	/// Any values in this StepTighteningConfig which are at their default, invalid values will
 	/// be replaced with the corresponding values in the given other StepTighteningConfig.
 	/// Called before Init and Validate.
 	/// </summary>
-	/// <param name="other">Other StepTighteningConfig to use as as a base.</param>
+	/// <param name="other">Other StepTighteningConfig to use as a base.</param>
 	public void SetAsOverrideOf(StepTighteningConfig other)
 	{
 		SpeedTighteningEnabled ??= other.SpeedTighteningEnabled;

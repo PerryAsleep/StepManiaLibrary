@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Fumen;
 using MathNet.Numerics.IntegralTransforms;
 
+// ReSharper disable All 
+
 namespace StepManiaLibrary;
 
 /// <summary>
@@ -272,8 +274,8 @@ public sealed class TempoDetector
 
 	private sealed class DivisibleTempo : IReadOnlyTempoResult
 	{
-		private readonly List<CorrelatedTempo> AllTempos = new();
-		private readonly List<CorrelatedTempo> CorrelatedTempos = new();
+		private readonly List<CorrelatedTempo> AllTempos = [];
+		private readonly List<CorrelatedTempo> CorrelatedTempos = [];
 		private int BestTempoIndex = 0;
 
 		public DivisibleTempo(double tempo, double correlation, double min, double max)
@@ -462,7 +464,7 @@ public sealed class TempoDetector
 	private sealed class Results : IResults
 	{
 		private readonly List<LocationResults> ResultsByLocation;
-		private List<DivisibleTempo> BestTempos = new();
+		private List<DivisibleTempo> BestTempos = [];
 		private int BestTempoIndex = 0;
 
 		public Results(List<LocationResults> resultsByLocation)
@@ -1141,7 +1143,7 @@ public sealed class TempoDetector
 			var assembly = System.Reflection.Assembly.GetEntryAssembly();
 			var programPath = assembly.Location;
 			var programDir = System.IO.Path.GetDirectoryName(programPath);
-			var wavDir = Path.Combine(new[] { programDir, "tempo-detector-wavs", settings.WavFileFolder });
+			var wavDir = Path.Combine([programDir, "tempo-detector-wavs", settings.WavFileFolder]);
 			var wavFile = Path.Combine(wavDir, $"{fileName}.wav");
 			System.IO.Directory.CreateDirectory(wavDir);
 			WavWriter.WriteWavFile(wavFile, sampleData, settings.SampleRate, 1);
@@ -1212,3 +1214,5 @@ public sealed class TempoDetector
 
 	#endregion Logging
 }
+
+// ReSharper enable All 

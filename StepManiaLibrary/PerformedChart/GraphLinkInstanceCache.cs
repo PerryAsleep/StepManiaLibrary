@@ -127,7 +127,7 @@ internal class GraphLinkInstanceCache
 			if (comparison != 0)
 				return comparison;
 
-			// Tie break on left foot cost.
+			// Tie-break on left foot cost.
 			comparison = l1LCost.CompareTo(l2LCost);
 			return comparison;
 		}
@@ -210,7 +210,7 @@ internal class GraphLinkInstanceCache
 				// This could be creating a step that is technically impossible. For example replacing a
 				// single bracket step like BracketOneArrowToeNew from a state where you are holding with
 				// your heel with a step like NewArrow is impossible. But it is simpler to create this
-				// step and rely on there being link that matches it when searching.
+				// step and rely on there being a link that matches it when searching.
 				if (!newStepData.IsBracket)
 				{
 					// Determine the portion to use for the new step. Usually this will be
@@ -442,7 +442,7 @@ internal class GraphLinkInstanceCache
 		{
 			// It is faster in practice to allocate a new list and return it than it is to cache it when needing
 			// to be thread-safe.
-			return new List<GraphLinkInstance>(1) { sourceLink };
+			return [sourceLink];
 		}
 
 		var cacheForFallbacks = Cache.GetOrAdd(fallbacks, CreateCache);

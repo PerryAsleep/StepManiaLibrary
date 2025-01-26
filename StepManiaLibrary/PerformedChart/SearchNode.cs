@@ -201,7 +201,7 @@ public partial class PerformedChart
 		private readonly int MisleadingStepCount;
 
 		/// <summary>
-		/// The total number of ambiguous steps for the path to to and including this SearchNode.
+		/// The total number of ambiguous steps for the path to and including this SearchNode.
 		/// Ambiguous steps are steps which any reasonably player would interpret as having more
 		/// than one equally viable option for performing. For example if the player is on LR and
 		/// the next step is D, that could be done with either the left foot or the right foot.
@@ -516,7 +516,7 @@ public partial class PerformedChart
 				out TotalNumNewArrowSteps);
 			DeterminePatternGenerationStepCost(patternConfig);
 
-			// Update this nodes ambiguous and misleading step costs.
+			// Update this node's ambiguous and misleading step costs.
 			var (ambiguous, misleading) = DetermineAmbiguity(stepGraph);
 			if (ambiguous)
 				AmbiguousStepCount++;
@@ -772,7 +772,7 @@ public partial class PerformedChart
 							else
 							{
 								// If the actual speed is faster than the configured speed then use the full speed penalty
-								// of 1.0. Otherwise use no speed penalty of 0.0;
+								// of 1.0. Otherwise, use no speed penalty of 0.0;
 								speedPenalty = time < config.SpeedMinTimeSeconds ? 1.0 : 0.0;
 							}
 
@@ -919,7 +919,7 @@ public partial class PerformedChart
 					dy = Math.Max(0.0, aY - yComp - (bY + yComp));
 				}
 			}
-			// Only the A was a bracket. B can be shifted to compensate for minimal movements.
+			// Only the A was a bracket. Point B can be shifted to compensate for minimal movements.
 			else if (aIsBracket && !bIsBracket)
 			{
 				if (bX > aX)
@@ -940,7 +940,7 @@ public partial class PerformedChart
 					dy = Math.Max(0.0, aY - (bY + yComp));
 				}
 			}
-			// Only the B was a bracket. A can be shifted to compensate for minimal movements.
+			// Only the B was a bracket. Point A can be shifted to compensate for minimal movements.
 			else if (!aIsBracket)
 			{
 				if (bX > aX)
@@ -1256,7 +1256,7 @@ public partial class PerformedChart
 				var followsBracket = PreviousNode.GraphLinkFromPreviousNode?.GraphLink?.IsBracketStep() ?? false;
 
 				// Any jump involving a new arrow that matches the previous arrows is misleading.
-				// Any same arrow same arrow jump following a bracket is misleading.
+				// Any SameArrow SameArrow jump following a bracket is misleading.
 				if (matchesPreviousArrows && (involvesNewArrowStep || followsBracket))
 					return (false, true);
 
@@ -1338,7 +1338,7 @@ public partial class PerformedChart
 			if (isJump)
 			{
 				// Assuming taps here for simplicity since for footing we just care about stepping at all.
-				// DoesAnySiblingNodeFromLinkMatchActions will treat Steps and Holds equally as steps.
+				// DoesAnySiblingNodeFromLinkMatchActions will treat both Steps and Holds as steps.
 
 				// Check left foot SameArrow right foot NewArrow.
 				var leftSameLink = new GraphLink
@@ -1395,11 +1395,10 @@ public partial class PerformedChart
 		private bool DoesAnySiblingNodeFromLinkMatchActions(GraphLink siblingLink, StepGraph stepGraph)
 		{
 			// If this link isn't a valid from the parent node, then no node from it will match.
-			if (!PreviousNode.GraphNode.Links.ContainsKey(siblingLink))
+			if (!PreviousNode.GraphNode.Links.TryGetValue(siblingLink, out var otherNodes))
 				return false;
 
 			// Check all sibling nodes for the link.
-			var otherNodes = PreviousNode.GraphNode.Links[siblingLink];
 			for (var n = 0; n < otherNodes.Count; n++)
 			{
 				var otherNode = otherNodes[n];
@@ -1435,7 +1434,7 @@ public partial class PerformedChart
 
 		public int CompareTo(SearchNode other)
 		{
-			// First consider how much this path has needed to fallback to less preferred steps.
+			// First consider how much this path has needed to fall back to less preferred steps.
 			if (Math.Abs(TotalFallbackStepCost - other.TotalFallbackStepCost) > 0.00001)
 				return TotalFallbackStepCost < other.TotalFallbackStepCost ? -1 : 1;
 
@@ -1444,7 +1443,7 @@ public partial class PerformedChart
 			if (MisleadingStepCount != other.MisleadingStepCount)
 				return MisleadingStepCount < other.MisleadingStepCount ? -1 : 1;
 
-			// Next consider consider ambiguous steps. These are steps which the player
+			// Next consider ambiguous steps. These are steps which the player
 			// would recognize as having multiple options could result in the wrong footing.
 			if (AmbiguousStepCount != other.AmbiguousStepCount)
 				return AmbiguousStepCount < other.AmbiguousStepCount ? -1 : 1;

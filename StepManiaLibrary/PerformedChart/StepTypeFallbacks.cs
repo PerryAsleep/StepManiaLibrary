@@ -131,13 +131,12 @@ public class StepTypeFallbacks
 					throw new Exception($"No \"{baseStepType:G}\" entry found for \"{stepTypeStr}\".");
 				}
 
-				if (ancestors.Contains(baseStepType))
+				if (!ancestors.Add(baseStepType))
 				{
 					throw new Exception($"Cycle detected on {stepTypeStr}.");
 				}
 
 				// Record this type and recurse.
-				ancestors.Add(baseStepType);
 				ParseStepTypeList(ancestors, baseStrings, stepTypeList);
 			}
 

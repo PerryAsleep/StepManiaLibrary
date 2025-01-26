@@ -96,11 +96,11 @@ public class TransitionConfig : StepManiaLibrary.Config, IEquatable<TransitionCo
 	private double TransitionCutoffPercentageInternal = -1.0;
 
 	/// <summary>
-	/// Sets this TransitionConfig to be an override of the the given other TransitionConfig.
+	/// Sets this TransitionConfig to be an override of the given other TransitionConfig.
 	/// Any values in this TransitionConfig which are at their default, invalid values will
 	/// be replaced with the corresponding values in the given other TransitionConfig.
 	/// </summary>
-	/// <param name="other">Other TransitionConfig to use as as a base.</param>
+	/// <param name="other">Other TransitionConfig to use as a base.</param>
 	public void SetAsOverrideOf(TransitionConfig other)
 	{
 		Enabled ??= other.Enabled;

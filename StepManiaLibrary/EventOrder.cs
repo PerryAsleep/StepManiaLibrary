@@ -20,7 +20,7 @@ public class EventOrder
 	/// </summary>
 	static EventOrder()
 	{
-		Order = new List<string>();
+		Order = [];
 		var defaultEventOrder = SMCommon.SMEventComparer.SMEventOrderList;
 		foreach (var eventString in defaultEventOrder)
 		{

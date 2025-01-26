@@ -277,9 +277,8 @@ public class StepGraph
 				var linkedNodes = link.Value;
 				foreach (var linkedNode in linkedNodes)
 				{
-					if (!recordedNodes.Contains(linkedNode))
+					if (recordedNodes.Add(linkedNode))
 					{
-						recordedNodes.Add(linkedNode);
 						nodesToWrite.Add(linkedNode);
 					}
 				}
@@ -454,9 +453,8 @@ public class StepGraph
 				{
 					foreach (var g in l.Value)
 					{
-						if (!trackedNodes.Contains(g))
+						if (trackedNodes.Add(g))
 						{
-							trackedNodes.Add(g);
 							newNodes.Add(g);
 						}
 					}
@@ -558,7 +556,7 @@ public class StepGraph
 
 		// There must be a better way to describe this, but we need to loop over all possible
 		// foot arrow states for all combinations of feet and portions. A way to do that is to
-		// effectively have a N-digit base-M number where N is 4 (NumFeet * NumFootPortions) and
+		// effectively have an N-digit base-M number where N is 4 (NumFeet * NumFootPortions) and
 		// M is 3 * NumArrows (3 being the number of unique GraphArrowStates). Using that number
 		// we can loop over all values to get all the combinations.
 		var numFootArrowStates = (NumArrows + 1) * numGasValues;
@@ -809,7 +807,7 @@ public class StepGraph
 		var fromFootIsBracket = new bool[NumFeet];
 		var fromFootAnyHeld = new bool[NumFeet];
 		var toFootIsBracket = new bool[NumFeet];
-		var toStateHasLifts = new bool[NumFeet];
+		//var toStateHasLifts = new bool[NumFeet];
 		for (var node1Index = 0; node1Index < nodeCount; node1Index++)
 		{
 			var from = allNodes[node1Index];
@@ -842,7 +840,7 @@ public class StepGraph
 					footIsSame[f] = true;
 					footIsSameExceptForLifts[f] = true;
 					toFootIsBracket[f] = true;
-					toStateHasLifts[f] = false;
+					//toStateHasLifts[f] = false;
 					for (var p = 0; p < NumFootPortions; p++)
 					{
 						if (fromState[f, p].Arrow != toState[f, p].Arrow || fromState[f, p].State != toState[f, p].State)
@@ -856,10 +854,10 @@ public class StepGraph
 							footIsSameExceptForLifts[f] = false;
 						}
 
-						if (toState[f, p].Arrow != InvalidArrowIndex && toState[f, p].State == GraphArrowState.Lifted)
-						{
-							toStateHasLifts[f] = true;
-						}
+						//if (toState[f, p].Arrow != InvalidArrowIndex && toState[f, p].State == GraphArrowState.Lifted)
+						//{
+						//	toStateHasLifts[f] = true;
+						//}
 
 						if (toState[f, p].Arrow == InvalidArrowIndex)
 							toFootIsBracket[f] = false;
@@ -879,7 +877,7 @@ public class StepGraph
 				// Gather links to the second node from this node considering only one foot at a time.
 				for (var f = 0; f < NumFeet; f++)
 				{
-					linksPerFoot[f] = new List<GraphLink>();
+					linksPerFoot[f] = [];
 					var links = linksPerFoot[f];
 
 					var otherFoot = OtherFoot(f);
@@ -1035,7 +1033,7 @@ public class StepGraph
 								}
 							}
 
-							// Now that inverted steps have been checked we can early out on inverted orientations.
+							// Now that inverted steps have been checked we can early-out on inverted orientations.
 							if (to.Orientation != BodyOrientation.Normal)
 								continue;
 
@@ -1169,7 +1167,7 @@ public class StepGraph
 						            || heelUnchangedToeChanged)))
 						{
 							// The from state for the toe depends on how the from state was oriented.
-							// If we were coming from a state where only the toe was holding and now we
+							// If we were coming from a state where only the toe was holding, and now we
 							// are transitioning to a state where the heel has replaced the toe on the arrow
 							// which is holding then we want to consider the toe as coming from a default state.
 							var toeFromState = GraphArrowState.Resting;
@@ -1240,7 +1238,7 @@ public class StepGraph
 									}
 								}
 
-								// Now that inverted steps have been checked we can early out on inverted orientations.
+								// Now that inverted steps have been checked we can early-out on inverted orientations.
 								if (to.Orientation != BodyOrientation.Normal)
 									continue;
 
@@ -1289,7 +1287,7 @@ public class StepGraph
 						                 || holdingWithOnlyToeInBracketFromStateWithToStateToeArrow)))
 						{
 							// The from state for the heel depends on how the from state was oriented.
-							// If we were coming from a state where only the heel was holding and now we
+							// If we were coming from a state where only the heel was holding, and now we
 							// are transitioning to a state where the toe has replaced the heel on the arrow
 							// which is holding then we want to consider the heel as coming from a default state.
 							var heelFromState = GraphArrowState.Resting;
@@ -1364,7 +1362,7 @@ public class StepGraph
 									}
 								}
 
-								// Now that inverted steps have been checked we can early out on inverted orientations.
+								// Now that inverted steps have been checked we can early-out on inverted orientations.
 								if (to.Orientation != BodyOrientation.Normal)
 									continue;
 
@@ -1551,7 +1549,7 @@ public class StepGraph
 									}
 								}
 
-								// Now that inverted steps have been checked we can early out on inverted orientations.
+								// Now that inverted steps have been checked we can early-out on inverted orientations.
 								if (to.Orientation != BodyOrientation.Normal)
 									continue;
 
@@ -1696,9 +1694,8 @@ public class StepGraph
 				{
 					foreach (var g in l.Value)
 					{
-						if (!trackedNodes.Contains(g))
+						if (trackedNodes.Add(g))
 						{
-							trackedNodes.Add(g);
 							newNodes.Add(g);
 						}
 					}
@@ -1780,7 +1777,7 @@ public class StepGraph
 	private void AddLink(GraphNode from, GraphNode to, GraphLink link)
 	{
 		if (!from.Links.ContainsKey(link))
-			from.Links.Add(link, new List<GraphNode>());
+			from.Links.Add(link, []);
 		from.Links[link].Add(to);
 	}
 

@@ -135,7 +135,7 @@ public enum Facing
 /// The state a foot on an arrow in StepGraph can be in.
 /// Each foot is on one or more arrows each in one of these states.
 /// Lifted only occurs when a foot swaps and forces the other foot to release.
-/// Rolls are considered no different than holds in the StepGraph.
+/// Rolls are considered no different from holds in the StepGraph.
 /// </summary>
 public enum GraphArrowState
 {
@@ -198,12 +198,12 @@ public class StepData
 	public readonly bool IsCrossover;
 
 	/// <summary>
-	/// Whether or not this StepType is a invert. Swing steps are not considered inverts.
+	/// Whether or not this StepType is an invert. Swing steps are not considered inverts.
 	/// </summary>
 	public readonly bool IsInvert;
 
 	/// <summary>
-	/// The number of possible new arrows for for this StepType. For some types like FootSwap the
+	/// The number of possible new arrows for this StepType. For some types like FootSwap the
 	/// number could be 0 or non-zero.
 	/// </summary>
 	public readonly int NumPossibleNewArrows;

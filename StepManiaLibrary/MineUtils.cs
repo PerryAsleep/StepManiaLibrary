@@ -33,7 +33,7 @@ public enum MineType
 
 /// <summary>
 /// Utilities to help with creating mine events in ExpressedCharts and PerformedCharts.
-/// This class isn't strictly necessary but it is helpful for a few reasons:
+/// This class isn't strictly necessary, but it is helpful for a few reasons:
 ///  1) Mines are associated with neighboring steps or releases. ExpressedCharts and
 ///     PerformedCharts don't have a simple way to report what is a step and what is
 ///     a release. This class keeps that logic in one spot so that these classes can
@@ -415,7 +415,7 @@ public class MineUtils
 				// Check to see if we have already considered an arrow at this depth before.
 				var newN = !(currentNPosition < 0 || currentNPosition == pos);
 
-				// If we have advanced positions but we found a possible arrow a the last position
+				// If we have advanced positions, but we found a possible arrow at the last position
 				// then use that and stop.
 				if (newN && bestArrow != InvalidArrowIndex)
 					break;
@@ -481,7 +481,7 @@ public class MineUtils
 		}
 
 		// It is still possible to fail in some edge cases. For example if we are trying to a place a mine
-		// after the 4th most recent arrow and the the 3rd and 4th most recent were a bracket, which causes
+		// after the 4th most recent arrow and the 3rd and 4th most recent were a bracket, which causes
 		// them to both be 3rd and there to be no forth. In this case, reduce N and recurse. This could be
 		// done more efficiently but this is simple and this edge case is extremely rare.
 		if (bestArrow == InvalidArrowIndex && desiredN > 0)

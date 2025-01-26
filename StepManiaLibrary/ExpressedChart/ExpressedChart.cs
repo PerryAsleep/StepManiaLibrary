@@ -14,7 +14,7 @@ namespace StepManiaLibrary.ExpressedChart;
 
 /// <summary>
 /// An ExpressedChart is a series of events which describe the intent of a chart.
-/// Instead of specifying the specific arrows or mines in a chart is specifies
+/// Instead of specifying the specific arrows or mines in a chart it specifies
 /// the types of steps and mines that make it up.
 /// For example, instead of events like tap on P1L, tap on P1D, tap on P1R an
 /// ExpressedChart would represent that as a step with the left foot on the same arrow,
@@ -113,7 +113,7 @@ public class ExpressedChart
 
 		/// <summary>
 		/// When expressing this mine as relative to a specific arrow, we want to know
-		/// how close the arrow was to the mine relative to other arrows. For example it
+		/// how close the arrow was to the mine relative to other arrows. For example, it
 		/// is meaningful that a mine follows the most recent arrow because that typically
 		/// indicates a double step or a foot swap, while it means something else if it
 		/// follows the least recently used arrow.
@@ -403,7 +403,7 @@ public class ExpressedChart
 				return TotalCost.CompareTo(other.TotalCost);
 
 			// At this point the interpretations are considered equally valid by cost.
-			// We need to tie break for a deterministic result.
+			// We need to tie-break for a deterministic result.
 
 			// Tie breaking edge case.
 			// Consider the total orientation cost.
@@ -508,15 +508,15 @@ public class ExpressedChart
 	/// The first StepEvent is the GraphLink from the natural starting position to the
 	/// first step in the chart. For example in singles the player will have a natural
 	/// starting position of P1L, P1R. If the first arrow in the chart is P1D, then the
-	/// first StepEvent will a be GraphLink with a Link for one foot with a NewArrow
+	/// first StepEvent will be a GraphLink with a Link for one foot with a NewArrow
 	/// StepType and a Tap FootAction.
 	/// </summary>
-	public List<StepEvent> StepEvents = new();
+	public List<StepEvent> StepEvents = [];
 
 	/// <summary>
 	/// All the MineEvents which make up this chart.
 	/// </summary>
-	public List<MineEvent> MineEvents = new();
+	public List<MineEvent> MineEvents = [];
 
 	/// <summary>
 	/// How to parse brackets when encountering steps which could be brackets or jumps.
@@ -760,7 +760,7 @@ public class ExpressedChart
 			lastReleases[a] = 0;
 		}
 
-		MineNotes = new List<LaneNote>();
+		MineNotes = [];
 		var eventIndex = 0;
 		var numEvents = Events.Count;
 		var currentSearchNodes = new HashSet<ChartSearchNode> { Root };
@@ -783,7 +783,7 @@ public class ExpressedChart
 			// Reached the end.
 			if (eventIndex >= numEvents)
 			{
-				// Choose path with lowest cost.
+				// Choose path with the lowest cost.
 				ChartSearchNode bestNode = null;
 				foreach (var node in currentSearchNodes)
 					if (bestNode == null || node.CompareTo(bestNode) < 0)
@@ -1003,9 +1003,9 @@ public class ExpressedChart
 		out List<LaneNote> steps,
 		out double time)
 	{
-		releases = new List<LaneHoldEndNote>();
-		mines = new List<LaneNote>();
-		steps = new List<LaneNote>();
+		releases = [];
+		mines = [];
+		steps = [];
 		time = 0.0;
 
 		if (eventIndex >= Events.Count)
@@ -1292,7 +1292,7 @@ public class ExpressedChart
 	{
 		if (!parent.NextNodes.TryGetValue(link, out var childNodes))
 		{
-			childNodes = new HashSet<ChartSearchNode>();
+			childNodes = [];
 			parent.NextNodes[link] = childNodes;
 		}
 

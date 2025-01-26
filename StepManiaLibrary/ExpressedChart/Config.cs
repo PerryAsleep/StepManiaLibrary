@@ -14,7 +14,7 @@ public enum BracketParsingMethod
 {
 	/// <summary>
 	/// Aggressively interpret steps as brackets. In most cases brackets
-	/// will preferred but in some cases jumps will still be preferred.
+	/// will be preferred but in some cases jumps will still be preferred.
 	/// </summary>
 	Aggressive,
 
