@@ -332,7 +332,7 @@ public class StepGraph
 		StepGraph stepGraph;
 		try
 		{
-			using var fileStream = File.Open(filePath, FileMode.Open);
+			using var fileStream = File.OpenRead(filePath);
 			using var stream = Compression.DecompressLzma(fileStream);
 			using var reader = new BinaryReader(stream, Encoding.UTF8, false);
 			var version = reader.ReadInt32();
