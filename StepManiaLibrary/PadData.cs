@@ -86,15 +86,14 @@ public class PadData
 		PadData padData;
 		try
 		{
-			var fileFileName = Fumen.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName);
-			if (!File.Exists(fileFileName))
+			if (!File.Exists(fileName))
 			{
 				LogErrorStatic(
 					$"[{stepsType}] Could not find PadData file {fileName}. Please create a PadData file for {stepsType}.");
 				return null;
 			}
 
-			await using var openStream = File.OpenRead(fileFileName);
+			await using var openStream = File.OpenRead(fileName);
 			padData = await JsonSerializer.DeserializeAsync<PadData>(openStream, options);
 			if (padData == null)
 				throw new Exception("Null PadData.");

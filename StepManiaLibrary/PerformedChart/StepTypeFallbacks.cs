@@ -57,7 +57,7 @@ public class StepTypeFallbacks
 
 		try
 		{
-			await using var openStream = File.OpenRead(Fumen.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName));
+			await using var openStream = File.OpenRead(fileName);
 			fallbacks = await JsonSerializer.DeserializeAsync<StepTypeFallbacks>(openStream, options);
 			fallbacks?.Init();
 			if (fallbacks == null || !fallbacks.Validate(fileName))
