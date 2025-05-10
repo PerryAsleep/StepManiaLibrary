@@ -1176,14 +1176,14 @@ public partial class PerformedChart
 			return null;
 
 		// Add the timing events so they can be sorted with the new pattern events.
-		// Putting these in one list allows us to leverage SetEventTimeAndMetricPositionsFromRows
+		// Putting these in one list allows us to leverage SetEventTimeFromRows
 		// in order to set the times of all the pattern events.
 		// Note this will technically mutate the given timing events by updating their times as well.
 		// We could clone the events to avoid that, but if the times were to actually change then that
 		// means they were wrong before, and we shouldn't be receiving events with incorrect times.
 		patternEvents.AddRange(timingEvents);
 		patternEvents.Sort(new SMCommon.SMEventComparer(EventOrder.Order));
-		SMCommon.SetEventTimeAndMetricPositionsFromRows(patternEvents);
+		SMCommon.SetEventTimeFromRows(patternEvents);
 
 		// Now that the times are set, copy them to the data to return.
 		var timingData = new Tuple<double, int>[numEvents];

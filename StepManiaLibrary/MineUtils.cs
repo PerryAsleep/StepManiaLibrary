@@ -379,7 +379,7 @@ public class MineUtils
 	/// Array of booleans representing if the lane at that index is occupied by a mine
 	/// at the position of the mine in question. Tracked externally.
 	/// </param>
-	/// <param name="minePosition">MetricPosition of the mine in question.</param>
+	/// <param name="minePosition">Row of the mine in question.</param>
 	/// <param name="randomLaneOrder">Randomly ordered lane indices for fallback random lane choices.</param>
 	/// <returns>The Nth most recent arrow or InvalidArrowIndex if none could be found.</returns>
 	public static int FindBestNthMostRecentArrow(
