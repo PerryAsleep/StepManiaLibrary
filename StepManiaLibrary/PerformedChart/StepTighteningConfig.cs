@@ -23,15 +23,13 @@ public class StepTighteningConfig : StepManiaLibrary.Config, IEquatable<StepTigh
 	[JsonInclude]
 	public bool? SpeedTighteningEnabled
 	{
-		get => SpeedTighteningEnabledInternal;
+		get;
 		set
 		{
-			SpeedTighteningEnabledInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private bool? SpeedTighteningEnabledInternal;
 
 	/// <summary>
 	/// When limiting travel speed, the lower time for the tightening range.
@@ -40,15 +38,13 @@ public class StepTighteningConfig : StepManiaLibrary.Config, IEquatable<StepTigh
 	[JsonInclude]
 	public double SpeedMinTimeSeconds
 	{
-		get => SpeedMinTimeSecondsInternal;
+		get;
 		set
 		{
-			SpeedMinTimeSecondsInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double SpeedMinTimeSecondsInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// When limiting travel speed, the higher time for the tightening range.
@@ -57,15 +53,13 @@ public class StepTighteningConfig : StepManiaLibrary.Config, IEquatable<StepTigh
 	[JsonInclude]
 	public double SpeedMaxTimeSeconds
 	{
-		get => SpeedMaxTimeSecondsInternal;
+		get;
 		set
 		{
-			SpeedMaxTimeSecondsInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double SpeedMaxTimeSecondsInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// Minimum distance in panel lengths for speed tightening rules to apply.
@@ -73,15 +67,13 @@ public class StepTighteningConfig : StepManiaLibrary.Config, IEquatable<StepTigh
 	[JsonInclude]
 	public double SpeedTighteningMinDistance
 	{
-		get => SpeedTighteningMinDistanceInternal;
+		get;
 		set
 		{
-			SpeedTighteningMinDistanceInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double SpeedTighteningMinDistanceInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// Whether or not to tighten travel distance.
@@ -89,15 +81,13 @@ public class StepTighteningConfig : StepManiaLibrary.Config, IEquatable<StepTigh
 	[JsonInclude]
 	public bool? DistanceTighteningEnabled
 	{
-		get => DistanceTighteningEnabledInternal;
+		get;
 		set
 		{
-			DistanceTighteningEnabledInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private bool? DistanceTighteningEnabledInternal;
 
 	/// <summary>
 	/// When limiting travel distance, the lower distance for the tightening range.
@@ -106,15 +96,13 @@ public class StepTighteningConfig : StepManiaLibrary.Config, IEquatable<StepTigh
 	[JsonInclude]
 	public double DistanceMin
 	{
-		get => DistanceMinInternal;
+		get;
 		set
 		{
-			DistanceMinInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double DistanceMinInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// When limiting travel distance, the higher distance for the tightening range.
@@ -123,15 +111,13 @@ public class StepTighteningConfig : StepManiaLibrary.Config, IEquatable<StepTigh
 	[JsonInclude]
 	public double DistanceMax
 	{
-		get => DistanceMaxInternal;
+		get;
 		set
 		{
-			DistanceMaxInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double DistanceMaxInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// Whether or not to tighten stretch.
@@ -139,15 +125,13 @@ public class StepTighteningConfig : StepManiaLibrary.Config, IEquatable<StepTigh
 	[JsonInclude]
 	public bool? StretchTighteningEnabled
 	{
-		get => StretchTighteningEnabledInternal;
+		get;
 		set
 		{
-			StretchTighteningEnabledInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private bool? StretchTighteningEnabledInternal;
 
 	/// <summary>
 	/// When limiting stretch, the lower distance for the tightening range.
@@ -156,15 +140,13 @@ public class StepTighteningConfig : StepManiaLibrary.Config, IEquatable<StepTigh
 	[JsonInclude]
 	public double StretchDistanceMin
 	{
-		get => StretchDistanceMinInternal;
+		get;
 		set
 		{
-			StretchDistanceMinInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double StretchDistanceMinInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// When limiting stretch, the higher distance for the tightening range.
@@ -173,15 +155,13 @@ public class StepTighteningConfig : StepManiaLibrary.Config, IEquatable<StepTigh
 	[JsonInclude]
 	public double StretchDistanceMax
 	{
-		get => StretchDistanceMaxInternal;
+		get;
 		set
 		{
-			StretchDistanceMaxInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double StretchDistanceMaxInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// The minimum distance that the foot needs to move laterally into a panel in
@@ -190,15 +170,13 @@ public class StepTighteningConfig : StepManiaLibrary.Config, IEquatable<StepTigh
 	[JsonInclude]
 	public double LateralMinPanelDistance
 	{
-		get => LateralMinPanelDistanceInternal;
+		get;
 		set
 		{
-			LateralMinPanelDistanceInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double LateralMinPanelDistanceInternal = InvalidMinPanelDistance;
+	} = InvalidMinPanelDistance;
 
 	/// <summary>
 	/// The minimum distance that the foot needs to move longitudinally into a panel
@@ -207,15 +185,13 @@ public class StepTighteningConfig : StepManiaLibrary.Config, IEquatable<StepTigh
 	[JsonInclude]
 	public double LongitudinalMinPanelDistance
 	{
-		get => LongitudinalMinPanelDistanceInternal;
+		get;
 		set
 		{
-			LongitudinalMinPanelDistanceInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double LongitudinalMinPanelDistanceInternal = InvalidMinPanelDistance;
+	} = InvalidMinPanelDistance;
 
 	/// <summary>
 	/// Sets this StepTighteningConfig to be an override of the given other StepTighteningConfig.

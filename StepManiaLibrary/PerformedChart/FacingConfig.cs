@@ -21,15 +21,13 @@ public class FacingConfig : StepManiaLibrary.Config, IEquatable<FacingConfig>
 	[JsonInclude]
 	public double MaxInwardPercentage
 	{
-		get => MaxInwardPercentageInternal;
+		get;
 		set
 		{
-			MaxInwardPercentageInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double MaxInwardPercentageInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// Cutoff percentage to use for inward facing checks.
@@ -37,15 +35,13 @@ public class FacingConfig : StepManiaLibrary.Config, IEquatable<FacingConfig>
 	[JsonInclude]
 	public double InwardPercentageCutoff
 	{
-		get => InwardPercentageCutoffInternal;
+		get;
 		set
 		{
-			InwardPercentageCutoffInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double InwardPercentageCutoffInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// Maximum percentage of steps which should be outward facing.
@@ -53,15 +49,13 @@ public class FacingConfig : StepManiaLibrary.Config, IEquatable<FacingConfig>
 	[JsonInclude]
 	public double MaxOutwardPercentage
 	{
-		get => MaxOutwardPercentageInternal;
+		get;
 		set
 		{
-			MaxOutwardPercentageInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double MaxOutwardPercentageInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// Cutoff percentage to use for outward facing checks.
@@ -69,15 +63,13 @@ public class FacingConfig : StepManiaLibrary.Config, IEquatable<FacingConfig>
 	[JsonInclude]
 	public double OutwardPercentageCutoff
 	{
-		get => OutwardPercentageCutoffInternal;
+		get;
 		set
 		{
-			OutwardPercentageCutoffInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double OutwardPercentageCutoffInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// Sets this FacingConfig to be an override of the given other FacingConfig.

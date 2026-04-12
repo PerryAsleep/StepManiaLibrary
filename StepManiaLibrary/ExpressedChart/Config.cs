@@ -62,15 +62,13 @@ public class Config : StepManiaLibrary.Config, IEquatable<Config>
 	[JsonInclude]
 	public BracketParsingMethod DefaultBracketParsingMethod
 	{
-		get => DefaultBracketParsingMethodInternal;
+		get;
 		set
 		{
-			DefaultBracketParsingMethodInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private BracketParsingMethod DefaultBracketParsingMethodInternal = BracketParsingMethod.Balanced;
+	} = BracketParsingMethod.Balanced;
 
 	/// <summary>
 	/// How to make the determination of which BracketParsingMethod to use.
@@ -78,15 +76,13 @@ public class Config : StepManiaLibrary.Config, IEquatable<Config>
 	[JsonInclude]
 	public BracketParsingDetermination BracketParsingDetermination
 	{
-		get => BracketParsingDeterminationInternal;
+		get;
 		set
 		{
-			BracketParsingDeterminationInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private BracketParsingDetermination BracketParsingDeterminationInternal = BracketParsingDetermination.ChooseMethodDynamically;
+	} = BracketParsingDetermination.ChooseMethodDynamically;
 
 	/// <summary>
 	/// When using the ChooseMethodDynamically BracketParsingDetermination, a level under which BracketParsingMethod NoBrackets
@@ -95,15 +91,13 @@ public class Config : StepManiaLibrary.Config, IEquatable<Config>
 	[JsonInclude]
 	public int MinLevelForBrackets
 	{
-		get => MinLevelForBracketsInternal;
+		get;
 		set
 		{
-			MinLevelForBracketsInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private int MinLevelForBracketsInternal;
 
 	/// <summary>
 	/// When using the ChooseMethodDynamically BracketParsingDetermination, whether or not encountering more simultaneous
@@ -112,15 +106,13 @@ public class Config : StepManiaLibrary.Config, IEquatable<Config>
 	[JsonInclude]
 	public bool UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBrackets
 	{
-		get => UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBracketsInternal;
+		get;
 		set
 		{
-			UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBracketsInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private bool UseAggressiveBracketsWhenMoreSimultaneousNotesThanCanBeCoveredWithoutBracketsInternal;
 
 	/// <summary>
 	/// When using the ChooseMethodDynamically BracketParsingDetermination, a Balanced bracket per minute count over which
@@ -129,15 +121,13 @@ public class Config : StepManiaLibrary.Config, IEquatable<Config>
 	[JsonInclude]
 	public double BalancedBracketsPerMinuteForAggressiveBrackets
 	{
-		get => BalancedBracketsPerMinuteForAggressiveBracketsInternal;
+		get;
 		set
 		{
-			BalancedBracketsPerMinuteForAggressiveBracketsInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private double BalancedBracketsPerMinuteForAggressiveBracketsInternal;
 
 	/// <summary>
 	/// When using the ChooseMethodDynamically BracketParsingDetermination, a Balanced bracket per minute count under which
@@ -146,15 +136,13 @@ public class Config : StepManiaLibrary.Config, IEquatable<Config>
 	[JsonInclude]
 	public double BalancedBracketsPerMinuteForNoBrackets
 	{
-		get => BalancedBracketsPerMinuteForNoBracketsInternal;
+		get;
 		set
 		{
-			BalancedBracketsPerMinuteForNoBracketsInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private double BalancedBracketsPerMinuteForNoBracketsInternal;
 
 	#region Config
 

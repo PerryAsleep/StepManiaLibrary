@@ -114,15 +114,13 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public int BeatSubDivision
 	{
-		get => BeatSubDivisionInternal;
+		get;
 		set
 		{
-			BeatSubDivisionInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private int BeatSubDivisionInternal = 4;
+	} = 4;
 
 	/// <summary>
 	/// How to choose the starting foot.
@@ -130,15 +128,13 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public PatternConfigStartingFootChoice StartingFootChoice
 	{
-		get => StartingFootChoiceInternal;
+		get;
 		set
 		{
-			StartingFootChoiceInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private PatternConfigStartingFootChoice StartingFootChoiceInternal;
 
 	/// <summary>
 	/// Specified starting foot to use when StartingFootChoice is Specified.
@@ -146,15 +142,13 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public int StartingFootSpecified
 	{
-		get => StartingFootSpecifiedInternal;
+		get;
 		set
 		{
-			StartingFootSpecifiedInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private int StartingFootSpecifiedInternal;
 
 	/// <summary>
 	/// How to choose the starting lane for the left foot.
@@ -162,15 +156,13 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public PatternConfigStartFootChoice LeftFootStartChoice
 	{
-		get => LeftFootStartChoiceInternal;
+		get;
 		set
 		{
-			LeftFootStartChoiceInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private PatternConfigStartFootChoice LeftFootStartChoiceInternal;
 
 	/// <summary>
 	/// Specified starting lane for the left foot to use when LeftFootStartChoice is SpecifiedLane.
@@ -178,15 +170,13 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public int LeftFootStartLaneSpecified
 	{
-		get => LeftFootStartLaneSpecifiedInternal;
+		get;
 		set
 		{
-			LeftFootStartLaneSpecifiedInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private int LeftFootStartLaneSpecifiedInternal;
 
 	/// <summary>
 	/// How to choose the ending lane for the left foot.
@@ -194,15 +184,13 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public PatternConfigEndFootChoice LeftFootEndChoice
 	{
-		get => LeftFootEndChoiceInternal;
+		get;
 		set
 		{
-			LeftFootEndChoiceInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private PatternConfigEndFootChoice LeftFootEndChoiceInternal;
 
 	/// <summary>
 	/// Specified ending lane for the left foot to use when LeftFootEndChoice is SpecifiedLane.
@@ -210,15 +198,13 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public int LeftFootEndLaneSpecified
 	{
-		get => LeftFootEndLaneSpecifiedInternal;
+		get;
 		set
 		{
-			LeftFootEndLaneSpecifiedInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private int LeftFootEndLaneSpecifiedInternal;
 
 	/// <summary>
 	/// How to choose the starting lane for the right foot.
@@ -226,15 +212,13 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public PatternConfigStartFootChoice RightFootStartChoice
 	{
-		get => RightFootStartChoiceInternal;
+		get;
 		set
 		{
-			RightFootStartChoiceInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private PatternConfigStartFootChoice RightFootStartChoiceInternal;
 
 	/// <summary>
 	/// Specified starting lane for the right foot to use when RightFootStartChoice is SpecifiedLane.
@@ -242,15 +226,13 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public int RightFootStartLaneSpecified
 	{
-		get => RightFootStartLaneSpecifiedInternal;
+		get;
 		set
 		{
-			RightFootStartLaneSpecifiedInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private int RightFootStartLaneSpecifiedInternal;
 
 	/// <summary>
 	/// How to choose the ending lane for the right foot.
@@ -258,15 +240,13 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public PatternConfigEndFootChoice RightFootEndChoice
 	{
-		get => RightFootEndChoiceInternal;
+		get;
 		set
 		{
-			RightFootEndChoiceInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private PatternConfigEndFootChoice RightFootEndChoiceInternal;
 
 	/// <summary>
 	/// Specified ending lane for the right foot to use when RightFootEndChoice is SpecifiedLane.
@@ -274,15 +254,13 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public int RightFootEndLaneSpecified
 	{
-		get => RightFootEndLaneSpecifiedInternal;
+		get;
 		set
 		{
-			RightFootEndLaneSpecifiedInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private int RightFootEndLaneSpecifiedInternal;
 
 	/// <summary>
 	/// Weight of SameArrow steps in the pattern.
@@ -290,16 +268,14 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public int SameArrowStepWeight
 	{
-		get => SameArrowStepWeightInternal;
+		get;
 		set
 		{
-			SameArrowStepWeightInternal = value;
+			field = value;
 			RefreshStepWeightsNormalized();
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private int SameArrowStepWeightInternal;
 
 	/// <summary>
 	/// Weight of NewArrow steps in the pattern.
@@ -307,16 +283,14 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public int NewArrowStepWeight
 	{
-		get => NewArrowStepWeightInternal;
+		get;
 		set
 		{
-			NewArrowStepWeightInternal = value;
+			field = value;
 			RefreshStepWeightsNormalized();
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private int NewArrowStepWeightInternal;
 
 	/// <summary>
 	/// How frequently to update the cost associated with deviating from the desired StepTypes.
@@ -324,15 +298,13 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public int StepTypeCheckPeriod
 	{
-		get => StepTypeCheckPeriodInternal;
+		get;
 		set
 		{
-			StepTypeCheckPeriodInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private int StepTypeCheckPeriodInternal;
 
 	/// <summary>
 	/// Whether or not to limit the number of same arrow steps per foot in a row.
@@ -340,15 +312,13 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public bool LimitSameArrowsInARowPerFoot
 	{
-		get => LimitSameArrowsInARowPerFootInternal;
+		get;
 		set
 		{
-			LimitSameArrowsInARowPerFootInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private bool LimitSameArrowsInARowPerFootInternal;
 
 	/// <summary>
 	/// Maximum number of same arrows in a row per foot to use if LimitSameArrowsInARowPerFoot
@@ -357,15 +327,13 @@ public class PatternConfig : StepManiaLibrary.Config, IEquatable<PatternConfig>
 	[JsonInclude]
 	public int MaxSameArrowsInARowPerFoot
 	{
-		get => MaxSameArrowsInARowPerFootInternal;
+		get;
 		set
 		{
-			MaxSameArrowsInARowPerFootInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private int MaxSameArrowsInARowPerFootInternal;
 
 	/// <summary>
 	/// Normalized weight of SameArrow steps.

@@ -21,15 +21,13 @@ public class TransitionConfig : StepManiaLibrary.Config, IEquatable<TransitionCo
 	[JsonInclude]
 	public bool? Enabled
 	{
-		get => EnabledInternal;
+		get;
 		set
 		{
-			EnabledInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private bool? EnabledInternal;
 
 	/// <summary>
 	/// Minimum number of steps which should occur between transitions.
@@ -37,15 +35,13 @@ public class TransitionConfig : StepManiaLibrary.Config, IEquatable<TransitionCo
 	[JsonInclude]
 	public int StepsPerTransitionMin
 	{
-		get => StepsPerTransitionMinInternal;
+		get;
 		set
 		{
-			StepsPerTransitionMinInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private int StepsPerTransitionMinInternal = -1;
+	} = -1;
 
 	/// <summary>
 	/// Maximum number of steps which should occur between transitions.
@@ -53,15 +49,13 @@ public class TransitionConfig : StepManiaLibrary.Config, IEquatable<TransitionCo
 	[JsonInclude]
 	public int StepsPerTransitionMax
 	{
-		get => StepsPerTransitionMaxInternal;
+		get;
 		set
 		{
-			StepsPerTransitionMaxInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private int StepsPerTransitionMaxInternal = -1;
+	} = -1;
 
 	/// <summary>
 	/// Minimum total pad width for applying transition costs.
@@ -69,15 +63,13 @@ public class TransitionConfig : StepManiaLibrary.Config, IEquatable<TransitionCo
 	[JsonInclude]
 	public int MinimumPadWidth
 	{
-		get => MinimumPadWidthInternal;
+		get;
 		set
 		{
-			MinimumPadWidthInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private int MinimumPadWidthInternal = -1;
+	} = -1;
 
 	/// <summary>
 	/// Cutoff percentage to use determining what constitutes a transition.
@@ -85,15 +77,13 @@ public class TransitionConfig : StepManiaLibrary.Config, IEquatable<TransitionCo
 	[JsonInclude]
 	public double TransitionCutoffPercentage
 	{
-		get => TransitionCutoffPercentageInternal;
+		get;
 		set
 		{
-			TransitionCutoffPercentageInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double TransitionCutoffPercentageInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// Sets this TransitionConfig to be an override of the given other TransitionConfig.

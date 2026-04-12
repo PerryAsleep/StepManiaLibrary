@@ -21,15 +21,13 @@ public class LateralTighteningConfig : StepManiaLibrary.Config, IEquatable<Later
 	[JsonInclude]
 	public bool? Enabled
 	{
-		get => EnabledInternal;
+		get;
 		set
 		{
-			EnabledInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
 	}
-
-	private bool? EnabledInternal;
 
 	/// <summary>
 	/// The relative notes per second over which patterns should cost more.
@@ -37,15 +35,13 @@ public class LateralTighteningConfig : StepManiaLibrary.Config, IEquatable<Later
 	[JsonInclude]
 	public double RelativeNPS
 	{
-		get => RelativeNPSInternal;
+		get;
 		set
 		{
-			RelativeNPSInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double RelativeNPSInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// The absolute notes per second over which patterns should cost more.
@@ -53,15 +49,13 @@ public class LateralTighteningConfig : StepManiaLibrary.Config, IEquatable<Later
 	[JsonInclude]
 	public double AbsoluteNPS
 	{
-		get => AbsoluteNPSInternal;
+		get;
 		set
 		{
-			AbsoluteNPSInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double AbsoluteNPSInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// The lateral body speed in arrows per second over which patterns should cost more.
@@ -69,15 +63,13 @@ public class LateralTighteningConfig : StepManiaLibrary.Config, IEquatable<Later
 	[JsonInclude]
 	public double Speed
 	{
-		get => SpeedInternal;
+		get;
 		set
 		{
-			SpeedInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private double SpeedInternal = -1.0;
+	} = -1.0;
 
 	/// <summary>
 	/// Sets this LateralTighteningConfig to be an override of the given other LateralTighteningConfig.

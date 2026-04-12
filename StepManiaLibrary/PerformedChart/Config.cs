@@ -29,19 +29,17 @@ public class Config : StepManiaLibrary.Config,
 	[JsonInclude]
 	public TransitionConfig Transitions
 	{
-		get => TransitionConfigInternal;
+		get;
 		set
 		{
-			if (ReferenceEquals(TransitionConfigInternal, value))
+			if (ReferenceEquals(field, value))
 				return;
-			TransitionConfigInternal?.RemoveObserver(this);
-			TransitionConfigInternal = value;
-			TransitionConfigInternal?.AddObserver(this);
+			field?.RemoveObserver(this);
+			field = value;
+			field?.AddObserver(this);
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private TransitionConfig TransitionConfigInternal = new();
+	} = new();
 
 	/// <summary>
 	/// FacingConfig.
@@ -49,19 +47,17 @@ public class Config : StepManiaLibrary.Config,
 	[JsonInclude]
 	public FacingConfig Facing
 	{
-		get => FacingInternal;
+		get;
 		set
 		{
-			if (ReferenceEquals(FacingInternal, value))
+			if (ReferenceEquals(field, value))
 				return;
-			FacingInternal?.RemoveObserver(this);
-			FacingInternal = value;
-			FacingInternal?.AddObserver(this);
+			field?.RemoveObserver(this);
+			field = value;
+			field?.AddObserver(this);
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private FacingConfig FacingInternal = new();
+	} = new();
 
 	/// <summary>
 	/// LateralTighteningConfig.
@@ -69,19 +65,17 @@ public class Config : StepManiaLibrary.Config,
 	[JsonInclude]
 	public LateralTighteningConfig LateralTightening
 	{
-		get => LateralTighteningInternal;
+		get;
 		set
 		{
-			if (ReferenceEquals(LateralTighteningInternal, value))
+			if (ReferenceEquals(field, value))
 				return;
-			LateralTighteningInternal?.RemoveObserver(this);
-			LateralTighteningInternal = value;
-			LateralTighteningInternal?.AddObserver(this);
+			field?.RemoveObserver(this);
+			field = value;
+			field?.AddObserver(this);
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private LateralTighteningConfig LateralTighteningInternal = new();
+	} = new();
 
 	/// <summary>
 	/// StepTighteningConfig.
@@ -89,19 +83,17 @@ public class Config : StepManiaLibrary.Config,
 	[JsonInclude]
 	public StepTighteningConfig StepTightening
 	{
-		get => StepTighteningInternal;
+		get;
 		set
 		{
-			if (ReferenceEquals(StepTighteningInternal, value))
+			if (ReferenceEquals(field, value))
 				return;
-			StepTighteningInternal?.RemoveObserver(this);
-			StepTighteningInternal = value;
-			StepTighteningInternal?.AddObserver(this);
+			field?.RemoveObserver(this);
+			field = value;
+			field?.AddObserver(this);
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private StepTighteningConfig StepTighteningInternal = new();
+	} = new();
 
 	/// <summary>
 	/// Dictionary of StepMania StepsType to a List of integers representing weights
@@ -111,15 +103,13 @@ public class Config : StepManiaLibrary.Config,
 	[JsonInclude]
 	public Dictionary<string, List<int>> ArrowWeights
 	{
-		get => ArrowWeightsInternal;
+		get;
 		set
 		{
-			ArrowWeightsInternal = value;
+			field = value;
 			Notify(NotificationConfigChanged, this);
 		}
-	}
-
-	private Dictionary<string, List<int>> ArrowWeightsInternal = new();
+	} = new();
 
 	/// <summary>
 	/// Normalized ArrowWeights.
